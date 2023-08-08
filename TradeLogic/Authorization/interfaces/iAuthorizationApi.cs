@@ -15,9 +15,9 @@ namespace TradeLogic.Authorization.interfaces
 
         Task<AccessToken> GetAccessTokenAsync(RequestToken requestToken, string verificationCode, string AccessTokenUrl);
 
-        Task<AccessToken> RenewAccessToken(AccessToken accessToken, string RenewAccessTokenUrl);
+        Task<AccessToken> RenewAccessTokenAsync(AccessToken accessToken, string RenewAccessTokenUrl);
 
-        Task<bool> RevokeAccessToken(AccessToken accessToken, string RevokeAccessTokenUrl);
+        Task<bool> RevokeAccessTokenAsync(AccessToken accessToken, string RevokeAccessTokenUrl);
 
     }
 

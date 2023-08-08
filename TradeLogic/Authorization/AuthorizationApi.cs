@@ -141,7 +141,7 @@ namespace TradeLogic.Authorization
 
         }
 
-        public async Task<AccessToken> RenewAccessToken(AccessToken accessToken, string RenewAccessTokenUrl)
+        public async Task<AccessToken> RenewAccessTokenAsync(AccessToken accessToken, string RenewAccessTokenUrl)
         {
             OAuthRequest oAuthRequest = new()
             {
@@ -180,7 +180,7 @@ namespace TradeLogic.Authorization
             return new AccessToken();
         }
 
-        public async Task<bool> RevokeAccessToken(AccessToken accessToken, string RevokeAccessTokenUrl)
+        public async Task<bool> RevokeAccessTokenAsync(AccessToken accessToken, string RevokeAccessTokenUrl)
         {
             OAuthRequest oAuthRequest = new()
             {

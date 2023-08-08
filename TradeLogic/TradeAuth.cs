@@ -12,16 +12,16 @@ namespace TradeLogic
     {
         RequestToken? requestToken;
 
-        internal async Task<RequestToken> GetRequestToken()
+        internal async Task<RequestToken> GetRequestTokenAsync()
         {
             return await _authorizationApi.GetRequestTokenAsync(RequestTokenUrl);
         }
 
-        public string GetAuthorizationUrl()
+        public async Task<string> GetAuthorizationUrlAsync()
         {
             if (requestToken == null || requestToken.Expired)
             {
-                requestToken = GetRequestToken().Result;
+                requestToken = await GetRequestTokenAsync();
             }
             return _authorizationApi.GetAuthorizeApplicationURL(requestToken, AuthorizeUrl);
         }
@@ -30,19 +30,19 @@ namespace TradeLogic
         {
             if (requestToken == null || requestToken.Expired)
             {
-                requestToken = GetRequestToken().Result;
+                requestToken = await GetRequestTokenAsync();
             }
             return await _authorizationApi.GetAccessTokenAsync(requestToken, verificationCode, AccessTokenUrl);
         }
 
-        public async Task<AccessToken> RenewAccessToken(AccessToken accessToken)
+        public async Task<AccessToken> RenewAccessTokenAsync(AccessToken accessToken)
         {
-            return await _authorizationApi.RenewAccessToken(accessToken, RenewAccessTokenUrl);
+            return await _authorizationApi.RenewAccessTokenAsync(accessToken, RenewAccessTokenUrl);
         }
 
         public async Task<bool> RevokeAccessToken(AccessToken accessToken)
         {
-            return await _authorizationApi.RevokeAccessToken(accessToken, RevokeAccessTokenURL);
+            return await _authorizationApi.RevokeAccessTokenAsync(accessToken, RevokeAccessTokenURL);
         }
 
     }
