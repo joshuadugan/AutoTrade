@@ -5,7 +5,7 @@ namespace AutoTradeMobile
 {
     internal class SymbolData
     {
-        BindingList<tick> ticks;
+        BindingList<Tick> ticks;
 
         public SymbolData()
         {
@@ -19,23 +19,30 @@ namespace AutoTradeMobile
         string _Symbol = "No Data Received Yet";
         public string Symbol { get { return _Symbol; } }
 
-        public Int64 TickCount { get { return ticks.Count; } }
+        public int TickCount { get { return ticks.Count; } }
+
+        public double LastPrice { get; set; }
+        public Int64 LastTime { get; set; }
 
         public void addQuote(GetQuotesResponse quote)
         {
             if (ticks.Count == 0)
             {
-                _Symbol = quote.QuoteData.Product.Symbol;
+                _Symbol = quote.QuoteData.Product.Symbol.ToUpper();
             }
 
-            tick t = new();
+            Tick t = new();
             t.price = quote.QuoteData.All.LastTrade;
             t.time = quote.QuoteData.All.TimeOfLastTrade;
+            
+            LastPrice = t.price;
+            LastTime = t.time;
+            
             ticks.Add(t);
 
         }
 
-        public class tick
+        public class Tick
         {
             public double price { get; set; }
             public Int64 time { get; set; }

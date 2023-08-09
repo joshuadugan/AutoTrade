@@ -16,7 +16,7 @@ var Trader = new TradeLogic.Trader(Key, Secret, useSandbox);
 
 try
 {
-    string authURL = Trader.GetAuthorizationUrlAsync();
+    string authURL = Trader.GetAuthorizationUrlAsync().Result;
 
     var ps = new ProcessStartInfo(authURL)
     {

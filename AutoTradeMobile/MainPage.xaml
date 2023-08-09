@@ -8,15 +8,10 @@
         <VerticalStackLayout
             Spacing="25"
             Padding="30,0"
-            VerticalOptions="Center">
+            VerticalOptions="Center"
+            HorizontalOptions="Center">
 
-
-            <Label
-                Text="Hello, World!"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center"
-                IsVisible="false"/>
+            <ActivityIndicator x:Name="ActivityControl" IsRunning="false" />
 
             <Label
                 x:Name="lblDevKey"
@@ -24,12 +19,10 @@
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Enter Developer Key And Secret"
                 FontSize="18"
-                HorizontalOptions="Center" 
                 IsVisible="false"/>
 
             <Entry 
                 SemanticProperties.Description="Developer Key"
-                HorizontalOptions="Center"
                 x:Name="txtKey"
                 IsVisible="false"
                 Placeholder="Developer Key"
@@ -39,7 +32,6 @@
 
             <Entry 
                 SemanticProperties.Description="Developer Secret"
-                HorizontalOptions="Center"
                 x:Name="txtSecret"
                 IsVisible="false"
                 Placeholder="Developer Secret"
@@ -49,27 +41,44 @@
 
             <Entry 
                 SemanticProperties.Description="Verification Code"
-                HorizontalOptions="Center"
                 x:Name="txtVerificationCode"
                 IsVisible="false"
                 Placeholder="Verification Code"/>
 
-            <ActivityIndicator x:Name="ActivityControl" IsRunning="false" />
+            <Button
+                x:Name="BtnVerification"
+                Text="Verify ANd Request Access"
+                SemanticProperties.Hint="Verify"
+                IsVisible="false"
+                Clicked="BtnVerification_Clicked"
+                />
 
             <Button
-                x:Name="BtnLogin"
-                Text="Authenticate"
-                SemanticProperties.Hint="Sign in to E*trade"
-                Clicked="BtnLogin_Clicked"
-                HorizontalOptions="Center" />
+                    x:Name="BtnLogin"
+                    Text="Authenticate"
+                    SemanticProperties.Hint="Sign in to E*trade"
+                    Clicked="BtnLogin_Clicked"
+                    />
+
+            <Button
+                    x:Name="BtnEditKeys"
+                    Text="Settings"
+                    SemanticProperties.Hint="Change Auth Key"
+                    Clicked="btnEditKeys_Clicked"
+                    />
 
             <Label
                 x:Name="lblError"
                 TextColor="White"
                 FontSize="18"
-                HorizontalOptions="Center" 
                 Text=""
                 IsVisible="false"/>
+
+            <Button
+                x:Name="btnTesting"
+                Text="DEBUG"
+                Clicked="btnTesting_Clicked"
+                />
 
         </VerticalStackLayout>
     </ScrollView>

@@ -59,4 +59,16 @@
 	  <Folder Include="DataClasses\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="TradePage.xaml.cs">
+	    <DependentUpon>TradePage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="TradePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>

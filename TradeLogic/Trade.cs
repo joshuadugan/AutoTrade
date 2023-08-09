@@ -65,5 +65,17 @@ namespace TradeLogic
             return await GetAsync<GetQuotesResponse>(GetQuotesResponse.RequestParameters(symbols, detailFlag.ToString()), accessToken);
         }
 
+        /// <summary>
+        /// for now all symbols are valid.
+        /// need to hook this up to a call to validate
+        /// </summary>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<bool> ValidateSymbolAsync(string symbol)
+        {
+            return await Task.Run(() => { return true; });
+        }
+
     }
 }

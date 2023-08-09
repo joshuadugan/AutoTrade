@@ -7,16 +7,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using TradeLogic.Authorization;
 
 namespace AutoTradeMobile
 {
-    internal class TradeApp
+    internal partial class TradeApp
     {
-        internal static Dictionary<string, SymbolData> Symbols = new();
 
-        internal static TradeLogic.Trader trader;
-
-        internal static async Task<bool> StartAuthProcess(bool useSandBox)
+        internal static async Task<bool> StartAuthProcessAsync(bool useSandBox)
         {
 
             bool OpenWindow = false;
@@ -30,39 +28,32 @@ namespace AutoTradeMobile
             return OpenWindow;
         }
 
-
-        public static AuthDataContainer AuthData { get; } = new();
-        public class AuthDataContainer
+        internal static async Task<bool> VerifyCodeAsync(string code)
         {
-            public bool isConfigured
+            accessToken = await trader.GetAccessToken(code);
+            if (accessToken != null)
             {
-                get
-                {
-                    return string.IsNullOrEmpty(AuthKey) == false & string.IsNullOrEmpty(AuthSecret) == false;
-                }
+                return true;
             }
-            public string AuthKey
+            throw new Exception($"Unable to obtain access token");
+        }
+
+        internal static async void StartTradingSymbolAsync(string symbol)
+        {
+            //lookup the symbol to see if its valid
+            if (await trader.ValidateSymbolAsync(symbol))
             {
-                get
+                if (!currentSymbolList.Contains(symbol))
                 {
-                    return Preferences.Get(nameof(AuthKey), string.Empty);
+                    currentSymbolList.Add(symbol.ToUpper());
                 }
-                set
-                {
-                    Preferences.Set(nameof(AuthKey), value);
-                }
+                TickerTimer = new(RequestSymbolData, null, 1000, 1000);
             }
-            public string AuthSecret
-            {
-                get
-                {
-                    return Preferences.Get(nameof(AuthSecret), string.Empty);
-                }
-                set
-                {
-                    Preferences.Set(nameof(AuthSecret), value);
-                }
-            }
+        }
+
+        internal static SymbolData GetSymbolData(string symbol)
+        {
+            return Symbols.GetOrAdd(symbol.ToUpper(), new SymbolData());
         }
 
     }
