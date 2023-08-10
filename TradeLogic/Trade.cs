@@ -74,7 +74,7 @@ namespace TradeLogic
         /// <exception cref="NotImplementedException"></exception>
         public async Task<bool> ValidateSymbolAsync(string symbol)
         {
-            return await Task.Run(() => { return true; });
+            return true;
         }
 
     }

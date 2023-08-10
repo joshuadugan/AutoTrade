@@ -2,32 +2,87 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="AutoTradeMobile.TradePage"
+             xmlns:local="clr-namespace:AutoTradeMobile"
              Title="Trade">
-    <VerticalStackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
 
-        <Label x:Name="lblLastPrice"
-               TextColor="White"
-               FontSize="Medium"
-               Text="Last Price"
-               IsVisible="false"
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <VerticalStackLayout VerticalOptions="Center">
+            <Entry Placeholder="Ticker" x:Name="txtSymbol" 
+                   BindingContext="{x:Static local:TradeApp.AppData}"
+                   Text="{Binding LastSymbol}"
+                   HeightRequest="50" WidthRequest="100" Margin="20" />
+            <Button x:Name="btnTicker" Text="GO" Clicked="btnTicker_Clicked" HeightRequest="30" WidthRequest="50" />
+        </VerticalStackLayout>
+
+        <Label Grid.Row="1"
+               Text="Enter a ticker symbol to start"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
                />
 
-        <Grid x:Name="gridSymbolControls">
+
+
+        <Grid Grid.Row="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50" />
-                <RowDefinition Height="50" />
+                <RowDefinition />
             </Grid.RowDefinitions>
-            <Entry Placeholder="Ticker" x:Name="txtSymbol" Grid.Row="1"/>
-            <Button x:Name="btnTicker" Text="GO" Grid.Row="2" Clicked="btnTicker_Clicked" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Label 
+               TextColor="White"
+               FontSize="Small"
+               IsVisible="false"
+                   Grid.Column="0"
+                   BindingContext="{x:Static local:TradeApp.SessionData}"
+                   Text="{Binding LastQuoteDate}"
+               />
+
+            <Label 
+               TextColor="White"
+               FontSize="Small"
+               IsVisible="false"
+                   Grid.Column="1"
+                   BindingContext="{x:Static local:TradeApp.SessionData}"
+                   Text="{Binding TotalRequests}"
+               />
+
+            <Label 
+               TextColor="White"
+               FontSize="Small"
+               IsVisible="false"
+                   Grid.Column="2"
+                   BindingContext="{x:Static local:TradeApp.SessionData}"
+                   Text="{Binding LastQuoteResponseTime, StringFormat='{0:fff}'}"
+               />
+
         </Grid>
 
         <Label
-            x:Name="lblError"
-            TextColor="White"
-            FontSize="18"
-            Text=""
-            IsVisible="false"/>
+                Grid.Row="2"
+                x:Name="lblError"
+                TextColor="White"
+                FontSize="Small"
+                HorizontalOptions="Center"
+                VerticalOptions="Center" 
+                Grid.ColumnSpan="2"
+                BindingContext="{x:Static local:TradeApp.SessionData}"
+                Text="{Binding TradingError}"
+                IsVisible="{Binding hasError}"
+            />
 
-    </VerticalStackLayout>
+    </Grid>
 
 </ContentPage>

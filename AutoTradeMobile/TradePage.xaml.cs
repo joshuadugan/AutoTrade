@@ -30,16 +30,17 @@ public partial class TradePage : ContentPage
         {
 
             Title = txtSymbol.Text;
-            gridSymbolControls.IsVisible = false;
+            txtSymbol.IsVisible = false;
+            btnTicker.IsVisible = false;
             //startup the trader with this symbol
             TradeApp.StartTradingSymbolAsync(txtSymbol.Text);
             //get the trade data object reference for the page context
             PageData = TradeApp.GetSymbolData(txtSymbol.Text);
-            lblLastPrice.IsVisible = true;
 
         }
         catch (Exception ex)
         {
+            TradeApp.StopTrading();
             HandleError(ex);
         }
 

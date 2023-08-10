@@ -56,5 +56,10 @@ namespace AutoTradeMobile
             return Symbols.GetOrAdd(symbol.ToUpper(), new SymbolData());
         }
 
+        internal static void StopTrading()
+        {
+            TickerTimer.Dispose();
+        }
+
     }
 }
