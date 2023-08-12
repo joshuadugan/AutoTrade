@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:AutoTradeMobile"
+             xmlns:ViewModel="clr-namespace:AutoTradeMobile.ViewModels"
+             x:DataType="ViewModel:MainPageViewModel"
              x:Class="AutoTradeMobile.MainPage">
 
     <ScrollView>
@@ -11,73 +12,67 @@
             VerticalOptions="Center"
             HorizontalOptions="Center">
 
-            <ActivityIndicator x:Name="ActivityControl" IsRunning="false" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" />
 
             <Label
-                x:Name="lblDevKey"
                 Text="Enter Developer Key And Secret"
                 SemanticProperties.HeadingLevel="Level2"
                 SemanticProperties.Description="Enter Developer Key And Secret"
                 FontSize="18"
-                IsVisible="false"/>
+                IsVisible="{Binding ShowSetupControls}"/>
 
             <Entry 
                 SemanticProperties.Description="Developer Key"
-                x:Name="txtKey"
-                IsVisible="false"
+                IsVisible="{Binding ShowSetupControls}"
                 Placeholder="Developer Key"
-                BindingContext="{x:Static local:TradeApp.AuthData}"
                 Text="{Binding AuthKey}"
                 />
 
             <Entry 
                 SemanticProperties.Description="Developer Secret"
-                x:Name="txtSecret"
-                IsVisible="false"
+                IsVisible="{Binding ShowSetupControls}"
                 Placeholder="Developer Secret"
-                BindingContext="{x:Static local:TradeApp.AuthData}"
                 Text="{Binding AuthSecret}"
                 />
 
             <Entry 
                 SemanticProperties.Description="Verification Code"
-                x:Name="txtVerificationCode"
-                IsVisible="false"
-                Placeholder="Verification Code"/>
+                Placeholder="Verification Code"
+                IsVisible="{Binding ShowVerifyPrompt}"
+                Text="{Binding VerificationCode}"
+                />
 
             <Button
-                x:Name="BtnVerification"
-                Text="Verify ANd Request Access"
+                Text="Verify and Request Access"
                 SemanticProperties.Hint="Verify"
-                IsVisible="false"
-                Clicked="BtnVerification_Clicked"
+                IsVisible="{Binding ShowVerifyPrompt}"
+                Command="{Binding VerifyCommand}"
                 />
 
             <Button
                     x:Name="BtnLogin"
                     Text="Authenticate"
                     SemanticProperties.Hint="Sign in to E*trade"
-                    Clicked="BtnLogin_Clicked"
+                    Command="{Binding LoginCommand}"
                     />
 
             <Button
                     x:Name="BtnEditKeys"
                     Text="Settings"
                     SemanticProperties.Hint="Change Auth Key"
-                    Clicked="btnEditKeys_Clicked"
+                    Command="{Binding SetupCommand}"
                     />
 
             <Label
-                x:Name="lblError"
                 TextColor="White"
                 FontSize="18"
-                Text=""
-                IsVisible="false"/>
+                Text="{Binding ErrorMessage}"
+                />
 
             <Button
                 x:Name="btnTesting"
                 Text="DEBUG"
-                Clicked="btnTesting_Clicked"
+                Command="{Binding TestingCommand}"
                 />
 
         </VerticalStackLayout>

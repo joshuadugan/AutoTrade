@@ -211,6 +211,10 @@ namespace TradeLogic.APIModels.Quotes
         [XmlElement(ElementName = "All")]
         public All All { get; set; }
 
+        [XmlElement(ElementName = "Intraday")]
+        public Intraday Intraday { get; set; }
+
+
         [XmlElement(ElementName = "Product")]
         public Product Product { get; set; }
     }
@@ -224,6 +228,37 @@ namespace TradeLogic.APIModels.Quotes
     }
 
 
+    [XmlRoot(ElementName = "Intraday")]
+    public class Intraday
+    {
+
+        [XmlElement(ElementName = "ask")]
+        public double Ask { get; set; }
+
+        [XmlElement(ElementName = "bid")]
+        public double Bid { get; set; }
+
+        [XmlElement(ElementName = "changeClose")]
+        public double ChangeClose { get; set; }
+
+        [XmlElement(ElementName = "changeClosePercentage")]
+        public double ChangeClosePercentage { get; set; }
+
+        [XmlElement(ElementName = "companyName")]
+        public string CompanyName { get; set; }
+
+        [XmlElement(ElementName = "high")]
+        public double High { get; set; }
+
+        [XmlElement(ElementName = "lastTrade")]
+        public double LastTrade { get; set; }
+
+        [XmlElement(ElementName = "low")]
+        public double Low { get; set; }
+
+        [XmlElement(ElementName = "totalVolume")]
+        public Int64 TotalVolume { get; set; }
+    }
 
 
 }

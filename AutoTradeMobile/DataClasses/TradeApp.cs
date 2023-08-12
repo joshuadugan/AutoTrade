@@ -11,15 +11,11 @@ using TradeLogic.Authorization;
 
 namespace AutoTradeMobile
 {
-    internal partial class TradeApp
+    public partial class TradeApp
     {
-
-        internal static async Task<bool> StartAuthProcessAsync(bool useSandBox)
+        internal async Task<bool> StartAuthProcessAsync()
         {
-
             bool OpenWindow = false;
-
-            trader = new TradeLogic.Trader(AuthData.AuthKey, AuthData.AuthSecret, useSandBox);
 
             string AuthorizationUrl = await trader.GetAuthorizationUrlAsync();
 
@@ -28,7 +24,7 @@ namespace AutoTradeMobile
             return OpenWindow;
         }
 
-        internal static async Task<bool> VerifyCodeAsync(string code)
+        internal async Task<bool> VerifyCodeAsync(string code)
         {
             accessToken = await trader.GetAccessToken(code);
             if (accessToken != null)
@@ -38,7 +34,7 @@ namespace AutoTradeMobile
             throw new Exception($"Unable to obtain access token");
         }
 
-        internal static async void StartTradingSymbolAsync(string symbol)
+        internal async void StartTradingSymbolAsync(string symbol)
         {
             //lookup the symbol to see if its valid
             if (await trader.ValidateSymbolAsync(symbol))
@@ -47,16 +43,20 @@ namespace AutoTradeMobile
                 {
                     currentSymbolList.Add(symbol.ToUpper());
                 }
-                TickerTimer = new(RequestSymbolData, null, 1000, 1000);
+                TickerTimer = new(RequestSymbolData, null, 1000, 10000);
             }
         }
 
-        internal static SymbolData GetSymbolData(string symbol)
+        internal  SymbolData GetSymbolData(string symbol)
         {
             return Symbols.GetOrAdd(symbol.ToUpper(), new SymbolData());
         }
 
-        internal static void StopTrading()
+        internal  void StartTrading()
+        {
+            TickerTimer = new(RequestSymbolData, null, 1000, 10000);
+        }
+        internal  void StopTrading()
         {
             TickerTimer.Dispose();
         }

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui;
+﻿using AutoTradeMobile.ViewModels;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 
 namespace AutoTradeMobile
@@ -17,8 +18,14 @@ namespace AutoTradeMobile
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<TradeApp>();
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<MainPageViewModel>();
+            builder.Services.AddTransient<TradePage>();
+            builder.Services.AddTransient<TradePageViewModel>();
+
 #if DEBUG
-		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

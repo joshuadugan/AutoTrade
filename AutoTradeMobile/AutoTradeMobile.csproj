@@ -58,10 +58,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="DataClasses\" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Update="TradePage.xaml.cs">
 	    <DependentUpon>TradePage.xaml</DependentUpon>
 	  </Compile>

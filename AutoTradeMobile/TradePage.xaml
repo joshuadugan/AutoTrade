@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="AutoTradeMobile.TradePage"
-             xmlns:local="clr-namespace:AutoTradeMobile"
+             xmlns:ViewModel="clr-namespace:AutoTradeMobile.ViewModels"
+             x:DataType="ViewModel:TradePageViewModel"
              Title="Trade">
 
     <Grid>
@@ -15,23 +17,45 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <VerticalStackLayout VerticalOptions="Center">
-            <Entry Placeholder="Ticker" x:Name="txtSymbol" 
-                   BindingContext="{x:Static local:TradeApp.AppData}"
-                   Text="{Binding LastSymbol}"
-                   HeightRequest="50" WidthRequest="100" Margin="20" />
-            <Button x:Name="btnTicker" Text="GO" Clicked="btnTicker_Clicked" HeightRequest="30" WidthRequest="50" />
-        </VerticalStackLayout>
-
-        <Label Grid.Row="1"
+        <VerticalStackLayout Grid.Row="0" VerticalOptions="Center" IsVisible="{Binding IsTraderStopped}">
+            <Label
                Text="Enter a ticker symbol to start"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                />
+            <Entry Placeholder="Ticker" 
+                   Text="{Binding Symbol}"
+                   HeightRequest="50" WidthRequest="100" Margin="20" />
+            <Button Text="GO" 
+                    Command="{Binding StartTradingCommand}"
+                     HeightRequest="30" WidthRequest="50" />
+        </VerticalStackLayout>
 
+        <Grid Grid.Row="1" IsVisible="{Binding IsTraderRunning}">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <VerticalStackLayout VerticalOptions="Center">
+                <Label Text="{Binding TradingData.LastTime}" />
+                <Label Text="{Binding TradingData.LastTrade}" />
+                <Label Text="{Binding TradingData.LastTime}" />
+                <Label Text="{Binding TradingData.IsAfterHours}" />
 
+            </VerticalStackLayout>
+            <VerticalStackLayout VerticalOptions="Center" Grid.Column="1">
+                <Label Text="{Binding TradingData.QuoteStatus}" />
+                <Label Text="{Binding TradingData.ChangeClose}" />
+                <Label Text="{Binding TradingData.ChangeClosePercentage}" />
+                <Label Text="{Binding TradingData.TotalVolume}" />
 
-        <Grid Grid.Row="2">
+            </VerticalStackLayout>
+        </Grid>
+
+        <Grid Grid.Row="2" IsVisible="{Binding IsTraderRunning}">
             <Grid.RowDefinitions>
                 <RowDefinition />
             </Grid.RowDefinitions>
@@ -41,47 +65,15 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Label 
-               TextColor="White"
-               FontSize="Small"
-               IsVisible="false"
-                   Grid.Column="0"
-                   BindingContext="{x:Static local:TradeApp.SessionData}"
-                   Text="{Binding LastQuoteDate}"
-               />
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
 
-            <Label 
-               TextColor="White"
-               FontSize="Small"
-               IsVisible="false"
-                   Grid.Column="1"
-                   BindingContext="{x:Static local:TradeApp.SessionData}"
-                   Text="{Binding TotalRequests}"
-               />
+            <Label Grid.Column="1" Text="{Binding Trade.SessionData.TotalRequests}" />
 
-            <Label 
-               TextColor="White"
-               FontSize="Small"
-               IsVisible="false"
-                   Grid.Column="2"
-                   BindingContext="{x:Static local:TradeApp.SessionData}"
-                   Text="{Binding LastQuoteResponseTime, StringFormat='{0:fff}'}"
-               />
+            <Label Grid.Column="2" Text="{Binding Trade.SessionData.LastQuoteResponseTime, StringFormat='{0:fff}'}" />
 
         </Grid>
 
-        <Label
-                Grid.Row="2"
-                x:Name="lblError"
-                TextColor="White"
-                FontSize="Small"
-                HorizontalOptions="Center"
-                VerticalOptions="Center" 
-                Grid.ColumnSpan="2"
-                BindingContext="{x:Static local:TradeApp.SessionData}"
-                Text="{Binding TradingError}"
-                IsVisible="{Binding hasError}"
-            />
+        <Button Grid.Row="2" WidthRequest="100" HeightRequest="30" IsVisible="{Binding IsTraderRunning}" Text="debug" Command="{Binding DebugCommand}"/>
 
     </Grid>
 
