@@ -5,19 +5,100 @@
              x:Class="AutoTradeMobile.TradePage"
              xmlns:ViewModel="clr-namespace:AutoTradeMobile.ViewModels"
              x:DataType="ViewModel:TradePageViewModel"
-             Title="Trade">
+             xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
+             Title="Trade"
+             >
+
+    <ContentPage.Resources>
+
+        <Style x:Key="WhiteLabel" TargetType="Label">
+            <Setter Property="TextColor" Value="White" />
+        </Style>
+
+    </ContentPage.Resources>
 
     <Grid>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="2*" />
+            <RowDefinition Height="60"/>
             <RowDefinition />
-            <RowDefinition Height="100" />
+            <RowDefinition Height="60" />
         </Grid.RowDefinitions>
+
         <Grid.ColumnDefinitions>
+            <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <VerticalStackLayout Grid.Row="0" VerticalOptions="Center" IsVisible="{Binding IsTraderStopped}">
+        <chart:SfCartesianChart Grid.ColumnSpan="2"
+                                IsVisible="{Binding IsTraderRunning}"
+                                >
+
+            <chart:SfCartesianChart.XAxes>
+                <chart:CategoryAxis/>
+            </chart:SfCartesianChart.XAxes>
+
+            <chart:SfCartesianChart.YAxes>
+                <chart:NumericalAxis/>
+            </chart:SfCartesianChart.YAxes>
+
+            <chart:CandleSeries  
+                        EnableTooltip="True"
+                        EnableSolidCandle="True"
+                        ItemsSource="{Binding TradingData.Minutes}" 
+                        XBindingPath="TradeMinute" 
+                        Open="Open"
+                        High="High"
+                        Low="Low"
+                        Close="Close"
+                        />
+
+        </chart:SfCartesianChart>
+
+        <FlexLayout Grid.Row="1" Grid.ColumnSpan="2" BackgroundColor="{Binding TradingData.LastMinute.MinuteColor}" 
+                        JustifyContent="SpaceAround"
+                        >
+            <FlexLayout Direction="Column">
+                <Label Style="{StaticResource WhiteLabel}" Text="Time" />
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.TradeMinute}" />
+            </FlexLayout>
+            <FlexLayout Direction="Column">
+                <Label Style="{StaticResource WhiteLabel}" Text="Open"/>
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.Open, StringFormat='{0:c}'}" />
+            </FlexLayout>
+            <FlexLayout Direction="Column">
+                <Label Style="{StaticResource WhiteLabel}" Text="Low"/>
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.Low, StringFormat='{0:c}'}" />
+            </FlexLayout>
+            <FlexLayout Direction="Column">
+                <Label Style="{StaticResource WhiteLabel}" Text="High"/>
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.High, StringFormat='{0:c}'}" />
+            </FlexLayout>
+            <FlexLayout Direction="Column">
+                <Label Style="{StaticResource WhiteLabel}" Text="Close"/>
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.Close, StringFormat='{0:c}'}" />
+            </FlexLayout>
+
+        </FlexLayout>
+
+        <VerticalStackLayout Grid.Row="2">
+            <Label Text="{Binding TradingData.LastTime}" />
+            <Label Text="{Binding TradingData.LastTrade}" />
+            <Label Text="{Binding TradingData.LastTime}" />
+            <Label Text="{Binding TradingData.IsAfterHours}" />
+
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Row="2" Grid.Column="1">
+            <Label Text="{Binding TradingData.QuoteStatus}" />
+            <Label Text="{Binding TradingData.ChangeClose}" />
+            <Label Text="{Binding TradingData.ChangeClosePercentage}" />
+            <Label Text="{Binding TradingData.TotalVolume}" />
+
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.ColumnSpan="2" VerticalOptions="Center" IsVisible="{Binding IsTraderStopped}">
             <Label
                Text="Enter a ticker symbol to start"
                HorizontalOptions="Center"
@@ -31,49 +112,32 @@
                      HeightRequest="30" WidthRequest="50" />
         </VerticalStackLayout>
 
-        <Grid Grid.Row="1" IsVisible="{Binding IsTraderRunning}">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <VerticalStackLayout VerticalOptions="Center">
-                <Label Text="{Binding TradingData.LastTime}" />
-                <Label Text="{Binding TradingData.LastTrade}" />
-                <Label Text="{Binding TradingData.LastTime}" />
-                <Label Text="{Binding TradingData.IsAfterHours}" />
 
-            </VerticalStackLayout>
-            <VerticalStackLayout VerticalOptions="Center" Grid.Column="1">
-                <Label Text="{Binding TradingData.QuoteStatus}" />
-                <Label Text="{Binding TradingData.ChangeClose}" />
-                <Label Text="{Binding TradingData.ChangeClosePercentage}" />
-                <Label Text="{Binding TradingData.TotalVolume}" />
 
-            </VerticalStackLayout>
-        </Grid>
+        <FlexLayout Grid.Row="3" Grid.ColumnSpan="2" 
+                    JustifyContent="SpaceAround" 
+                    Direction="Row"
+                    AlignItems="Center"
+                    BackgroundColor="MediumPurple"
+                    IsVisible="{Binding IsTraderRunning}">
 
-        <Grid Grid.Row="2" IsVisible="{Binding IsTraderRunning}">
-            <Grid.RowDefinitions>
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
+            <FlexLayout Direction="Column" JustifyContent="Center" AlignItems="Center">
+                <Label Style="{StaticResource WhiteLabel}" Text="Requests"/>
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.SessionData.TotalRequests}" />
+            </FlexLayout>
 
             <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
 
-            <Label Grid.Column="1" Text="{Binding Trade.SessionData.TotalRequests}" />
+            <FlexLayout Direction="Column" JustifyContent="Center" AlignItems="Center">
+                <Label Style="{StaticResource WhiteLabel}" Text="Response Time"/>
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.SessionData.LastQuoteResponseTime, StringFormat='{0:fff}ms'}" />
+            </FlexLayout>
 
-            <Label Grid.Column="2" Text="{Binding Trade.SessionData.LastQuoteResponseTime, StringFormat='{0:fff}'}" />
+            <Button WidthRequest="100" HeightRequest="30" IsVisible="{Binding IsTraderRunning}" Text="debug" Command="{Binding DebugCommand}"/>
 
-        </Grid>
+        </FlexLayout>
 
-        <Button Grid.Row="2" WidthRequest="100" HeightRequest="30" IsVisible="{Binding IsTraderRunning}" Text="debug" Command="{Binding DebugCommand}"/>
+
 
     </Grid>
 

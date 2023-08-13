@@ -40,7 +40,7 @@ namespace TradeLogic.APIModels.Quotes
         public double Ask { get; set; }
 
         [XmlElement(ElementName = "askSize")]
-        public Int64 AskSize { get; set; }
+        public long AskSize { get; set; }
 
         [XmlElement(ElementName = "askTime")]
         public string AskTime { get; set; }
@@ -52,7 +52,7 @@ namespace TradeLogic.APIModels.Quotes
         public string BidExchange { get; set; }
 
         [XmlElement(ElementName = "bidSize")]
-        public Int64 BidSize { get; set; }
+        public long BidSize { get; set; }
 
         [XmlElement(ElementName = "bidTime")]
         public string BidTime { get; set; }
@@ -67,7 +67,7 @@ namespace TradeLogic.APIModels.Quotes
         public string CompanyName { get; set; }
 
         [XmlElement(ElementName = "daysToExpiration")]
-        public Int64 DaysToExpiration { get; set; }
+        public long DaysToExpiration { get; set; }
 
         [XmlElement(ElementName = "dirLast")]
         public string DirLast { get; set; }
@@ -82,7 +82,7 @@ namespace TradeLogic.APIModels.Quotes
         public double EstEarnings { get; set; }
 
         [XmlElement(ElementName = "exDividendDate")]
-        public Int64 ExDividendDate { get; set; }
+        public long ExDividendDate { get; set; }
 
         [XmlElement(ElementName = "high")]
         public double High { get; set; }
@@ -103,7 +103,7 @@ namespace TradeLogic.APIModels.Quotes
         public double Open { get; set; }
 
         [XmlElement(ElementName = "openInterest")]
-        public Int64 OpenInterest { get; set; }
+        public long OpenInterest { get; set; }
 
         [XmlElement(ElementName = "optionStyle")]
         public string OptionStyle { get; set; }
@@ -112,7 +112,7 @@ namespace TradeLogic.APIModels.Quotes
         public double PreviousClose { get; set; }
 
         [XmlElement(ElementName = "previousDayVolume")]
-        public Int64 PreviousDayVolume { get; set; }
+        public long PreviousDayVolume { get; set; }
 
         [XmlElement(ElementName = "primaryExchange")]
         public string PrimaryExchange { get; set; }
@@ -121,10 +121,10 @@ namespace TradeLogic.APIModels.Quotes
         public string SymbolDescription { get; set; }
 
         [XmlElement(ElementName = "totalVolume")]
-        public Int64 TotalVolume { get; set; }
+        public long TotalVolume { get; set; }
 
         [XmlElement(ElementName = "upc")]
-        public Int64 Upc { get; set; }
+        public long Upc { get; set; }
 
         [XmlElement(ElementName = "cashDeliverable")]
         public decimal CashDeliverable { get; set; }
@@ -148,16 +148,16 @@ namespace TradeLogic.APIModels.Quotes
         public double DeclaredDividend { get; set; }
 
         [XmlElement(ElementName = "dividendPayableDate")]
-        public Int64 DividendPayableDate { get; set; }
+        public long DividendPayableDate { get; set; }
 
         [XmlElement(ElementName = "pe")]
         public double Pe { get; set; }
 
         [XmlElement(ElementName = "week52LowDate")]
-        public Int64 Week52LowDate { get; set; }
+        public long Week52LowDate { get; set; }
 
         [XmlElement(ElementName = "week52HiDate")]
-        public Int64 Week52HiDate { get; set; }
+        public long Week52HiDate { get; set; }
 
         [XmlElement(ElementName = "intrinsicValue")]
         public double IntrinsicValue { get; set; }
@@ -172,13 +172,13 @@ namespace TradeLogic.APIModels.Quotes
         public double ContractSize { get; set; }
 
         [XmlElement(ElementName = "expirationDate")]
-        public Int64 ExpirationDate { get; set; }
+        public long ExpirationDate { get; set; }
 
         [XmlElement(ElementName = "timeOfLastTrade")]
-        public Int64 TimeOfLastTrade { get; set; }
+        public long TimeOfLastTrade { get; set; }
 
         [XmlElement(ElementName = "averageVolume")]
-        public Int64 AverageVolume { get; set; }
+        public long AverageVolume { get; set; }
     }
 
     [XmlRoot(ElementName = "Product")]
@@ -200,7 +200,7 @@ namespace TradeLogic.APIModels.Quotes
         public string DateTime { get; set; }
 
         [XmlElement(ElementName = "dateTimeUTC")]
-        public Int64 DateTimeUTC { get; set; }
+        public long DateTimeUTC { get; set; }
 
         [XmlElement(ElementName = "quoteStatus")]
         public string QuoteStatus { get; set; }
@@ -257,7 +257,7 @@ namespace TradeLogic.APIModels.Quotes
         public double Low { get; set; }
 
         [XmlElement(ElementName = "totalVolume")]
-        public Int64 TotalVolume { get; set; }
+        public long TotalVolume { get; set; }
     }
 
 

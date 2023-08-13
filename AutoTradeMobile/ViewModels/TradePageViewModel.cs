@@ -50,18 +50,8 @@ namespace AutoTradeMobile.ViewModels
         [ObservableProperty]
         bool hasValidAccessToken;
 
-        public SymbolData TradingData { get; private set; } = new SymbolData()
-        {
-            ChangeClose = 10,
-            ChangeClosePercentage = 100,
-            IsAfterHours = true,
-            LastTime = 12345,
-            LastTrade = 250.50,
-            QuoteStatus = "xxx",
-            Symbol = "TSLA",
-            TickCount = 0,
-            TotalVolume = 100000,
-        };
+        [ObservableProperty]
+        SymbolData tradingData;
 
         [RelayCommand]
         public void StartTrading()

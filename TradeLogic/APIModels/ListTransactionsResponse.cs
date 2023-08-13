@@ -35,13 +35,13 @@ namespace TradeLogic.APIModels.Accounts
         public string CallPut { get; set; }
 
         [XmlElement(ElementName = "expiryDay")]
-        public Int64 ExpiryDay { get; set; }
+        public long ExpiryDay { get; set; }
 
         [XmlElement(ElementName = "expiryMonth")]
-        public Int64 ExpiryMonth { get; set; }
+        public long ExpiryMonth { get; set; }
 
         [XmlElement(ElementName = "expiryYear")]
-        public Int64 ExpiryYear { get; set; }
+        public long ExpiryYear { get; set; }
 
         [XmlElement(ElementName = "securityType")]
         public string SecurityType { get; set; }
@@ -79,7 +79,7 @@ namespace TradeLogic.APIModels.Accounts
         public string DisplaySymbol { get; set; }
 
         [XmlElement(ElementName = "settlementDate")]
-        public Int64 SettlementDate { get; set; }
+        public long SettlementDate { get; set; }
     }
 
     [XmlRoot(ElementName = "Transaction")]
@@ -96,7 +96,7 @@ namespace TradeLogic.APIModels.Accounts
         public double TransactionDate { get; set; }
 
         [XmlElement(ElementName = "postDate")]
-        public Int64 PostDate { get; set; }
+        public long PostDate { get; set; }
 
         [XmlElement(ElementName = "amount")]
         public decimal Amount { get; set; }

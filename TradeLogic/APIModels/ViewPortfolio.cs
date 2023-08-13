@@ -87,7 +87,7 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public decimal LastTrade { get; set; }
 
         [XmlElement(ElementName = "lastTradeTime")]
-        public Int64 LastTradeTime { get; set; }
+        public long LastTradeTime { get; set; }
 
         [XmlElement(ElementName = "quoteStatus")]
         public string QuoteStatus { get; set; }
@@ -107,7 +107,7 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public string SymbolDescription { get; set; }
 
         [XmlElement(ElementName = "dateAcquired")]
-        public Int64 DateAcquired { get; set; }
+        public long DateAcquired { get; set; }
 
         [XmlElement(ElementName = "pricePaid")]
         public decimal PricePaid { get; set; }

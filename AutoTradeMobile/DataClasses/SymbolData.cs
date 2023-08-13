@@ -3,20 +3,25 @@ using TradeLogic.APIModels.Quotes;
 using CommunityToolkit.Mvvm;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace AutoTradeMobile
 {
     public partial class SymbolData : ObservableObject
     {
+
         public SymbolData()
         {
-            ticks = new();
-            ticks.AllowNew = true;
-            ticks.AllowRemove = false;
-            ticks.RaiseListChangedEvents = true;
-            ticks.AllowEdit = false;
         }
-        public BindingList<Tick> ticks { get; }
+
+
+        [ObservableProperty]
+        ObservableCollection<Tick> ticks = new();
+
+        [ObservableProperty]
+        ObservableCollection<Minute> minutes = new();
 
         [ObservableProperty]
         private string _Symbol = "No Data Received Yet";
@@ -25,7 +30,7 @@ namespace AutoTradeMobile
         int tickCount;
 
         [ObservableProperty]
-        Int64 lastTime;
+        long lastTime;
 
         [ObservableProperty]
         bool isAfterHours;
@@ -40,14 +45,17 @@ namespace AutoTradeMobile
         double changeClosePercentage;
 
         [ObservableProperty]
-        Int64 totalVolume;
+        long totalVolume;
 
         [ObservableProperty]
         double lastTrade;
 
+        [ObservableProperty]
+        Minute lastMinute;
+
         public void addQuote(GetQuotesResponse quote)
         {
-            if (ticks.Count == 0)
+            if (Ticks.Count == 0)
             {
                 Symbol = quote.QuoteData.Product.Symbol.ToUpper();
             }
@@ -81,23 +89,103 @@ namespace AutoTradeMobile
                 t.Bid = quote.QuoteData.Intraday.Bid;
                 t.High = quote.QuoteData.Intraday.High;
                 t.Low = quote.QuoteData.Intraday.Low;
-                t.LastTrade = quote.QuoteData.Intraday.LastTrade;
+                t.LastTrade = Math.Round(quote.QuoteData.Intraday.LastTrade, 2);
 
             }
 
-            ticks.Add(t);
+            Ticks.Add(t);
             TickCount++;
 
+            //aggrigate the tick into the minutes
+            if (LastMinute == null)
+            {
+                LastMinute = t.ToMinute(t.LastTrade);
+                Trace.WriteLine($"First Minute {t.MinuteTime}");
+            }
+            else if (LastMinute.TradeMinute != t.MinuteTime)
+            {
+                AddToMinute(LastMinute);
+                LastMinute = t.ToMinute(LastMinute.Close);
+            }
+            else
+            {
+                //add to current minute
+                LastMinute.AddTick(t);
+                //NotifyPropertyChanged("Minutes");
+            }
+
+        }
+
+        private void AddToMinute(Minute thisMinute)
+        {
+            if (Application.Current.Dispatcher.IsDispatchRequired)
+            {
+                Application.Current.Dispatcher.Dispatch((Action)(() => Minutes.Add(thisMinute)));
+            }
+            else
+            {
+                Minutes.Add(thisMinute);
+            }
+            Trace.WriteLine($"New Minute Added To Minutes {thisMinute.TradeMinute}");
         }
 
         public class Tick
         {
-            public Int64 Time { get; set; }
+            public long Time { get; set; }
+            public string MinuteTime
+            {
+                get
+                {
+                    return DateTime.FromFileTimeUtc(Time).ToString("HH:mm");
+                }
+            }
             public double Ask { get; set; }
             public double Bid { get; set; }
             public double High { get; set; }
             public double Low { get; set; }
             public double LastTrade { get; set; }
+
+            public Minute ToMinute(double close)
+            {
+                return new Minute()
+                {
+                    TradeMinute = MinuteTime,
+                    Open = LastTrade,
+                    High = LastTrade,
+                    Low = LastTrade,
+                    Close = LastTrade,
+                    MinuteColor = LastTrade > close ? Colors.Green : Colors.Red
+                };
+            }
+        }
+
+        public partial class Minute : ObservableObject
+        {
+            [ObservableProperty]
+            string tradeMinute;
+            [ObservableProperty]
+            double open;
+            [ObservableProperty]
+            double high;
+            [ObservableProperty]
+            double low;
+            [ObservableProperty]
+            double close;
+            [ObservableProperty]
+            Color minuteColor;
+            [ObservableProperty]
+            long lastTickTime;
+
+            internal void AddTick(Tick t)
+            {
+                if (t.LastTrade > High) { High = t.LastTrade; }
+                if (t.LastTrade < Low) { Low = t.LastTrade; }
+                Close = t.LastTrade;
+                LastTickTime = t.Time;
+                MinuteColor = t.LastTrade > Open ? Colors.Green : Colors.Red;
+                Trace.WriteLine($"Added {t.LastTrade} Tick to Minute {TradeMinute}, open {Open} - high {High} - low {Low} - close {Close}");
+            }
+
         }
 
     }

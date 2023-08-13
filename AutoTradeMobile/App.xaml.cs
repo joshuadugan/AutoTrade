@@ -10,6 +10,8 @@
 
             Routing.RegisterRoute("TradePage", typeof(TradePage));
 
+            Current.UserAppTheme = AppTheme.Light;
+
         }
     }
 }
