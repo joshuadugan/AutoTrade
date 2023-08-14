@@ -1,4 +1,6 @@
 using AutoTradeMobile.ViewModels;
+using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Mvvm.Input;
 using TradeLogic;
 
 namespace AutoTradeMobile;

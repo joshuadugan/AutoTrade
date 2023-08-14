@@ -78,11 +78,7 @@ namespace AutoTradeMobile.ViewModels
 
         }
 
-        [RelayCommand]
-        public void Debug()
-        {
-            Trace.WriteLine(TradingData);
-        }
+
         internal void HandleError(Exception ex)
         {
             HasError = true;

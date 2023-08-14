@@ -43,20 +43,21 @@ namespace AutoTradeMobile
                 {
                     currentSymbolList.Add(symbol.ToUpper());
                 }
-                TickerTimer = new(RequestSymbolData, null, 1000, 10000);
+                TickerTimer = new(RequestSymbolData, null, 1000, 1000);
             }
         }
 
-        internal  SymbolData GetSymbolData(string symbol)
+        internal SymbolData GetSymbolData(string symbol)
         {
-            return Symbols.GetOrAdd(symbol.ToUpper(), new SymbolData());
+            return Symbols.GetOrAdd(symbol.ToUpper(), key => { return new SymbolData(); });
         }
 
-        internal  void StartTrading()
+        internal void StartTrading()
         {
-            TickerTimer = new(RequestSymbolData, null, 1000, 10000);
+            TickerTimer = new(RequestSymbolData, null, 1000, 1000);
         }
-        internal  void StopTrading()
+
+        internal void StopTrading()
         {
             TickerTimer.Dispose();
         }
