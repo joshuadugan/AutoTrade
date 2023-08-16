@@ -115,9 +115,12 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+        public bool ReplayLastSession { get; set; }
+
         [RelayCommand]
         public async Task Testing()
         {
+            ReplayLastSession = true;
             await Shell.Current.GoToAsync("TradePage");
         }
 

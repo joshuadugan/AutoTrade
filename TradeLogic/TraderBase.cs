@@ -1,5 +1,6 @@
 ﻿using OAuth;
 using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection.PortableExecutable;
@@ -90,8 +91,8 @@ namespace TradeLogic
             }
             catch (Exception)
             {
-                Console.WriteLine(oAuthRequest);
-                Console.WriteLine(response);
+                Trace.WriteLine(oAuthRequest);
+                Trace.WriteLine(response);
                 throw;
             }
 
@@ -105,8 +106,8 @@ namespace TradeLogic
             }
             catch (Exception)
             {
-                Console.WriteLine($"Could not deserialize following response to {resourceType.ToString()}");
-                Console.WriteLine(responseString);
+                Trace.WriteLine($"Could not deserialize following response to {resourceType.ToString()}");
+                Trace.WriteLine(responseString);
                 throw;
             }
 

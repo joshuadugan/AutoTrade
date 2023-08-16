@@ -4,30 +4,28 @@
     {
         public class Tick
         {
-            public long Time { get; set; }
+            public DateTime Time { get; set; }
             public string MinuteTime
             {
                 get
                 {
-                    return DateTime.FromFileTimeUtc(Time).ToString("HH:mm");
+                    return Time.ToString("HH:mm");
                 }
             }
             public double Ask { get; set; }
             public double Bid { get; set; }
-            public double High { get; set; }
-            public double Low { get; set; }
             public double LastTrade { get; set; }
 
-            public Minute ToMinute(double close)
+            public Minute ToMinute(double NewOpen)
             {
                 return new Minute()
                 {
                     TradeMinute = MinuteTime,
-                    Open = LastTrade,
-                    High = LastTrade,
-                    Low = LastTrade,
+                    Open = NewOpen,
+                    High = Ask,
+                    Low = Bid,
                     Close = LastTrade,
-                    MinuteColor = LastTrade > close ? Colors.Green : Colors.Red
+                    MinuteColor = LastTrade > NewOpen ? Colors.Green : Colors.Red
                 };
             }
         }

@@ -35,22 +35,22 @@ namespace TradeLogic
             _BaseURL = useSandbox ? SandboxDataUrl : DataUrl;
         }
 
-        public async Task<AccountListResponse> ListAccounts(AccessToken accessToken)
+        public async Task<AccountListResponse> ListAccountsAsync(AccessToken accessToken)
         {
             return await GetAsync<AccountListResponse>(null, accessToken);
         }
 
-        public async Task<AccountBalanceResponse> GetAccountBalances(AccessToken accessToken, string accountIdKey)
+        public async Task<AccountBalanceResponse> GetAccountBalancesAsync(AccessToken accessToken, string accountIdKey)
         {
             return await GetAsync<AccountBalanceResponse>(AccountBalanceResponse.RequestParameters(accountIdKey), accessToken);
         }
 
-        public async Task<ListTransactionsResponse> ListTransactions(AccessToken accessToken, string accountIdKey)
+        public async Task<ListTransactionsResponse> ListTransactionsAsync(AccessToken accessToken, string accountIdKey)
         {
             return await GetAsync<ListTransactionsResponse>(ListTransactionsResponse.RequestParameters(accountIdKey), accessToken);
         }
 
-        public async Task<ViewPortfolio_PerformanceViewResponse> ViewPortfolioPerformance(AccessToken accessToken, string accountIdKey)
+        public async Task<ViewPortfolio_PerformanceViewResponse> ViewPortfolioPerformanceAsync(AccessToken accessToken, string accountIdKey)
         {
             return await GetAsync<ViewPortfolio_PerformanceViewResponse>(ViewPortfolio_PerformanceViewResponse.RequestParameters(accountIdKey), accessToken);
         }
@@ -60,7 +60,7 @@ namespace TradeLogic
             ALL, FUNDAMENTAL, INTRADAY, OPTIONS, WEEK_52, MF_DETAIL
         }
 
-        public async Task<GetQuotesResponse> GetQuotes(AccessToken accessToken, List<string> symbols, GetQuotesDetailFlag detailFlag = GetQuotesDetailFlag.INTRADAY)
+        public async Task<GetQuotesResponse> GetQuotesAsync(AccessToken accessToken, List<string> symbols, GetQuotesDetailFlag detailFlag = GetQuotesDetailFlag.INTRADAY)
         {
             return await GetAsync<GetQuotesResponse>(GetQuotesResponse.RequestParameters(symbols, detailFlag.ToString()), accessToken);
         }

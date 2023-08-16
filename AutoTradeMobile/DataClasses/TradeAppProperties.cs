@@ -1,6 +1,8 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AutoTradeMobile.DataClasses;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,20 +12,20 @@ namespace AutoTradeMobile
 {
     public partial class TradeApp : ObservableObject
     {
-        public bool useSandBox { get; set; }
+        public bool UseSandBox { get; }
         public AuthDataContainer AuthData { get; } = new();
         public PersistedData StoredData { get; } = new();
-        public TradingSessionData SessionData { get; } = new();
         public ConcurrentDictionary<string, SymbolData> Symbols { get; } = new();
+        public ObservableCollection<MarketOrder> Orders { get; private set; } = new();
 
         TradeLogic.Trader _trader;
-        public TradeLogic.Trader trader
+        public TradeLogic.Trader Trader
         {
             get
             {
                 if (_trader == null)
                 {
-                    _trader = new TradeLogic.Trader(AuthData.AuthKey, AuthData.AuthSecret, useSandBox);
+                    _trader = new TradeLogic.Trader(AuthData.AuthKey, AuthData.AuthSecret, UseSandBox);
                 }
                 return _trader;
             }
@@ -32,9 +34,32 @@ namespace AutoTradeMobile
                 _trader = value;
             }
         }
-        public AccessToken accessToken { get; set; }
-        public List<string> currentSymbolList { get; } = new();
-        public Timer TickerTimer { get; set; }
+        public AccessToken AccessToken { get; set; }
+        public List<string> CurrentSymbolList { get; } = new();
+        public string AccountId { get; private set; }
+        private Timer TickerTimer { get; set; }
+        private Timer OrdersTimer { get; set; }
+
+        [ObservableProperty]
+        int totalRequests;
+
+        [ObservableProperty]
+        TimeSpan lastQuoteResponseTime;
+
+        [ObservableProperty]
+        TimeSpan lastOrderResponseTime;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasError))]
+        string tradingError;
+
+        public bool HasError
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(TradingError);
+            }
+        }
 
     }
 
@@ -72,16 +97,15 @@ namespace AutoTradeMobile
     }
     public class PersistedData
     {
+        public string LastAccountId
+        {
+            get => Preferences.Get(nameof(LastAccountId), string.Empty);
+            set => Preferences.Set(nameof(LastAccountId), value);
+        }
         public string LastSymbol
         {
-            get
-            {
-                return Preferences.Get(nameof(LastSymbol), string.Empty);
-            }
-            set
-            {
-                Preferences.Set(nameof(LastSymbol), value);
-            }
+            get => Preferences.Get(nameof(LastSymbol), string.Empty);
+            set => Preferences.Set(nameof(LastSymbol), value);
         }
 
         public AccessToken LastAccessToken
@@ -111,26 +135,6 @@ namespace AutoTradeMobile
         }
 
     }
-    public partial class TradingSessionData : ObservableObject
-    {
 
-        [ObservableProperty]
-        int totalRequests;
-
-        [ObservableProperty]
-        TimeSpan lastQuoteResponseTime;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasError))]
-        string tradingError;
-
-        public bool HasError
-        {
-            get
-            {
-                return !string.IsNullOrWhiteSpace(TradingError);
-            }
-        }
-    }
 
 }

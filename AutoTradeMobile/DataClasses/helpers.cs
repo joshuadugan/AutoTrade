@@ -8,10 +8,10 @@ namespace AutoTradeMobile
 {
     public static class Helpers
     {
-        public static async void WriteLineToFileAsync(string appendText, string targetFileName)
+        public static async void AppendLinesToFileAsync(IEnumerable<string> appendTexts, string targetFileName)
         {
             string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, targetFileName);
-            await File.AppendAllTextAsync(targetFile, appendText + Environment.NewLine);
+            await File.AppendAllTextAsync(targetFile, string.Join(Environment.NewLine, appendTexts) + Environment.NewLine);
         }
 
         public static async void WriteTextToFileAsync(string text, string targetFileName)

@@ -5,6 +5,7 @@ namespace AutoTradeMobile
 {
     public partial class SymbolData
     {
+
         public partial class Minute : ObservableObject
         {
             [ObservableProperty]
@@ -20,16 +21,24 @@ namespace AutoTradeMobile
             [ObservableProperty]
             Color minuteColor;
             [ObservableProperty]
-            long lastTickTime;
+            DateTime lastTickTime;
+            [ObservableProperty]
+            double averageTrade;
+            [ObservableProperty] 
+            double studyValue ;
+
+            public List<Tick> Ticks { get; private set; } = new();
 
             internal void AddTick(Tick t)
             {
-                if (t.LastTrade > High) { High = t.LastTrade; }
-                if (t.LastTrade < Low) { Low = t.LastTrade; }
+                if (t.Ask > High) { High = t.Ask; }
+                if (t.Bid < Low) { Low = t.Bid; }
                 Close = t.LastTrade;
                 LastTickTime = t.Time;
                 MinuteColor = t.LastTrade > Open ? Colors.Green : Colors.Red;
-                Trace.WriteLine($"Added {t.LastTrade} Tick to Minute {TradeMinute}, open {Open} - high {High} - low {Low} - close {Close}");
+                Ticks.Add(t);
+                AverageTrade = Ticks.Average(t => t.LastTrade);
+                Trace.WriteLine($"Added {t.LastTrade} Tick to Minute ({Ticks.Count}) {TradeMinute}, open {Open} - high {High} - low {Low} - close {Close} - AverageTrade {AverageTrade}");
             }
 
         }

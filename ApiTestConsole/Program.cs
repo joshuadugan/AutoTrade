@@ -83,7 +83,7 @@ try
 
                 Console.WriteLine("List Accounts:");
 
-                listAccounts = await Trader.ListAccounts(accessToken);
+                listAccounts = await Trader.ListAccountsAsync(accessToken);
 
                 Helpers.PrintObjectProperties(listAccounts);
 
@@ -93,7 +93,7 @@ try
 
                 Console.WriteLine("Account Balances:");
 
-                listAccounts = await Trader.ListAccounts(accessToken);
+                listAccounts = await Trader.ListAccountsAsync(accessToken);
 
                 index = 0;
                 foreach (Account account in listAccounts.Accounts.Account)
@@ -113,7 +113,7 @@ try
 
                 accountIdKey = listAccounts.Accounts.Account[secondaryChoiceIndex - 1].AccountIdKey;
 
-                var Balances = await Trader.GetAccountBalances(accessToken, accountIdKey);
+                var Balances = await Trader.GetAccountBalancesAsync(accessToken, accountIdKey);
 
                 Helpers.PrintObjectProperties(Balances);
 
@@ -123,7 +123,7 @@ try
 
                 Console.WriteLine("List Transactions:");
 
-                listAccounts = await Trader.ListAccounts(accessToken);
+                listAccounts = await Trader.ListAccountsAsync(accessToken);
 
                 index = 0;
                 foreach (Account account in listAccounts.Accounts.Account)
@@ -143,7 +143,7 @@ try
 
                 accountIdKey = listAccounts.Accounts.Account[secondaryChoiceIndex - 1].AccountIdKey;
 
-                var Transactions = await Trader.ListTransactions(accessToken, accountIdKey);
+                var Transactions = await Trader.ListTransactionsAsync(accessToken, accountIdKey);
 
                 Helpers.PrintObjectProperties(Transactions);
 
@@ -154,7 +154,7 @@ try
 
                 Console.WriteLine("View Portfolio Performance:");
 
-                listAccounts = await Trader.ListAccounts(accessToken);
+                listAccounts = await Trader.ListAccountsAsync(accessToken);
 
                 index = 0;
                 foreach (Account account in listAccounts.Accounts.Account)
@@ -174,7 +174,7 @@ try
 
                 accountIdKey = listAccounts.Accounts.Account[secondaryChoiceIndex - 1].AccountIdKey;
 
-                var Portfolio = await Trader.ViewPortfolioPerformance(accessToken, accountIdKey);
+                var Portfolio = await Trader.ViewPortfolioPerformanceAsync(accessToken, accountIdKey);
 
                 Helpers.PrintObjectProperties(Portfolio);
 
@@ -185,7 +185,7 @@ try
                 Console.WriteLine("Get Quotes:");
                 string symbol = Console.ReadLine();
 
-                var quote = await Trader.GetQuotes(accessToken, new List<string>() { symbol }, TradeLogic.Trader.GetQuotesDetailFlag.ALL);
+                var quote = await Trader.GetQuotesAsync(accessToken, new List<string>() { symbol }, TradeLogic.Trader.GetQuotesDetailFlag.ALL);
                 Helpers.PrintObjectProperties(quote);
 
                 break;

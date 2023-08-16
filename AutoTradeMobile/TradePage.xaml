@@ -44,8 +44,13 @@
                                 IsVisible="{Binding IsTraderRunning}"
                                 >
 
+            <chart:SfCartesianChart.ZoomPanBehavior>
+                <chart:ChartZoomPanBehavior />
+            </chart:SfCartesianChart.ZoomPanBehavior>
+
+
             <chart:SfCartesianChart.XAxes>
-                <chart:CategoryAxis/>
+                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="90" />
             </chart:SfCartesianChart.XAxes>
 
             <chart:SfCartesianChart.YAxes>
@@ -62,9 +67,13 @@
                         Close="Close"
                         />
 
+            <chart:SplineSeries XBindingPath="TradeMinute"
+						ItemsSource="{Binding TradingData.Minutes}"
+						YBindingPath="StudyValue"/>
+
         </chart:SfCartesianChart>
 
-        <Label Grid.Row="1" Grid.ColumnSpan="2" HorizontalOptions="Center" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
+        <Label Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Center" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
 
         <StackLayout Grid.Row="1" Grid.ColumnSpan="2" 
                      IsVisible="{Binding IsTraderRunning}"
@@ -95,32 +104,9 @@
         </StackLayout>
 
         <ScrollView IsVisible="{Binding IsTraderRunning}" Grid.Row="2" BackgroundColor="AliceBlue" VerticalScrollBarVisibility="Always">
-            <VerticalStackLayout>
-                <StackLayout Style="{StaticResource StackLabel}">
-                    <Label Text="Time" />
-                    <Label Text="{Binding TradingData.LastTime}" />
-                </StackLayout>
-                <StackLayout Style="{StaticResource StackLabel}">
-                    <Label Text="Is After hours"/>
-                    <Label Text="{Binding TradingData.IsAfterHours}" />
-                </StackLayout>
-                <StackLayout Style="{StaticResource StackLabel}">
-                    <Label Text="Quote Status"/>
-                    <Label Text="{Binding TradingData.QuoteStatus}" />
-                </StackLayout>
-                <StackLayout Style="{StaticResource StackLabel}">
-                    <Label Text="Change Close"/>
-                    <Label Text="{Binding TradingData.ChangeClose, StringFormat='{0:c}'}" />
-                </StackLayout>
-                <StackLayout Style="{StaticResource StackLabel}">
-                    <Label Text="Change CLose Pct"/>
-                    <Label Text="{Binding TradingData.ChangeClosePercentage, StringFormat='{0:p}'}" />
-                </StackLayout>
-                <StackLayout Style="{StaticResource StackLabel}">
-                    <Label Text="Volume"/>
-                    <Label Text="{Binding TradingData.TotalVolume, StringFormat='{0:n0}'}" />
-                </StackLayout>
-            </VerticalStackLayout>
+            <CollectionView ItemsSource="{Binding Trade.Orders}" >
+
+            </CollectionView>
         </ScrollView>
 
         <CollectionView Grid.Row="2" Grid.Column="1" 
@@ -153,9 +139,11 @@
                HorizontalOptions="Center"
                VerticalOptions="Center"
                />
+
             <Entry Placeholder="Ticker" 
                    Text="{Binding Symbol}"
                    HeightRequest="50" WidthRequest="100" Margin="20" />
+
             <Button Text="GO" 
                     Command="{Binding StartTradingCommand}"
                      HeightRequest="30" WidthRequest="50" />
@@ -168,13 +156,13 @@
 
             <StackLayout Style="{StaticResource StackLabel}">
                 <Label Style="{StaticResource WhiteLabel}" Text="Ticks"/>
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.SessionData.TotalRequests}" />
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TotalRequests}" />
             </StackLayout>
 
 
             <StackLayout HorizontalOptions="EndAndExpand" Style="{StaticResource StackLabel}">
                 <Label Style="{StaticResource WhiteLabel}" Text="Tick Time"/>
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.SessionData.LastQuoteResponseTime, StringFormat='{0:fff}ms'}" />
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.LastQuoteResponseTime, StringFormat='{0:fff}ms'}" />
             </StackLayout>
 
         </StackLayout>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -17,7 +18,7 @@ namespace AutoTradeMobile
         {
             bool OpenWindow = false;
 
-            string AuthorizationUrl = await trader.GetAuthorizationUrlAsync();
+            string AuthorizationUrl = await Trader.GetAuthorizationUrlAsync();
 
             OpenWindow = await Browser.Default.OpenAsync(new Uri(AuthorizationUrl), BrowserLaunchMode.SystemPreferred);
 
@@ -26,25 +27,38 @@ namespace AutoTradeMobile
 
         internal async Task<bool> VerifyCodeAsync(string code)
         {
-            accessToken = await trader.GetAccessToken(code);
-            if (accessToken != null)
+            AccessToken = await Trader.GetAccessToken(code);
+            if (AccessToken != null)
             {
                 return true;
             }
             throw new Exception($"Unable to obtain access token");
         }
 
-        internal async void StartTradingSymbolAsync(string symbol)
+        internal async void StartTradingSymbolAsync(string symbol, string accountId, bool replayLastSession)
         {
+            //Debug.Assert(symbol != null); Debug.Assert(accountId != null);
+
             //lookup the symbol to see if its valid
-            if (await trader.ValidateSymbolAsync(symbol))
+            if (await Trader.ValidateSymbolAsync(symbol))
             {
-                if (!currentSymbolList.Contains(symbol))
+                if (!CurrentSymbolList.Contains(symbol))
                 {
-                    currentSymbolList.Add(symbol.ToUpper());
+                    CurrentSymbolList.Add(symbol.ToUpper());
                 }
-                TickerTimer = new(RequestSymbolData, null, 1000, 1000);
+                
+                this.AccountId = accountId;
+                StoredData.LastAccountId = accountId;
+
+                TickerTimer = new(RequestSymbolData, replayLastSession, 1000, 1000);
+                
+                OrdersTimer = new(RequestOrderData, null, 1000, 5000);
             }
+        }
+
+        internal async Task<TradeLogic.APIModels.Accounts.AccountListResponse> GetAccountsAsync()
+        {
+            return await Trader.ListAccountsAsync(AccessToken);
         }
 
         internal SymbolData GetSymbolData(string symbol)
