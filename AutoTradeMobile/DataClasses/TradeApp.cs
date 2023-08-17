@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommunityToolkit.Maui.Core.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -35,7 +36,7 @@ namespace AutoTradeMobile
             throw new Exception($"Unable to obtain access token");
         }
 
-        internal async void StartTradingSymbolAsync(string symbol, string accountId, bool replayLastSession)
+        internal async void StartTradingSymbolAsync(string symbol, bool replayLastSession)
         {
             //Debug.Assert(symbol != null); Debug.Assert(accountId != null);
 
@@ -46,9 +47,7 @@ namespace AutoTradeMobile
                 {
                     CurrentSymbolList.Add(symbol.ToUpper());
                 }
-                
-                this.AccountId = accountId;
-                StoredData.LastAccountId = accountId;
+                AccountIdKey = StoredData.LastAccount.AccountIdKey;
 
                 TickerTimer = new(RequestSymbolData, replayLastSession, 1000, 1000);
                 
@@ -56,9 +55,11 @@ namespace AutoTradeMobile
             }
         }
 
-        internal async Task<TradeLogic.APIModels.Accounts.AccountListResponse> GetAccountsAsync()
+        internal async void LoadAccountsAsync()
         {
-            return await Trader.ListAccountsAsync(AccessToken);
+            var result = await Trader.ListAccountsAsync(AccessToken);
+            Accounts = result.Accounts.Account.Select(a => new Account(a)).ToObservableCollection();
+            Trace.WriteLine($"{Accounts.Count} Accounts");
         }
 
         internal SymbolData GetSymbolData(string symbol)

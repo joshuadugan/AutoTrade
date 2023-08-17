@@ -17,6 +17,9 @@ namespace AutoTradeMobile
         public PersistedData StoredData { get; } = new();
         public ConcurrentDictionary<string, SymbolData> Symbols { get; } = new();
         public ObservableCollection<MarketOrder> Orders { get; private set; } = new();
+        
+        [ObservableProperty]
+        ObservableCollection<Account> accounts;
 
         TradeLogic.Trader _trader;
         public TradeLogic.Trader Trader
@@ -36,7 +39,7 @@ namespace AutoTradeMobile
         }
         public AccessToken AccessToken { get; set; }
         public List<string> CurrentSymbolList { get; } = new();
-        public string AccountId { get; private set; }
+        public string AccountIdKey { get; private set; }
         private Timer TickerTimer { get; set; }
         private Timer OrdersTimer { get; set; }
 
@@ -97,10 +100,30 @@ namespace AutoTradeMobile
     }
     public class PersistedData
     {
-        public string LastAccountId
+        public Account LastAccount
         {
-            get => Preferences.Get(nameof(LastAccountId), string.Empty);
-            set => Preferences.Set(nameof(LastAccountId), value);
+            get
+            {
+                var JsonString = Preferences.Get(nameof(LastAccount), null);
+                if (JsonString != null)
+                {
+                    try
+                    {
+                        Account a = JsonSerializer.Deserialize<Account>(JsonString);
+                        return a;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine($"Unable to deserialize account {ex.Message}");
+                    }
+                }
+                return null;
+            }
+            set
+            {
+                string jsonString = JsonSerializer.Serialize(value);
+                Preferences.Set(nameof(LastAccount), jsonString);
+            }
         }
         public string LastSymbol
         {

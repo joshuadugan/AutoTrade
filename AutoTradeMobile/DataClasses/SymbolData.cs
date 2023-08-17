@@ -135,11 +135,13 @@ namespace AutoTradeMobile
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
                 double NewOpen = t.LastTrade;
+                double NewStudyValue = t.LastTrade;
                 if (LastMinute != null)
                 {
                     NewOpen = LastMinute.AverageTrade;
+                    NewStudyValue = LastMinute.StudyValue;
                 }
-                LastMinute = t.ToMinute(NewOpen);
+                LastMinute = t.ToMinute(NewOpen, NewStudyValue);
                 AddToMinutes(LastMinute);
             }
             else
@@ -151,20 +153,20 @@ namespace AutoTradeMobile
             var currentStudy = Studies.FirstOrDefault();
             if (currentStudy != null)
             {
-                var StudyData = Minutes.TakeLast(currentStudy.Period);
+                var StudyData = Minutes.OrderByDescending(m=>m.LastTickTime).Take(currentStudy.Period);
                 switch (currentStudy.Field)
                 {
                     case StudyConfig.FieldName.open:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.Open).Average();
+                        LastMinute.StudyValue = StudyData.Select(sd => sd.Open).DefaultIfEmpty(LastMinute.AverageTrade).Average();
                         break;
                     case StudyConfig.FieldName.high:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.High).Average();
+                        LastMinute.StudyValue = StudyData.Select(sd => sd.High).DefaultIfEmpty(LastMinute.AverageTrade).Average();
                         break;
                     case StudyConfig.FieldName.low:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.Low).Average();
+                        LastMinute.StudyValue = StudyData.Select(sd => sd.Low).DefaultIfEmpty(LastMinute.AverageTrade).Average();
                         break;
                     case StudyConfig.FieldName.close:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.Close).Average();
+                        LastMinute.StudyValue = StudyData.Select(sd => sd.Close).DefaultIfEmpty(LastMinute.AverageTrade).Average();
                         break;
                     default:
                         break;

@@ -186,8 +186,13 @@ namespace AutoTradeMobile
             {
                 try
                 {
+                    string symbol = CurrentSymbolList.First();
+                    if (string.IsNullOrEmpty(AccountIdKey))
+                    {
+                        throw new ArgumentException("No Account Id Key");
+                    }
                     Stopwatch sw = Stopwatch.StartNew();
-                    //var OrderResult = trader.GetAccounts(accessToken, CurrentAccountId).Result;
+                    var OrderResult = Trader.GetOrdersAsync(AccessToken, AccountIdKey, symbol).Result;
                     sw.Stop();
                     Trace.WriteLineIf(sw.Elapsed.TotalMilliseconds > 500, $"RequestOrderData delay: {sw.Elapsed.TotalMilliseconds}");
 

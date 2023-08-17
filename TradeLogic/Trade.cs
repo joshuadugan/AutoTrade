@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using TradeLogic.APIModels;
 using TradeLogic.APIModels.Accounts;
 using TradeLogic.APIModels.Accounts.portfolio;
+using TradeLogic.APIModels.Orders;
 using TradeLogic.APIModels.Quotes;
 using TradeLogic.Authorization;
 using TradeLogic.Authorization.interfaces;
@@ -75,6 +76,11 @@ namespace TradeLogic
         public async Task<bool> ValidateSymbolAsync(string symbol)
         {
             return true;
+        }
+
+        public async Task<OrdersListResponse> GetOrdersAsync(AccessToken accessToken, string accountIdKey, string symbol)
+        {
+            return await GetAsync<OrdersListResponse>(OrdersListResponse.RequestParameters(accountIdKey, symbol), accessToken);
         }
 
     }

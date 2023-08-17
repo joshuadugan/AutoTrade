@@ -1,6 +1,7 @@
 using AutoTradeMobile.ViewModels;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.Input;
+using System.Diagnostics;
 using TradeLogic;
 
 namespace AutoTradeMobile;
@@ -21,4 +22,8 @@ public partial class TradePage : ContentPage
 
     }
 
+    private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.AccountSelected((Account)e.CurrentSelection.FirstOrDefault());
+    }
 }

@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AutoTradeMobile.DataClasses
+namespace AutoTradeMobile
 {
     public partial class Account: ObservableObject
     {
+        public Account() { }
         public Account(TradeLogic.APIModels.Accounts.Account a)
         {
             AccountId = a.AccountId;

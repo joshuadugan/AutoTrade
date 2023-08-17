@@ -21,7 +21,7 @@ namespace AutoTradeMobile
         StudyType type = StudyType.MA;
 
         [ObservableProperty]
-        int period = 20;
+        int period = 10;
 
         [ObservableProperty]
         FieldName field = FieldName.close;

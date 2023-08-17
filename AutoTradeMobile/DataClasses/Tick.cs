@@ -16,15 +16,18 @@
             public double Bid { get; set; }
             public double LastTrade { get; set; }
 
-            public Minute ToMinute(double NewOpen)
+            public Minute ToMinute(double NewOpen, double NewStudyValue)
             {
                 return new Minute()
                 {
+                    LastTickTime = Time,
                     TradeMinute = MinuteTime,
                     Open = NewOpen,
                     High = Ask,
                     Low = Bid,
                     Close = LastTrade,
+                    AverageTrade = LastTrade,
+                    StudyValue = NewStudyValue,
                     MinuteColor = LastTrade > NewOpen ? Colors.Green : Colors.Red
                 };
             }

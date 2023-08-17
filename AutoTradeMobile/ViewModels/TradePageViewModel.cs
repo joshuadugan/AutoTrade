@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Core.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Layouts;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TradeLogic;
 using TradeLogic.Authorization;
 
 namespace AutoTradeMobile.ViewModels
@@ -19,7 +21,6 @@ namespace AutoTradeMobile.ViewModels
         {
             Trade = trade;
             Symbol = Trade.StoredData.LastSymbol;
-            AccountId = Trade.StoredData.LastAccountId;
             if (Trade.AccessToken == null)
             {
                 AccessToken at = Trade.StoredData.LastAccessToken;
@@ -27,22 +28,27 @@ namespace AutoTradeMobile.ViewModels
                 {
                     Trade.AccessToken = at;
                     HasValidAccessToken = true;
-                    //StartTradingInternal();
+                    StartTradingInternal();
+
                 }
             }
 
-            if (Trade.AccessToken != null)
-            {
-                //load the accounts
-                Task.Run(() =>
-                {
-                    Accounts = Trade.GetAccountsAsync().Result.Accounts.Account.Select(a => new DataClasses.Account(a)).ToObservableCollection();
-                });
-            }
 
         }
 
-        ObservableCollection<DataClasses.Account> Accounts;
+        [RelayCommand]
+        public void LoadAccountsAsync()
+        {
+            if (Trade.AccessToken != null)
+            {
+                Trade.LoadAccountsAsync();
+            }
+            else
+            {
+                ErrorMessage = "No Access Token";
+            }
+        }
+
 
         [ObservableProperty]
         string errorMessage;
@@ -56,9 +62,6 @@ namespace AutoTradeMobile.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsTraderStopped))]
         bool isTraderRunning;
-
-        [ObservableProperty]
-        string accountId;
 
         public bool IsTraderStopped
         {
@@ -74,10 +77,20 @@ namespace AutoTradeMobile.ViewModels
         [ObservableProperty]
         bool replayLastSession;
 
+        [ObservableProperty]
+        bool requireAccountId;
+
         [RelayCommand]
         public void StartTrading()
         {
             StartTradingInternal();
+        }
+
+        public void AccountSelected(Account account)
+        {
+            Trade.StoredData.LastAccount = account;
+            RequireAccountId = false;
+
         }
 
         private void StartTradingInternal()
@@ -91,11 +104,20 @@ namespace AutoTradeMobile.ViewModels
                     Helpers.WriteTextToFileAsync("", $"{Symbol}.txt");
                 }
 
+                //validate the AccountId
+                String AccountIdKey = Trade.StoredData.LastAccount?.AccountIdKey;
+                if (string.IsNullOrEmpty(AccountIdKey))
+                {
+                    LoadAccountsAsync();
+                    RequireAccountId = true;
+                    return;
+                }
+
                 Trade.StoredData.LastSymbol = Symbol;
                 Trade.StoredData.LastAccessToken = Trade.AccessToken;
                 IsTraderRunning = true;
                 //startup the trader with this symbol
-                Trade.StartTradingSymbolAsync(Symbol, AccountId, ReplayLastSession);
+                Trade.StartTradingSymbolAsync(Symbol, ReplayLastSession);
                 //get the trade data object reference for the page context
                 TradingData = Trade.GetSymbolData(Symbol);
 

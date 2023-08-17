@@ -44,11 +44,6 @@
                                 IsVisible="{Binding IsTraderRunning}"
                                 >
 
-            <chart:SfCartesianChart.ZoomPanBehavior>
-                <chart:ChartZoomPanBehavior />
-            </chart:SfCartesianChart.ZoomPanBehavior>
-
-
             <chart:SfCartesianChart.XAxes>
                 <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="90" />
             </chart:SfCartesianChart.XAxes>
@@ -73,7 +68,7 @@
 
         </chart:SfCartesianChart>
 
-        <Label Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Center" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
+        <Label Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Center" BackgroundColor="Red" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
 
         <StackLayout Grid.Row="1" Grid.ColumnSpan="2" 
                      IsVisible="{Binding IsTraderRunning}"
@@ -147,6 +142,34 @@
             <Button Text="GO" 
                     Command="{Binding StartTradingCommand}"
                      HeightRequest="30" WidthRequest="50" />
+
+
+            <Button Text="Select Account"
+                    IsVisible="{Binding RequireAccountId}"
+                    Command="{Binding LoadAccountsAsyncCommand}"
+                    HeightRequest="30" WidthRequest="150" />
+
+            <CollectionView IsVisible="{Binding RequireAccountId}" ItemsSource="{Binding Trade.Accounts}" SelectionChanged="CollectionView_SelectionChanged"  HorizontalOptions="Center" VerticalOptions="Center" SelectionMode="Single">
+                <CollectionView.EmptyViewTemplate>
+                    <DataTemplate>
+                        <Label Text="No Accounts Available"/>
+                    </DataTemplate>
+                </CollectionView.EmptyViewTemplate>
+                <CollectionView.HeaderTemplate>
+                    <DataTemplate>
+                        <Label Text="Select Trading Account" HorizontalOptions="Center" Margin="20" />
+                    </DataTemplate>
+                </CollectionView.HeaderTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:Account">
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding AccountName}" Margin="5" />
+                            <Label Text="{Binding AccountId}" Margin="5" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
         </VerticalStackLayout>
 
         <StackLayout Grid.Row="3" Grid.ColumnSpan="2" 
