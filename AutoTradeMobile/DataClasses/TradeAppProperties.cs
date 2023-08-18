@@ -16,8 +16,10 @@ namespace AutoTradeMobile
         public AuthDataContainer AuthData { get; } = new();
         public PersistedData StoredData { get; } = new();
         public ConcurrentDictionary<string, SymbolData> Symbols { get; } = new();
-        public ObservableCollection<MarketOrder> Orders { get; private set; } = new();
-        
+
+        [ObservableProperty]
+        ObservableCollection<MarketOrder> orders = new();
+
         [ObservableProperty]
         ObservableCollection<Account> accounts;
 

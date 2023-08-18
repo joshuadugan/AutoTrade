@@ -100,7 +100,16 @@
 
         <ScrollView IsVisible="{Binding IsTraderRunning}" Grid.Row="2" BackgroundColor="AliceBlue" VerticalScrollBarVisibility="Always">
             <CollectionView ItemsSource="{Binding Trade.Orders}" >
-
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:MarketOrder">
+                        <HorizontalStackLayout>
+                            <Label Text="{Binding OrderId}" Margin="2" />
+                            <Label Text="{Binding OrderType}" Margin="2" />
+                            <Label Text="{Binding FilledQuantity}" Margin="2" />
+                            <Label Text="{Binding OrderValue}" Margin="2" />
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
             </CollectionView>
         </ScrollView>
 

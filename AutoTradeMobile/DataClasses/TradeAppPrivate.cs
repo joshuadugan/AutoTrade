@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
-using System.Globalization;
+﻿using AutoTradeMobile.DataClasses;
+using CommunityToolkit.Maui.Core.Extensions;
+using System.Diagnostics;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using TradeLogic.APIModels.Orders;
 using TradeLogic.APIModels.Quotes;
 using TradeLogic.ViewModels;
 
@@ -118,7 +119,7 @@ namespace AutoTradeMobile
                                                 DateTimeUTC = DateTime.Now.ToFileTimeUtc(),
                                                 DateTime = DateTime.Now.ToString(),
                                                 QuoteStatus = "REALTIME",
-                                                Product = new Product()
+                                                Product = new TradeLogic.APIModels.Quotes.Product()
                                                 {
                                                     SecurityType = "EQ",
                                                     Symbol = symbol
@@ -192,17 +193,22 @@ namespace AutoTradeMobile
                         throw new ArgumentException("No Account Id Key");
                     }
                     Stopwatch sw = Stopwatch.StartNew();
-                    var OrderResult = Trader.GetOrdersAsync(AccessToken, AccountIdKey, symbol).Result;
+                    OrdersListResponse OrderResult = Trader.GetOrdersAsync(AccessToken, AccountIdKey, symbol).Result;
                     sw.Stop();
                     Trace.WriteLineIf(sw.Elapsed.TotalMilliseconds > 500, $"RequestOrderData delay: {sw.Elapsed.TotalMilliseconds}");
-
                     LastOrderResponseTime = sw.Elapsed;
+                    ProcessOrders(OrderResult);
                 }
                 catch (Exception ex)
                 {
                     TradingError = ex.Message;
                 }
             }
+        }
+
+        private void ProcessOrders(OrdersListResponse OrderResult)
+        {
+            Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
         }
 
 

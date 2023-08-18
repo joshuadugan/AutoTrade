@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Maui.Core.Extensions;
+﻿using AutoTradeMobile.DataClasses;
+using CommunityToolkit.Maui.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using TradeLogic.APIModels.Orders;
 using TradeLogic.Authorization;
 
 namespace AutoTradeMobile
@@ -50,8 +52,10 @@ namespace AutoTradeMobile
                 AccountIdKey = StoredData.LastAccount.AccountIdKey;
 
                 TickerTimer = new(RequestSymbolData, replayLastSession, 1000, 1000);
-                
-                OrdersTimer = new(RequestOrderData, null, 1000, 5000);
+
+                LoadOrdersAsync();
+
+                //OrdersTimer = new(RequestOrderData, null, 1000, 5000);
             }
         }
 
@@ -60,6 +64,13 @@ namespace AutoTradeMobile
             var result = await Trader.ListAccountsAsync(AccessToken);
             Accounts = result.Accounts.Account.Select(a => new Account(a)).ToObservableCollection();
             Trace.WriteLine($"{Accounts.Count} Accounts");
+        }
+
+        internal async void LoadOrdersAsync()
+        {
+            string symbol = CurrentSymbolList.First();
+            OrdersListResponse OrderResult = await Trader.GetOrdersAsync(AccessToken, AccountIdKey, symbol);
+            Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
         }
 
         internal SymbolData GetSymbolData(string symbol)
