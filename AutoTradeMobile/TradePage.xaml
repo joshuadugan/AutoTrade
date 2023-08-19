@@ -6,11 +6,14 @@
              xmlns:ViewModel="clr-namespace:AutoTradeMobile.ViewModels"
              x:DataType="ViewModel:TradePageViewModel"
              xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
+             xmlns:grid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:local="clr-namespace:AutoTradeMobile"
              Title="Trade"
              >
 
     <ContentPage.Resources>
+
+        <local:PercentConverter x:Key="PctFix" />
 
         <Style x:Key="WhiteLabel" TargetType="Label">
             <Setter Property="TextColor" Value="White" />
@@ -64,54 +67,101 @@
 
             <chart:SplineSeries XBindingPath="TradeMinute"
 						ItemsSource="{Binding TradingData.Minutes}"
-						YBindingPath="StudyValue"/>
+                                Fill="Green" ShowMarkers="True"
+						YBindingPath="FirstStudyValue">
+
+                <chart:SplineSeries.MarkerSettings>
+                    <chart:ChartMarkerSettings Type="Circle"
+                                   Fill="Green"
+                                   Stroke="Black"
+                                   StrokeWidth="1"
+                                   Height="4"
+                                   Width="4"/>
+                </chart:SplineSeries.MarkerSettings>
+
+            </chart:SplineSeries>
+
+            <chart:SplineSeries XBindingPath="TradeMinute"
+						ItemsSource="{Binding TradingData.Minutes}"
+                                Fill="Blue" ShowMarkers="True"
+						YBindingPath="SecondStudyValue">
+
+                <chart:SplineSeries.MarkerSettings>
+                    <chart:ChartMarkerSettings Type="Circle"
+                                   Fill="Blue"
+                                   Stroke="Black"
+                                   StrokeWidth="1"
+                                   Height="4"
+                                   Width="4"/>
+                </chart:SplineSeries.MarkerSettings>
+                
+            </chart:SplineSeries>
 
         </chart:SfCartesianChart>
 
         <Label Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Center" BackgroundColor="Red" Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" />
 
-        <StackLayout Grid.Row="1" Grid.ColumnSpan="2" 
-                     IsVisible="{Binding IsTraderRunning}"
-                     BackgroundColor="{Binding TradingData.LastMinute.MinuteColor}" 
-                     Orientation="Horizontal"
-                     >
-            <StackLayout Style="{StaticResource StackLabel}" >
-                <Label Style="{StaticResource WhiteLabel}" Text="Time" />
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.TradeMinute}" />
-            </StackLayout>
-            <StackLayout Style="{StaticResource StackLabel}">
-                <Label Style="{StaticResource WhiteLabel}" Text="Open"/>
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.Open, StringFormat='{0:c}'}" />
-            </StackLayout>
-            <StackLayout Style="{StaticResource StackLabel}">
-                <Label Style="{StaticResource WhiteLabel}" Text="Low"/>
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.Low, StringFormat='{0:c}'}" />
-            </StackLayout>
-            <StackLayout Style="{StaticResource StackLabel}">
-                <Label Style="{StaticResource WhiteLabel}" Text="High"/>
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastMinute.High, StringFormat='{0:c}'}" />
-            </StackLayout>
-            <StackLayout Style="{StaticResource StackLabel}" HorizontalOptions="End">
-                <Label Style="{StaticResource WhiteLabel}" Text="Last Trade"/>
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding TradingData.LastTrade, StringFormat='{0:c}'}" />
-            </StackLayout>
+        <FlexLayout IsVisible="{Binding IsTraderRunning}"
+                    Grid.Row="1" 
+                    Grid.ColumnSpan="2" 
+                    Direction="Row" 
+                    AlignItems="Center" 
+                    JustifyContent="SpaceBetween" BackgroundColor="AliceBlue">
 
-        </StackLayout>
+            <Label Text="{Binding TradingData.LastMinute.TradeMinute}" Margin="10" />
 
-        <ScrollView IsVisible="{Binding IsTraderRunning}" Grid.Row="2" BackgroundColor="AliceBlue" VerticalScrollBarVisibility="Always">
-            <CollectionView ItemsSource="{Binding Trade.Orders}" >
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="local:MarketOrder">
-                        <HorizontalStackLayout>
-                            <Label Text="{Binding OrderId}" Margin="2" />
-                            <Label Text="{Binding OrderType}" Margin="2" />
-                            <Label Text="{Binding FilledQuantity}" Margin="2" />
-                            <Label Text="{Binding OrderValue}" Margin="2" />
-                        </HorizontalStackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
+
+            <HorizontalStackLayout Margin="10">
+
+                <HorizontalStackLayout Margin="10" VerticalOptions="CenterAndExpand">
+                    <BoxView Color="{Binding TradingData.LastMinute.MinuteColor}" WidthRequest="10" HeightRequest="20" Margin="10" VerticalOptions="CenterAndExpand"></BoxView>
+                    <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" Text="{Binding TradingData.LastTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                </HorizontalStackLayout>
+
+                <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" Margin="10" VerticalOptions="CenterAndExpand"
+                   Text="{Binding TradingData.ChangeClose, StringFormat='{0:N2}'}"></Label>
+
+                <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" 
+                       Margin="10" VerticalOptions="CenterAndExpand"
+                   Text="{Binding TradingData.ChangeClosePercentage, Converter={StaticResource PctFix}, StringFormat='{0}%'}"></Label>
+
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Margin="10">
+                <VerticalStackLayout Margin="10">
+                    <Label Text="Bid" HorizontalOptions="CenterAndExpand"></Label>
+                    <Label Text="{Binding TradingData.Bid, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
+                </VerticalStackLayout>
+                <VerticalStackLayout Margin="10">
+                    <Label Text="Ask" HorizontalOptions="CenterAndExpand"></Label>
+                    <Label Text="{Binding TradingData.Ask, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+
+            <VerticalStackLayout Margin="10">
+                <Label Text="Volume" HorizontalOptions="CenterAndExpand"></Label>
+                <Label Text="{Binding TradingData.TotalVolume, StringFormat='{0:N0}'}"></Label>
+            </VerticalStackLayout>
+
+        </FlexLayout>
+
+        <grid:SfDataGrid x:Name="OrdersGrid" 
+                         IsVisible="{Binding IsTraderRunning}" 
+                         Grid.Row="2" 
+                         ItemsSource="{Binding Trade.Orders}" 
+                         SortingMode="Single" 
+                         ColumnWidthMode="Fill"
+                         HorizontalOptions="CenterAndExpand"
+                         AutoGenerateColumnsMode="None">
+            <grid:SfDataGrid.Columns>
+                <grid:DataGridTextColumn HeaderText="ID" MappingName="OrderId"/>
+                <grid:DataGridTextColumn HeaderText="Type" MappingName="OrderType"/>
+                <grid:DataGridTextColumn HeaderText="Qty" MappingName="FilledQuantity"/>
+                <grid:DataGridTextColumn HeaderText="Value" MappingName="OrderValue" Format="C"/>
+            </grid:SfDataGrid.Columns>
+        </grid:SfDataGrid>
+
 
         <CollectionView Grid.Row="2" Grid.Column="1" 
                         IsVisible="{Binding IsTraderRunning}"

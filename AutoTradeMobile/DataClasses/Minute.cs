@@ -25,7 +25,9 @@ namespace AutoTradeMobile
             [ObservableProperty]
             double averageTrade;
             [ObservableProperty] 
-            double studyValue ;
+            double firstStudyValue;
+            [ObservableProperty]
+            double secondStudyValue;
 
             public List<Tick> Ticks { get; private set; } = new();
 

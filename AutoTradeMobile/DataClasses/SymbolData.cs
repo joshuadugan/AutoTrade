@@ -1,11 +1,7 @@
-﻿using System.ComponentModel;
-using TradeLogic.APIModels.Quotes;
-using CommunityToolkit.Mvvm;
+﻿using TradeLogic.APIModels.Quotes;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using AutoTradeMobile.DataClasses;
 using System.Globalization;
 
@@ -27,7 +23,14 @@ namespace AutoTradeMobile
                 if (Studies.Count == 0)
                 {
                     Trace.WriteLine("Adding default Study Config");
-                    Studies.Add(new StudyConfig());
+                    Studies.Add(new StudyConfig()
+                    {
+                        Period = 5,
+                    });
+                    Studies.Add(new StudyConfig()
+                    {
+                        Period = 10,
+                    });
                     Studies.PersistToFile(StudiesFileName);
                 }
             }
@@ -71,6 +74,12 @@ namespace AutoTradeMobile
         double lastTrade;
 
         [ObservableProperty]
+        double bid;
+
+        [ObservableProperty]
+        double ask;
+
+        [ObservableProperty]
         Minute lastMinute;
 
         [ObservableProperty]
@@ -106,6 +115,8 @@ namespace AutoTradeMobile
                 //global properties
                 ChangeClose = quote.QuoteData.Intraday.ChangeClose;
                 ChangeClosePercentage = quote.QuoteData.Intraday.ChangeClosePercentage;
+                Bid = quote.QuoteData.Intraday.Bid;
+                Ask = quote.QuoteData.Intraday.Ask;
                 TotalVolume = quote.QuoteData.Intraday.TotalVolume;
                 LastTrade = quote.QuoteData.Intraday.LastTrade;
                 TodayLow = quote.QuoteData.Intraday.Low;
@@ -135,13 +146,15 @@ namespace AutoTradeMobile
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
                 double NewOpen = t.LastTrade;
-                double NewStudyValue = t.LastTrade;
+                double FirstStudyValue = t.LastTrade;
+                double SecondStudyValue = t.LastTrade;
                 if (LastMinute != null)
                 {
                     NewOpen = LastMinute.AverageTrade;
-                    NewStudyValue = LastMinute.StudyValue;
+                    FirstStudyValue = LastMinute.FirstStudyValue;
+                    SecondStudyValue = LastMinute.SecondStudyValue;
                 }
-                LastMinute = t.ToMinute(NewOpen, NewStudyValue);
+                LastMinute = t.ToMinute(NewOpen, FirstStudyValue, SecondStudyValue);
                 AddToMinutes(LastMinute);
             }
             else
@@ -150,27 +163,42 @@ namespace AutoTradeMobile
                 RefreshLastMinute();
             }
 
-            var currentStudy = Studies.FirstOrDefault();
-            if (currentStudy != null)
+            int studyIndex = 0;
+            foreach (var currentStudy in Studies)
             {
-                var StudyData = Minutes.OrderByDescending(m=>m.LastTickTime).Take(currentStudy.Period);
-                switch (currentStudy.Field)
+                if (currentStudy != null)
                 {
-                    case StudyConfig.FieldName.open:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.Open).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                        break;
-                    case StudyConfig.FieldName.high:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.High).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                        break;
-                    case StudyConfig.FieldName.low:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.Low).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                        break;
-                    case StudyConfig.FieldName.close:
-                        LastMinute.StudyValue = StudyData.Select(sd => sd.Close).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                        break;
-                    default:
-                        break;
+                    var StudyData = Minutes.OrderByDescending(m => m.LastTickTime).Take(currentStudy.Period);
+                    double StudyValue = 0;
+                    switch (currentStudy.Field)
+                    {
+                        case StudyConfig.FieldName.open:
+                            StudyValue = StudyData.Select(sd => sd.Open).DefaultIfEmpty(LastMinute.AverageTrade).Average();
+                            break;
+                        case StudyConfig.FieldName.high:
+                            StudyValue = StudyData.Select(sd => sd.High).DefaultIfEmpty(LastMinute.AverageTrade).Average();
+                            break;
+                        case StudyConfig.FieldName.low:
+                            StudyValue = StudyData.Select(sd => sd.Low).DefaultIfEmpty(LastMinute.AverageTrade).Average();
+                            break;
+                        case StudyConfig.FieldName.close:
+                            StudyValue = StudyData.Select(sd => sd.Close).DefaultIfEmpty(LastMinute.AverageTrade).Average();
+                            break;
+                        default:
+                            break;
+                    }
+                    switch (studyIndex)
+                    {
+                        case 0:
+                            LastMinute.FirstStudyValue = StudyValue;
+                            break;
+
+                        case 1:
+                            LastMinute.SecondStudyValue = StudyValue;
+                            break;
+                    }
                 }
+                studyIndex++;
             }
 
         }
