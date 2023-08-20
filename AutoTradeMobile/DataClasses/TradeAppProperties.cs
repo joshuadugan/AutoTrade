@@ -24,7 +24,7 @@ namespace AutoTradeMobile
         ObservableCollection<Account> accounts;
 
         TradeLogic.Trader _trader;
-        public TradeLogic.Trader Trader
+        public TradeLogic.Trader TradeAPI
         {
             get
             {
@@ -42,8 +42,6 @@ namespace AutoTradeMobile
         public AccessToken AccessToken { get; set; }
         public List<string> CurrentSymbolList { get; } = new();
         public string AccountIdKey { get; private set; }
-        private Timer TickerTimer { get; set; }
-        private Timer OrdersTimer { get; set; }
 
         [ObservableProperty]
         int totalRequests;

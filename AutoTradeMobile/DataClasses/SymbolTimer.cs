@@ -10,6 +10,12 @@ namespace AutoTradeMobile
 {
     public partial class TradeApp
     {
+        private Timer TickerTimer { get; set; }
+
+        public void StartTickerTimer(bool replayLastSession)
+        {
+            TickerTimer = new(RequestSymbolData, replayLastSession, 1000, 1000);
+        }
 
         /// <summary>
         /// timer callback
@@ -42,7 +48,7 @@ namespace AutoTradeMobile
                     }
                     //will be called by the timer to collect data about the symbol
                     Stopwatch sw = Stopwatch.StartNew();
-                    GetQuotesResponse TickResult = Trader.GetQuotesAsync(AccessToken, CurrentSymbolList).Result;
+                    GetQuotesResponse TickResult = TradeAPI.GetQuotesAsync(AccessToken, CurrentSymbolList).Result;
                     sw.Stop();
                     Trace.WriteLineIf(sw.Elapsed.TotalMilliseconds > 500, $"RequestSymbolData delay: {sw.Elapsed.TotalMilliseconds}");
 
@@ -60,7 +66,7 @@ namespace AutoTradeMobile
 
                     string fileData = JsonSerializer.Serialize(TickResult.QuoteData.Intraday);
                     string symbolFileName = $"{TickResult.QuoteData.Product.Symbol.ToUpper()}.txt";
-                    SymbolLogQueue.Enqueue(new queObj() { fileData = fileData, fileName = symbolFileName });
+                    SymbolLogQueue.Enqueue(new LogQueueObj() { fileData = fileData, fileName = symbolFileName });
 
                 }
                 catch (Exception ex)
@@ -152,64 +158,8 @@ namespace AutoTradeMobile
         }
 
 
-        static Queue<queObj> SymbolLogQueue = new Queue<queObj>();
-        Timer SymbolLogTimer = new Timer(PersistStringsToFile, null, 10000, 10000);
-        static void PersistStringsToFile(object state)
-        {
-            lock (SymbolLogQueue)
-            {
-                List<queObj> logs = new List<queObj>();
-                while (SymbolLogQueue.Count > 0)
-                {
-                    logs.Add(SymbolLogQueue.Dequeue());
-
-                }
-                var groups = logs.GroupBy(l => l.fileName);
-                foreach (var group in groups)
-                {
-                    var fileName = group.Key;
-                    var fileData = group.Select(g => g.fileData);
-                    Helpers.AppendLinesToFileAsync(fileData, fileName);
-                    Trace.WriteLine($"Log Data persisted to {fileName}.");
-                }
-            }
-        }
-        private class queObj
-        {
-            public string fileData { get; set; }
-            public string fileName { get; set; }
-        }
 
 
-        private void RequestOrderData(object args)
-        {
-            lock (OrdersTimer)
-            {
-                try
-                {
-                    string symbol = CurrentSymbolList.First();
-                    if (string.IsNullOrEmpty(AccountIdKey))
-                    {
-                        throw new ArgumentException("No Account Id Key");
-                    }
-                    Stopwatch sw = Stopwatch.StartNew();
-                    OrdersListResponse OrderResult = Trader.GetOrdersAsync(AccessToken, AccountIdKey, symbol).Result;
-                    sw.Stop();
-                    Trace.WriteLineIf(sw.Elapsed.TotalMilliseconds > 500, $"RequestOrderData delay: {sw.Elapsed.TotalMilliseconds}");
-                    LastOrderResponseTime = sw.Elapsed;
-                    ProcessOrders(OrderResult);
-                }
-                catch (Exception ex)
-                {
-                    TradingError = ex.Message;
-                }
-            }
-        }
-
-        private void ProcessOrders(OrdersListResponse OrderResult)
-        {
-            Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
-        }
 
 
     }

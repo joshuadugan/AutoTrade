@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Syncfusion.Licensing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,28 @@ namespace AutoTradeMobile
         public MarketOrder(Order order)
         {
             Update(order);
+        }
+
+
+        /// <summary>
+        /// This exists to simulate an order
+        /// </summary>
+        /// <param name="thisOrder"></param>
+        public MarketOrder(PreviewOrderResponse.RequestBody thisOrder)
+        {
+            //make up an order id
+            OrderId = 999;
+            OrderType = "SIMULATED";
+            var order = thisOrder.Order.First();
+            var instrument = order.Instrument.First();
+            Details = instrument.OrderAction.ToString();
+            thisOrder.Order.First().Instrument.First().FilledQuantity = instrument.OrderedQuantity;
+            thisOrder.Order.First().OrderValue = instrument.OrderedQuantity * order.LimitPrice;
+            OrderResponse = new Order()
+            {
+                OrderDetail = thisOrder.Order.FirstOrDefault(),
+            };
+
         }
 
         [ObservableProperty]
@@ -66,5 +89,6 @@ namespace AutoTradeMobile
 
             return this;
         }
+
     }
 }

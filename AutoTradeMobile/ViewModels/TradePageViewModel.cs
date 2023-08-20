@@ -50,6 +50,17 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+        public void LoadOrdersAsync()
+        {
+            if (Trade.AccessToken != null)
+            {
+                Trade.LoadOrdersAsync();
+            }
+            else
+            {
+                ErrorMessage = "No Access Token";
+            }
+        }
 
         [ObservableProperty]
         string errorMessage;
@@ -122,6 +133,7 @@ namespace AutoTradeMobile.ViewModels
                 //get the trade data object reference for the page context
                 TradingData = Trade.GetSymbolData(Symbol);
 
+                LoadOrdersAsync();
             }
             catch (Exception ex)
             {

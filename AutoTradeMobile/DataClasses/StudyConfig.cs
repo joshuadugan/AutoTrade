@@ -44,7 +44,6 @@ namespace AutoTradeMobile
         [ObservableProperty]
         decimal uptrendAmountRequired = 0.10m;
 
-
     }
 
 }

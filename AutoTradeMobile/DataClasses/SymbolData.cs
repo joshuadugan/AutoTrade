@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections.ObjectModel;
 using AutoTradeMobile.DataClasses;
 using System.Globalization;
+using TradeLogic;
 
 namespace AutoTradeMobile
 {
@@ -145,24 +146,55 @@ namespace AutoTradeMobile
             //aggrigate the tick into the minutes
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
-                double NewOpen = t.LastTrade;
-                double FirstStudyValue = t.LastTrade;
-                double SecondStudyValue = t.LastTrade;
-                if (LastMinute != null)
-                {
-                    NewOpen = LastMinute.AverageTrade;
-                    FirstStudyValue = LastMinute.FirstStudyValue;
-                    SecondStudyValue = LastMinute.SecondStudyValue;
-                }
-                LastMinute = t.ToMinute(NewOpen, FirstStudyValue, SecondStudyValue);
+                EvalMinuteForTrade(LastMinute);
+                LastMinute = t.ToMinute(LastMinute);
                 AddToMinutes(LastMinute);
+                ProcessStudies();
             }
             else
             {
                 LastMinute.AddTick(t);
+                ProcessStudies();
                 RefreshLastMinute();
             }
 
+
+        }
+
+        private void EvalMinuteForTrade(Minute lastMinute)
+        {
+            if (LastMinute == null) { return; }
+            if (LastMinute.MinuteChange>0 && LastMinute.FirstStudyChange>0 && LastMinute.SecondStudyChange>0)
+            {
+                //buy order
+                var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
+                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
+                    lastMinute.OrderKey,
+                    Symbol,
+                    lastMinute.FirstStudy.MaxSharesInPlay,
+                    lastMinute.Ticks.Last().Ask,
+                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.BUY
+                    );
+                TradeApp.AddOrderToQueue(orderRequest);
+            }
+            else
+            {
+                //sell order
+                var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
+                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
+                    lastMinute.OrderKey,
+                    Symbol,
+                    lastMinute.FirstStudy.MaxSharesInPlay,
+                    lastMinute.Ticks.Last().Bid,
+                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.SELL
+                    );
+                TradeApp.AddOrderToQueue(orderRequest);
+
+            }
+        }
+
+        private void ProcessStudies()
+        {
             int studyIndex = 0;
             foreach (var currentStudy in Studies)
             {
@@ -190,17 +222,18 @@ namespace AutoTradeMobile
                     switch (studyIndex)
                     {
                         case 0:
+                            LastMinute.FirstStudy = currentStudy;
                             LastMinute.FirstStudyValue = StudyValue;
                             break;
 
                         case 1:
+                            LastMinute.SecondStudy = currentStudy;
                             LastMinute.SecondStudyValue = StudyValue;
                             break;
                     }
                 }
                 studyIndex++;
             }
-
         }
 
         private void RefreshLastMinute()

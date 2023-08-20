@@ -83,5 +83,14 @@ namespace TradeLogic
             return await GetAsync<OrdersListResponse>(OrdersListResponse.RequestParameters(accountIdKey, symbol), accessToken);
         }
 
+        public async Task<PreviewOrderResponse> PostOrder(AccessToken accessToken, string accountIdKey, PreviewOrderResponse.RequestBody requestBody)
+        {
+            PreviewOrderResponse requestData = new();
+            requestData.RequestBodyData = requestBody;
+
+            return await Post<PreviewOrderResponse, PreviewOrderResponse.RequestBody>(requestData, PreviewOrderResponse.RequestParameters(accountIdKey), accessToken);
+        }
+
+
     }
 }

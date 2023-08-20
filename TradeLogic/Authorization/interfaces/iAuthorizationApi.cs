@@ -50,9 +50,9 @@ namespace TradeLogic.Authorization.interfaces
     {
     }
 
-    public interface IRequest
+    public interface IRequest<T>
     {
-        string ToXml();
+        T ToRequestBodyObject();
     }
 
 }

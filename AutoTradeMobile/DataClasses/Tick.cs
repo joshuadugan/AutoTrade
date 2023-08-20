@@ -16,8 +16,9 @@
             public double Bid { get; set; }
             public double LastTrade { get; set; }
 
-            public Minute ToMinute(double NewOpen, double firstStudyValue, double secondStudyValue)
+            public Minute ToMinute(Minute lastMinute)
             {
+                var NewOpen = lastMinute?.AverageTrade ?? LastTrade;
                 return new Minute()
                 {
                     LastTickTime = Time,
@@ -27,8 +28,10 @@
                     Low = Bid,
                     Close = LastTrade,
                     AverageTrade = LastTrade,
-                    FirstStudyValue = firstStudyValue,
-                    SecondStudyValue = secondStudyValue,
+                    FirstStudyValue = lastMinute?.FirstStudyValue ?? LastTrade,
+                    SecondStudyValue = lastMinute?.SecondStudyValue ?? LastTrade,
+                    FirstStudyStartingValue = lastMinute?.FirstStudyValue ?? LastTrade,
+                    SecondStudyStartingValue = lastMinute?.SecondStudyValue ?? LastTrade,
                     MinuteColor = LastTrade > NewOpen ? Colors.Green : Colors.Red
                 };
             }

@@ -119,11 +119,11 @@ namespace TradeLogic
             return (_BaseURL) + (queryData != null ? resourceName.Inject(queryData) : resourceName);
         }
 
-        private async Task<TResult> Post<TRequest, TResult>(TRequest request, Dictionary<string, string> queryData, AccessToken accessToken) where TRequest : IResource, IRequest, new()
+        internal async Task<TRequestAndResult> Post<TRequestAndResult, TRequestBody>(TRequestAndResult request, Dictionary<string, string> queryData, AccessToken accessToken) where TRequestAndResult : IResource, IRequest<TRequestBody>, new()
         {
-            var resourceType = typeof(TResult);
+            var resourceType = typeof(TRequestAndResult);
 
-            string url = GetUrl<TRequest>(queryData);
+            string url = GetUrl<TRequestAndResult>(queryData);
 
             var serializer = new XmlSerializer(resourceType);
 
@@ -133,7 +133,7 @@ namespace TradeLogic
             {
                 using HttpClient httpClient = new();
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
-                var content = JsonContent.Create(request);
+                var content = JsonContent.Create(request.ToRequestBodyObject);
                 HttpResponseMessage response = await httpClient.PostAsync(url, content);
                 response.EnsureSuccessStatusCode();
                 using Stream responseStream = await response.Content.ReadAsStreamAsync();
@@ -143,7 +143,7 @@ namespace TradeLogic
 
                 try
                 {
-                    return (TResult)serializer.Deserialize(responseMemoryStream);
+                    return (TRequestAndResult)serializer.Deserialize(responseMemoryStream);
                 }
                 catch (InvalidOperationException ex)
                 {

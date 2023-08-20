@@ -21,7 +21,7 @@ namespace AutoTradeMobile
         {
             bool OpenWindow = false;
 
-            string AuthorizationUrl = await Trader.GetAuthorizationUrlAsync();
+            string AuthorizationUrl = await TradeAPI.GetAuthorizationUrlAsync();
 
             OpenWindow = await Browser.Default.OpenAsync(new Uri(AuthorizationUrl), BrowserLaunchMode.SystemPreferred);
 
@@ -30,7 +30,7 @@ namespace AutoTradeMobile
 
         internal async Task<bool> VerifyCodeAsync(string code)
         {
-            AccessToken = await Trader.GetAccessToken(code);
+            AccessToken = await TradeAPI.GetAccessToken(code);
             if (AccessToken != null)
             {
                 return true;
@@ -43,7 +43,7 @@ namespace AutoTradeMobile
             //Debug.Assert(symbol != null); Debug.Assert(accountId != null);
 
             //lookup the symbol to see if its valid
-            if (await Trader.ValidateSymbolAsync(symbol))
+            if (await TradeAPI.ValidateSymbolAsync(symbol))
             {
                 if (!CurrentSymbolList.Contains(symbol))
                 {
@@ -51,17 +51,13 @@ namespace AutoTradeMobile
                 }
                 AccountIdKey = StoredData.LastAccount.AccountIdKey;
 
-                TickerTimer = new(RequestSymbolData, replayLastSession, 1000, 1000);
-
-                LoadOrdersAsync();
-
-                //OrdersTimer = new(RequestOrderData, null, 1000, 5000);
+                StartTrading(replayLastSession);
             }
         }
 
         internal async void LoadAccountsAsync()
         {
-            var result = await Trader.ListAccountsAsync(AccessToken);
+            var result = await TradeAPI.ListAccountsAsync(AccessToken);
             Accounts = result.Accounts.Account.Select(a => new Account(a)).ToObservableCollection();
             Trace.WriteLine($"{Accounts.Count} Accounts");
         }
@@ -69,7 +65,7 @@ namespace AutoTradeMobile
         internal async void LoadOrdersAsync()
         {
             string symbol = CurrentSymbolList.First();
-            OrdersListResponse OrderResult = await Trader.GetOrdersAsync(AccessToken, AccountIdKey, symbol);
+            OrdersListResponse OrderResult = await TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, symbol);
             Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
         }
 
@@ -78,9 +74,10 @@ namespace AutoTradeMobile
             return Symbols.GetOrAdd(symbol.ToUpper(), key => { return new SymbolData(); });
         }
 
-        internal void StartTrading()
+        internal void StartTrading(bool ReplayLastSession)
         {
-            TickerTimer = new(RequestSymbolData, null, 1000, 1000);
+            StartTickerTimer(ReplayLastSession);
+            StartOrderTimer(ReplayLastSession);
         }
 
         internal void StopTrading()
@@ -88,5 +85,9 @@ namespace AutoTradeMobile
             TickerTimer.Dispose();
         }
 
+        internal void PlaceOrder(Order order)
+        {
+
+        }
     }
 }
