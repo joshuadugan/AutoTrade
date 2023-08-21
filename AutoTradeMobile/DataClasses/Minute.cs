@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics;
+using TradeLogic.APIModels.Accounts.portfolio;
 
 namespace AutoTradeMobile
 {

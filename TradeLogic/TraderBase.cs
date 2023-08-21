@@ -98,6 +98,10 @@ namespace TradeLogic
 
             try
             {
+                if (string.IsNullOrEmpty(responseString))
+                {
+                    return default(T);
+                }
                 using (StringReader reader = new StringReader(responseString))
                 {
                     var newObj = new XmlSerializer(resourceType).Deserialize(reader);

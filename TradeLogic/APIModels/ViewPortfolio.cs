@@ -61,7 +61,7 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public string SecurityType { get; set; }
 
         [XmlElement(ElementName = "strikePrice")]
-        public decimal StrikePrice { get; set; }
+        public double  StrikePrice { get; set; }
 
         [XmlElement(ElementName = "symbol")]
         public string Symbol { get; set; }
@@ -78,13 +78,13 @@ namespace TradeLogic.APIModels.Accounts.portfolio
     {
 
         [XmlElement(ElementName = "change")]
-        public decimal Change { get; set; }
+        public double  Change { get; set; }
 
         [XmlElement(ElementName = "changePct")]
-        public decimal ChangePct { get; set; }
+        public double  ChangePct { get; set; }
 
         [XmlElement(ElementName = "lastTrade")]
-        public decimal LastTrade { get; set; }
+        public double  LastTrade { get; set; }
 
         [XmlElement(ElementName = "lastTradeTime")]
         public long LastTradeTime { get; set; }
@@ -110,16 +110,16 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public long DateAcquired { get; set; }
 
         [XmlElement(ElementName = "pricePaid")]
-        public decimal PricePaid { get; set; }
+        public double PricePaid { get; set; }
 
         [XmlElement(ElementName = "commissions")]
-        public decimal Commissions { get; set; }
+        public double Commissions { get; set; }
 
         [XmlElement(ElementName = "otherFees")]
-        public decimal OtherFees { get; set; }
+        public double OtherFees { get; set; }
 
         [XmlElement(ElementName = "quantity")]
-        public decimal Quantity { get; set; }
+        public double Quantity { get; set; }
 
         [XmlElement(ElementName = "positionIndicator")]
         public string PositionIndicator { get; set; }
@@ -128,40 +128,40 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public string PositionType { get; set; }
 
         [XmlElement(ElementName = "daysGain")]
-        public decimal DaysGain { get; set; }
+        public double  DaysGain { get; set; }
 
         [XmlElement(ElementName = "daysGainPct")]
-        public decimal DaysGainPct { get; set; }
+        public double  DaysGainPct { get; set; }
 
         [XmlElement(ElementName = "marketValue")]
-        public decimal MarketValue { get; set; }
+        public double  MarketValue { get; set; }
 
         [XmlElement(ElementName = "totalCost")]
-        public decimal TotalCost { get; set; }
+        public double  TotalCost { get; set; }
 
         [XmlElement(ElementName = "totalGain")]
-        public decimal TotalGain { get; set; }
+        public double  TotalGain { get; set; }
 
         [XmlElement(ElementName = "totalGainPct")]
-        public decimal TotalGainPct { get; set; }
+        public double  TotalGainPct { get; set; }
 
         [XmlElement(ElementName = "pctOfPortfolio")]
-        public decimal PctOfPortfolio { get; set; }
+        public double  PctOfPortfolio { get; set; }
 
         [XmlElement(ElementName = "costPerShare")]
         public double CostPerShare { get; set; }
 
         [XmlElement(ElementName = "todayCommissions")]
-        public decimal TodayCommissions { get; set; }
+        public double  TodayCommissions { get; set; }
 
         [XmlElement(ElementName = "todayFees")]
-        public decimal TodayFees { get; set; }
+        public double  TodayFees { get; set; }
 
         [XmlElement(ElementName = "todayPricePaid")]
-        public decimal TodayPricePaid { get; set; }
+        public double  TodayPricePaid { get; set; }
 
         [XmlElement(ElementName = "todayQuantity")]
-        public decimal TodayQuantity { get; set; }
+        public double  TodayQuantity { get; set; }
 
         [XmlElement(ElementName = "adjPrevClose")]
         public double AdjPrevClose { get; set; }

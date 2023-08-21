@@ -39,8 +39,7 @@ namespace AutoTradeMobile
                             TradingError = "No Mock Data";
                             return;
                         }
-                        var mockSymbolData = GetSymbolData(CurrentSymbolList.First());
-                        mockSymbolData.addQuote(qd);
+                        SymbolData.addQuote(qd);
                         mockSw.Stop();
                         LastQuoteResponseTime = mockSw.Elapsed;
                         TotalRequests += 1;
@@ -61,8 +60,7 @@ namespace AutoTradeMobile
                         throw new Exception("Tick Result doesnt match symbol");
                     }
 
-                    var thisSymbolData = GetSymbolData(TickResult.QuoteData.Product.Symbol);
-                    thisSymbolData.addQuote(TickResult);
+                    SymbolData.addQuote(TickResult);
 
                     string fileData = JsonSerializer.Serialize(TickResult.QuoteData.Intraday);
                     string symbolFileName = $"{TickResult.QuoteData.Product.Symbol.ToUpper()}.txt";

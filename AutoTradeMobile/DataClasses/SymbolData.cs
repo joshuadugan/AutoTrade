@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using AutoTradeMobile.DataClasses;
 using System.Globalization;
 using TradeLogic;
+using TradeLogic.APIModels.Accounts.portfolio;
 
 namespace AutoTradeMobile
 {
@@ -46,6 +47,9 @@ namespace AutoTradeMobile
 
         [ObservableProperty]
         ObservableCollection<StudyConfig> studies = new();
+
+        [ObservableProperty]
+        CurrentPosition currentPosition;
 
         [ObservableProperty]
         private string _Symbol = "No Data Received Yet";
@@ -154,6 +158,7 @@ namespace AutoTradeMobile
             else
             {
                 LastMinute.AddTick(t);
+                RecalculateCurrentPosition(t);
                 ProcessStudies();
                 RefreshLastMinute();
             }
@@ -161,23 +166,59 @@ namespace AutoTradeMobile
 
         }
 
+        private void RecalculateCurrentPosition(Tick t)
+        {
+            CurrentPosition?.UpdateMarketValue(t.LastTrade);
+        }
+
         private void EvalMinuteForTrade(Minute lastMinute)
         {
-            if (LastMinute == null) { return; }
-            if (LastMinute.MinuteChange>0 && LastMinute.FirstStudyChange>0 && LastMinute.SecondStudyChange>0)
+
+            if (LastMinute == null) { return; }//first minute nothing to do
+
+            bool CanBuy;
+            bool CanSell;
+            int? MaxBuy = null;
+            //do we have shares in play?
+            if ((CurrentPosition?.Quantity ?? default(double)) == 0)
+            {
+                CanBuy = true;
+                CanSell = false;
+            }
+            else if (CurrentPosition?.Quantity < lastMinute.FirstStudy.MaxSharesInPlay)
+            {
+                //no we can buy if needed
+                CanBuy = true;
+                CanSell = true;
+                MaxBuy = (int)(lastMinute.FirstStudy.MaxSharesInPlay - CurrentPosition?.Quantity ?? default(double));
+            }
+            else
+            {
+                //only sell is possible
+                CanBuy = false;
+                CanSell = true;
+            }
+
+            ProcessOrderLogic(lastMinute, CanBuy, CanSell, MaxBuy);
+        }
+
+        private void ProcessOrderLogic(Minute lastMinute, bool CanBuy, bool CanSell, int? MaxBuy)
+        {
+            if (CanBuy && LastMinute.MinuteChange > 0 && LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && LastMinute.SecondStudyChange > 0)
             {
                 //buy order
+                int MaxOrderSize = MaxBuy ?? lastMinute.FirstStudy.DefaultOrderSize;
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
                     lastMinute.OrderKey,
                     Symbol,
-                    lastMinute.FirstStudy.MaxSharesInPlay,
+                    MaxOrderSize,
                     lastMinute.Ticks.Last().Ask,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.BUY
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
             }
-            else
+            else if (CanSell && LastMinute.FirstStudyChange < 0)
             {
                 //sell order
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
@@ -253,19 +294,6 @@ namespace AutoTradeMobile
 
         }
 
-        private void RemoveMinute(Minute thisMinute)
-        {
-            if (Application.Current.Dispatcher.IsDispatchRequired)
-            {
-                Application.Current.Dispatcher.Dispatch((Action)(() => Minutes.Remove(thisMinute)));
-            }
-            else
-            {
-                Minutes.Remove(thisMinute);
-            }
-            Trace.WriteLine($"Minute Removed Minutes {thisMinute.TradeMinute}");
-        }
-
         private void AddToMinutes(Minute thisMinute)
         {
             if (Application.Current.Dispatcher.IsDispatchRequired)
@@ -277,6 +305,18 @@ namespace AutoTradeMobile
                 Minutes.Add(thisMinute);
             }
             Trace.WriteLine($"New Minute {thisMinute.TradeMinute}");
+        }
+
+        private int portfolioResponseCount = 0;
+        internal void ProcessPortfolioResponseData(List<Position> positions)
+        {
+            portfolioResponseCount++;
+            var position = positions
+                .Where(p => p.Product.SecurityType.Equals("EQ"))
+                .GroupBy(p => p.Product.Symbol)
+                .Select(group => new CurrentPosition(portfolioResponseCount, group)).FirstOrDefault();
+
+            CurrentPosition = position;
         }
 
 

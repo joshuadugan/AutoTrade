@@ -10,17 +10,22 @@ namespace TradeLogic.APIModels.Orders
 {
     public partial class OrdersListResponse : IResource, IBelongToOrderService
     {
-        public static Dictionary<string, string> RequestParameters(string accountIdKey, string symbol)
+        public static Dictionary<string, string> RequestParameters(string accountIdKey, string symbol, DateTime fromDate = default(DateTime), DateTime toDate = default(DateTime))
         {
+            if (fromDate.Equals(DateTime.MinValue)) { fromDate = DateTime.Today; }
+            if (toDate.Equals(DateTime.MinValue)) { toDate = DateTime.Today; }
+
             var par = new Dictionary<string, string>
             {
                 { "accountIdKey", accountIdKey },
                 { "symbol", symbol },
+                { "fromDate", fromDate.ToString("MMddyyyy") },
+                { "toDate", toDate.ToString("MMddyyyy") }
             };
             return par;
         }
 
-        private const string ResourceNameFormatString = "/v1/accounts/{accountIdKey}/orders?symbol={symbol}";
+        private const string ResourceNameFormatString = "/v1/accounts/{accountIdKey}/orders?symbol={symbol}&fromDate={fromDate}&toDate={toDate}";
         public string GetResourceName()
         {
             return ResourceNameFormatString;

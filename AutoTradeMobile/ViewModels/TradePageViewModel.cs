@@ -22,17 +22,17 @@ namespace AutoTradeMobile.ViewModels
         {
             Trade = trade;
             Symbol = Trade.StoredData.LastSymbol;
-            if (Trade.AccessToken == null)
-            {
-                AccessToken at = Trade.StoredData.LastAccessToken;
-                if (at != null && at.Expired == false)
-                {
-                    Trade.AccessToken = at;
-                    HasValidAccessToken = true;
-                    StartTradingInternal();
+            //if (Trade.AccessToken == null)
+            //{
+            //    AccessToken at = Trade.StoredData.LastAccessToken;
+            //    if (at != null && at.Expired == false)
+            //    {
+            //        Trade.AccessToken = at;
+            //        HasValidAccessToken = true;
+            //        StartTradingInternal();
 
-                }
-            }
+            //    }
+            //}
 
 
         }
@@ -54,7 +54,19 @@ namespace AutoTradeMobile.ViewModels
         {
             if (Trade.AccessToken != null)
             {
-                Trade.LoadOrdersAsync();
+                Trade.LoadOrdersAsync(ReplayLastSession);
+            }
+            else
+            {
+                ErrorMessage = "No Access Token";
+            }
+        }
+
+        public void LoadPortfolioAsync()
+        {
+            if (Trade.AccessToken != null)
+            {
+                Trade.LoadPortfolioAsync(ReplayLastSession);
             }
             else
             {
@@ -131,9 +143,11 @@ namespace AutoTradeMobile.ViewModels
                 //startup the trader with this symbol
                 Trade.StartTradingSymbolAsync(Symbol, ReplayLastSession);
                 //get the trade data object reference for the page context
-                TradingData = Trade.GetSymbolData(Symbol);
+                TradingData = Trade.SymbolData;
 
                 LoadOrdersAsync();
+                LoadPortfolioAsync();
+
             }
             catch (Exception ex)
             {

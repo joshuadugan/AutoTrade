@@ -30,7 +30,7 @@ namespace AutoTradeMobile
         bool enabledForTrading = false;
 
         [ObservableProperty]
-        int defaultOrderSize = 20;
+        int defaultOrderSize = 100;
 
         [ObservableProperty]
         int maxSharesInPlay = 100;
@@ -42,7 +42,7 @@ namespace AutoTradeMobile
         bool tradeOnMinuteAverage = false;
 
         [ObservableProperty]
-        decimal uptrendAmountRequired = 0.10m;
+        double uptrendAmountRequired = 0.10;
 
     }
 
