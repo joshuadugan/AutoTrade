@@ -37,26 +37,28 @@ namespace AutoTradeMobile
 
             if (instrument.OrderAction == "BUY")
             {
-                var cp = new CurrentPosition(thisOrder);
-                Quantity += cp.Quantity;
-                TotalCost += cp.TotalCost;
+                Quantity += instrument.OrderedQuantity;
+                TotalCost += instrument.OrderedQuantity * order.LimitPrice;
                 CostPerShare = TotalCost / Quantity;
-                MarketValue += cp.MarketValue;
-                TotalGain = MarketValue - TotalCost;
+                MarketValue += instrument.OrderedQuantity * order.LimitPrice;
+                TotalGain += MarketValue - TotalCost;
                 TotalGainColor = TotalGain >= 0 ? Colors.Green : Colors.Red;
             }
             else
             {
+                //sell profit
+                var profit = (instrument.OrderedQuantity * order.LimitPrice) - TotalCost;
                 Quantity -= instrument.OrderedQuantity;
-                CostPerShare = 0;
+                CostPerShare = order.LimitPrice;
                 TotalCost = 0;
                 MarketValue = 0;
-                TotalGain = 0;
+                TotalGain += profit;
                 TotalGainColor = TotalGain >= 0 ? Colors.Green : Colors.Red;
             }
 
         }
 
+        //for use in real trading loaded from api
         public CurrentPosition(int portfolioResponseCount, IGrouping<string, Position> group)
         {
             ResponseCount = portfolioResponseCount;
@@ -68,18 +70,8 @@ namespace AutoTradeMobile
             TotalGainColor = TotalGain >= 0 ? Colors.Green : Colors.Red;
         }
 
-        public CurrentPosition(PreviewOrderResponse.RequestBody thisOrder)
+        public CurrentPosition()
         {
-            var order = thisOrder.Order.First();
-            var instrument = order.Instrument.First();
-
-            Quantity = instrument.OrderedQuantity;
-            CostPerShare = order.LimitPrice;
-            TotalCost = Quantity * CostPerShare;
-            MarketValue = TotalCost;
-            TotalGain = 0;
-            TotalGainColor = TotalGain >= 0 ? Colors.Green : Colors.Red;
         }
-
     }
 }

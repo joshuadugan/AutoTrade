@@ -29,6 +29,7 @@ namespace AutoTradeMobile
             var order = thisOrder.Order.First();
             var instrument = order.Instrument.First();
             Details = instrument.OrderAction.ToString();
+            OrderAction = Enum.Parse<OrderActions>(instrument.OrderAction);
             thisOrder.Order.First().Instrument.First().FilledQuantity = instrument.OrderedQuantity;
             thisOrder.Order.First().OrderValue = instrument.OrderedQuantity * order.LimitPrice;
             OrderResponse = new Order()
@@ -46,11 +47,12 @@ namespace AutoTradeMobile
         [ObservableProperty]
         string details;
 
+
         public double FilledQuantity
         {
             get
             {
-                return OrderResponse?.OrderDetail?.Instrument?.Sum(i => i.FilledQuantity) ?? 0; 
+                return OrderResponse?.OrderDetail?.Instrument?.Sum(i => i.FilledQuantity) ?? 0;
             }
         }
 
@@ -70,6 +72,11 @@ namespace AutoTradeMobile
             }
         }
 
+        public OrderActions OrderAction { get; set; }
+        public enum OrderActions
+        {
+            BUY, SELL
+        }
 
         public Order OrderResponse { get; private set; }
 
@@ -81,7 +88,7 @@ namespace AutoTradeMobile
                 this.OrderId = order.OrderId;
                 this.OrderType = order.OrderType;
                 this.Details = order.OrderDetail.Status;
-
+                this.OrderAction = Enum.Parse<OrderActions>(order.OrderDetail.Status);
                 this.OrderResponse = order;
 
             }

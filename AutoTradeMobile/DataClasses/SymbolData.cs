@@ -49,7 +49,7 @@ namespace AutoTradeMobile
         ObservableCollection<StudyConfig> studies = new();
 
         [ObservableProperty]
-        CurrentPosition currentPosition;
+        CurrentPosition currentPosition = new();
 
         [ObservableProperty]
         private string _Symbol = "No Data Received Yet";
@@ -67,10 +67,20 @@ namespace AutoTradeMobile
         string quoteStatus;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ChangeCloseColor))]
         double changeClose;
 
         [ObservableProperty]
         double changeClosePercentage;
+
+        public Color ChangeCloseColor
+        {
+            get
+            {
+                return ChangeClose >= 0 ? Colors.Green : Colors.Red;
+            }
+        }
+
 
         [ObservableProperty]
         long totalVolume;
@@ -204,7 +214,7 @@ namespace AutoTradeMobile
 
         private void ProcessOrderLogic(Minute lastMinute, bool CanBuy, bool CanSell, int? MaxBuy)
         {
-            if (CanBuy && LastMinute.MinuteChange > 0 && LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && LastMinute.SecondStudyChange > 0)
+            if (CanBuy && LastMinute.MinuteChange > 0 && LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && LastMinute.SecondStudyChange > 0 && Minutes.Count > lastMinute.SecondStudy.Period)
             {
                 //buy order
                 int MaxOrderSize = MaxBuy ?? lastMinute.FirstStudy.DefaultOrderSize;
@@ -218,7 +228,7 @@ namespace AutoTradeMobile
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
             }
-            else if (CanSell && LastMinute.FirstStudyChange < 0)
+            else if (CanSell && (LastMinute.FirstStudyChange < 0 | lastMinute.Close < lastMinute.FirstStudyValue))
             {
                 //sell order
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(

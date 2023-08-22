@@ -48,7 +48,7 @@
                                 >
 
             <chart:SfCartesianChart.XAxes>
-                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="90" />
+                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="60" />
             </chart:SfCartesianChart.XAxes>
 
             <chart:SfCartesianChart.YAxes>
@@ -124,14 +124,14 @@
             <HorizontalStackLayout Margin="5">
 
                 <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                    <BoxView Color="{Binding TradingData.LastMinute.MinuteColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                    <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" Text="{Binding TradingData.LastTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                    <BoxView Color="{Binding TradingData.ChangeCloseColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                    <Label TextColor="{Binding TradingData.ChangeCloseColor}" Text="{Binding TradingData.LastTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                 </HorizontalStackLayout>
 
-                <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" Margin="5" VerticalOptions="CenterAndExpand"
+                <Label TextColor="{Binding TradingData.ChangeCloseColor}" Margin="5" VerticalOptions="CenterAndExpand"
                    Text="{Binding TradingData.ChangeClose, StringFormat='{0:N2}'}"></Label>
 
-                <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" 
+                <Label TextColor="{Binding TradingData.ChangeCloseColor}" 
                        Margin="5" VerticalOptions="CenterAndExpand"
                    Text="{Binding TradingData.ChangeClosePercentage, Converter={StaticResource PctFix}, StringFormat='{0}%'}"></Label>
 
@@ -164,6 +164,8 @@
                          AllowTriStateSorting="True"
                          ColumnWidthMode="Fill"
                          HorizontalOptions="CenterAndExpand"
+                         VerticalOptions="CenterAndExpand"
+                         LiveDataUpdateMode="AllowDataShaping"
                          AutoGenerateColumnsMode="None">
             <grid:SfDataGrid.Columns>
                 <grid:DataGridTextColumn HeaderText="ID" MappingName="OrderId"/>
@@ -344,11 +346,14 @@
                     Orientation="Horizontal"
                     IsVisible="{Binding IsTraderRunning}">
 
-            <StackLayout Style="{StaticResource StackLabel}">
+            <StackLayout Style="{StaticResource StackLabel}" HorizontalOptions="StartAndExpand">
                 <Label Style="{StaticResource WhiteLabel}" Text="Ticks"/>
                 <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TotalRequests}" />
             </StackLayout>
 
+            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
+                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TodayProfit, StringFormat='{0:c}'}"/>
+            </HorizontalStackLayout>
 
             <StackLayout HorizontalOptions="EndAndExpand" Style="{StaticResource StackLabel}">
                 <Label Style="{StaticResource WhiteLabel}" Text="Tick Time"/>

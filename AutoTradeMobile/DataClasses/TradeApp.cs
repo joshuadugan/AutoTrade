@@ -29,6 +29,41 @@ namespace AutoTradeMobile
         [ObservableProperty]
         ObservableCollection<MarketOrder> orders = new();
 
+        public TradeApp()
+        {
+            orders.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(TodayProfit));
+            };
+
+        }
+
+        public double TodayProfit
+        {
+            get
+            {
+                return TodayOrderSells - TodayOrderBuys;
+            }
+        }
+
+        public double TodayOrderBuys
+        {
+            get
+            {
+                return Orders.Where(o => o.OrderAction == MarketOrder.OrderActions.BUY).Sum(o => o.OrderValue);
+            }
+        }
+
+        public double TodayOrderSells
+        {
+            get
+            {
+                return Orders.Where(o => o.OrderAction == MarketOrder.OrderActions.SELL).Sum(o => o.OrderValue);
+            }
+        }
+
+
+
         [ObservableProperty]
         ObservableCollection<Account> accounts;
 
@@ -42,10 +77,6 @@ namespace AutoTradeMobile
                     _trader = new TradeLogic.Trader(AuthData.AuthKey, AuthData.AuthSecret, UseSandBox);
                 }
                 return _trader;
-            }
-            set
-            {
-                _trader = value;
             }
         }
         public AccessToken AccessToken { get; set; }
@@ -139,14 +170,7 @@ namespace AutoTradeMobile
                 if (CurrentPositionQueue.Count > 0)
                 {
                     var pos = CurrentPositionQueue.Dequeue();
-                    if (SymbolData.CurrentPosition == null)
-                    {
-                        SymbolData.CurrentPosition = new CurrentPosition(pos);
-                    }
-                    else
-                    {
-                        SymbolData.CurrentPosition.MergeNewOrder(pos);
-                    }
+                    SymbolData.CurrentPosition.MergeNewOrder(pos);
                 }
                 return;
             }

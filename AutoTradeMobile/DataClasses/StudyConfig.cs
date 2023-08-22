@@ -42,7 +42,7 @@ namespace AutoTradeMobile
         bool tradeOnMinuteAverage = false;
 
         [ObservableProperty]
-        double uptrendAmountRequired = 0.10;
+        double uptrendAmountRequired = 0.0;
 
     }
 
