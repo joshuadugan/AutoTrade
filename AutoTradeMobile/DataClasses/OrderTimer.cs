@@ -8,13 +8,28 @@ namespace AutoTradeMobile
     public partial class TradeApp
     {
         static Queue<PreviewOrderResponse.RequestBody> OrderRequestQueue = new Queue<PreviewOrderResponse.RequestBody>();
+        static Queue<PreviewOrderResponse.RequestBody> OrderProcessingQueue = new Queue<PreviewOrderResponse.RequestBody>();
         static Queue<PreviewOrderResponse.RequestBody> CurrentPositionQueue = new Queue<PreviewOrderResponse.RequestBody>();
+
+        static PreviewOrderResponse.RequestBody DequeOrderProcessingQueue()
+        {
+            if (OrderProcessingQueue.Count > 0)
+            {
+                return OrderProcessingQueue.Dequeue();
+            }
+            return null;
+        }
+        public static bool IsOrderPending()
+        {
+            return OrderRequestQueue.Any() | OrderProcessingQueue.Any();
+        }
 
         private static Timer OrderTimer { get; set; }
 
         public static void AddOrderToQueue(PreviewOrderResponse.RequestBody order)
         {
             OrderRequestQueue.Enqueue(order);
+            OrderProcessingQueue.Enqueue(order);
         }
 
         private void StartOrderTimer(bool replayLastSession)

@@ -171,6 +171,7 @@ namespace AutoTradeMobile
                 {
                     var pos = CurrentPositionQueue.Dequeue();
                     SymbolData.CurrentPosition.MergeNewOrder(pos);
+                    DequeOrderProcessingQueue();
                 }
                 return;
             }

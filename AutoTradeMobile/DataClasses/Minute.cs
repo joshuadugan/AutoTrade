@@ -12,42 +12,90 @@ namespace AutoTradeMobile
 
             [ObservableProperty]
             StudyConfig firstStudy;
+
             [ObservableProperty]
             StudyConfig secondStudy;
+
             [ObservableProperty]
             string tradeMinute;
+
             [ObservableProperty]
             double open;
+
             [ObservableProperty]
             double high;
+
             [ObservableProperty]
             double low;
-            [ObservableProperty]
-            double close;
-            [ObservableProperty]
-            Color minuteColor;
-            [ObservableProperty]
-            double minuteChange;
+
             [ObservableProperty]
             DateTime lastTickTime;
+
             [ObservableProperty]
             double averageTrade;
+
             [ObservableProperty]
             double firstStudyValue;
+
             [ObservableProperty]
             double secondStudyValue;
+
+            [NotifyPropertyChangedFor(nameof(MinuteColor))]
+            [NotifyPropertyChangedFor(nameof(MinuteChange))]
+            [NotifyPropertyChangedFor(nameof(FirstStudyChange))]
+            [NotifyPropertyChangedFor(nameof(SecondStudyChange))]
+            [NotifyPropertyChangedFor(nameof(FirstStudyColor))]
+            [NotifyPropertyChangedFor(nameof(SecondStudyColor))]
             [ObservableProperty]
-            double firstStudyChange;
-            [ObservableProperty]
-            double secondStudyChange;
-            [ObservableProperty]
-            double firstStudyChangePercentage;
-            [ObservableProperty]
-            double secondStudyChangePercentage;
-            [ObservableProperty]
-            Color firstStudyColor;
-            [ObservableProperty]
-            Color secondStudyColor;
+            double close;
+
+            public Color MinuteColor
+            {
+                get
+                {
+                    return Close > Open ? Colors.Green : Colors.Red;
+                }
+            }
+
+            public double MinuteChange
+            {
+                get
+                {
+                    return Close - Open;
+                }
+            }
+
+            public double FirstStudyChange
+            {
+                get
+                {
+                    return FirstStudyValue - FirstStudyStartingValue;
+                }
+            }
+
+            public double SecondStudyChange
+            {
+                get
+                {
+                    return SecondStudyValue - SecondStudyStartingValue;
+                }
+            }
+
+            public Color FirstStudyColor
+            {
+                get
+                {
+                    return FirstStudyChange >= 0 ? Colors.Green : Colors.Red;
+                }
+            }
+
+            public Color SecondStudyColor
+            {
+                get
+                {
+                    return SecondStudyChange >= 0 ? Colors.Green : Colors.Red;
+                }
+            }
 
             public List<Tick> Ticks { get; private set; } = new();
             public double FirstStudyStartingValue { get; set; }
@@ -66,18 +114,8 @@ namespace AutoTradeMobile
                 if (t.Bid < Low) { Low = t.Bid; }
                 Close = t.LastTrade;
                 LastTickTime = t.Time;
-                MinuteColor = t.LastTrade > Open ? Colors.Green : Colors.Red;
                 Ticks.Add(t);
                 AverageTrade = Ticks.Average(t => t.LastTrade);
-
-                MinuteChange = Close - Open;
-
-                //process the ticks study calcs
-                FirstStudyChange = FirstStudyValue - FirstStudyStartingValue;
-                SecondStudyChange = SecondStudyValue - SecondStudyStartingValue;
-
-                FirstStudyColor = FirstStudyChange >= 0 ? Colors.Green : Colors.Red;
-                SecondStudyColor = SecondStudyChange >= 0 ? Colors.Green : Colors.Red;
 
                 //Trace.WriteLine($"Added {t.LastTrade} Tick to Minute ({Ticks.Count}) {TradeMinute}, open {Open} - high {High} - low {Low} - close {Close} - AverageTrade {AverageTrade}");
                 //Trace.WriteLine($"Study Data for Minute {TradeMinute}, First : value {FirstStudyValue} - change {FirstStudyChange}");

@@ -74,6 +74,27 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+
+        [RelayCommand]
+        public void MAImageClick(string args)
+        {
+            if (args != null)
+            {
+                var vals = args.Split(",");
+                bool increase = bool.Parse(vals[0]);
+                int index = int.Parse(vals[1]);
+                var study = Trade.SymbolData.Studies[index];
+                if (increase)
+                {
+                    study.Period++;
+                }
+                else
+                {
+                    study.Period--;
+                }
+            }
+        }
+
         [ObservableProperty]
         string errorMessage;
 

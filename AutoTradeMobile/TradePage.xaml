@@ -180,7 +180,7 @@
             </grid:SfDataGrid.SortColumnDescriptions>
         </grid:SfDataGrid>
 
-        <Grid Grid.Row="2" Grid.Column="1" IsVisible="{Binding IsTraderRunning}" BackgroundColor="AliceBlue">
+        <Grid Grid.Row="2" Grid.Column="1" IsVisible="{Binding IsTraderRunning}">
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>
@@ -191,11 +191,9 @@
 
             <VerticalStackLayout>
 
-                <HorizontalStackLayout>
+                <HorizontalStackLayout >
 
-                    <HorizontalStackLayout Margin="5" WidthRequest="75" VerticalOptions="CenterAndExpand">
-                        <Label Text="Current" Margin="1"></Label>
-                    </HorizontalStackLayout>
+                    <Label Margin="10" WidthRequest="110" Text="         Current"></Label>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
                         <BoxView Color="{Binding TradingData.LastMinute.MinuteColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
@@ -219,9 +217,26 @@
 
                 <HorizontalStackLayout>
 
-                    <HorizontalStackLayout Margin="5" WidthRequest="75" VerticalOptions="CenterAndExpand">
-                        <Label Text="{Binding TradingData.LastMinute.FirstStudy.Period}" Margin="1"></Label>
-                        <Label Text="{Binding TradingData.LastMinute.FirstStudy.Type}" Margin="1"></Label>
+                    <HorizontalStackLayout Margin="5" WidthRequest="120" VerticalOptions="CenterAndExpand">
+                        <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="false,0">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FASolid" Glyph="{StaticResource minus}" Color="DodgerBlue" Size="18"/>
+                            </ImageButton.Source>
+                        </ImageButton>
+
+                        <VerticalStackLayout>
+                            <HorizontalStackLayout>
+                                <Label Text="{Binding TradingData.LastMinute.FirstStudy.Period}" Margin="1"></Label>
+                                <Label Text="{Binding TradingData.LastMinute.FirstStudy.Type}" Margin="1"></Label>
+                            </HorizontalStackLayout>
+                            <Label FontSize="10" TextColor="Green" Text="{Binding TradingData.LastMinute.FirstStudy.UptrendAmountRequired, StringFormat=' +{0:c}'}" Margin="1"/>
+                        </VerticalStackLayout>
+
+                        <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="true,0">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FASolid" Glyph="{StaticResource plus}" Color="DodgerBlue" Size="18"/>
+                            </ImageButton.Source>
+                        </ImageButton>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
@@ -246,9 +261,25 @@
 
                 <HorizontalStackLayout>
 
-                    <HorizontalStackLayout Margin="5" WidthRequest="75" VerticalOptions="CenterAndExpand">
-                        <Label Text="{Binding TradingData.LastMinute.SecondStudy.Period}" Margin="1"></Label>
-                        <Label Text="{Binding TradingData.LastMinute.SecondStudy.Type}" Margin="1"></Label>
+                    <HorizontalStackLayout Margin="5" WidthRequest="120" VerticalOptions="CenterAndExpand">
+                        <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="false,1">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FASolid" Glyph="{StaticResource minus}" Color="DodgerBlue" Size="18"/>
+                            </ImageButton.Source>
+                        </ImageButton>
+                        <VerticalStackLayout>
+                            <HorizontalStackLayout>
+                                <Label Text="{Binding TradingData.LastMinute.SecondStudy.Period}" Margin="1"></Label>
+                                <Label Text="{Binding TradingData.LastMinute.SecondStudy.Type}" Margin="1"></Label>
+                            </HorizontalStackLayout>
+                            <Label FontSize="10" TextColor="Green" Text="{Binding TradingData.LastMinute.SecondStudy.UptrendAmountRequired, StringFormat=' +{0:c}'}" Margin="1"/>
+                        </VerticalStackLayout>
+
+                        <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="true,1">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FASolid" Glyph="{StaticResource plus}" Color="DodgerBlue" Size="18"/>
+                            </ImageButton.Source>
+                        </ImageButton>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">

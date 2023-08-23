@@ -32,7 +32,6 @@
                     SecondStudyValue = lastMinute?.SecondStudyValue ?? LastTrade,
                     FirstStudyStartingValue = lastMinute?.FirstStudyValue ?? LastTrade,
                     SecondStudyStartingValue = lastMinute?.SecondStudyValue ?? LastTrade,
-                    MinuteColor = LastTrade > NewOpen ? Colors.Green : Colors.Red
                 };
             }
         }

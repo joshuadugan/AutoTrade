@@ -28,10 +28,12 @@ namespace AutoTradeMobile
                     Studies.Add(new StudyConfig()
                     {
                         Period = 5,
+                        UptrendAmountRequired = 0.10
                     });
                     Studies.Add(new StudyConfig()
                     {
                         Period = 10,
+                        UptrendAmountRequired = 0.01
                     });
                     Studies.PersistToFile(StudiesFileName);
                 }
@@ -46,7 +48,7 @@ namespace AutoTradeMobile
         ObservableCollection<Minute> minutes = new();
 
         [ObservableProperty]
-        ObservableCollection<StudyConfig> studies = new();
+        public ObservableCollection<StudyConfig> studies = new();
 
         [ObservableProperty]
         CurrentPosition currentPosition = new();
@@ -160,19 +162,15 @@ namespace AutoTradeMobile
             //aggrigate the tick into the minutes
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
-                EvalMinuteForTrade(LastMinute);
                 LastMinute = t.ToMinute(LastMinute);
                 AddToMinutes(LastMinute);
-                ProcessStudies();
-            }
-            else
-            {
-                LastMinute.AddTick(t);
-                RecalculateCurrentPosition(t);
-                ProcessStudies();
-                RefreshLastMinute();
             }
 
+            LastMinute.AddTick(t);
+            ProcessStudies();
+            EvalForTrade();
+            RecalculateCurrentPosition(t);
+            RefreshLastMinute();
 
         }
 
@@ -181,9 +179,10 @@ namespace AutoTradeMobile
             CurrentPosition?.UpdateMarketValue(t.LastTrade);
         }
 
-        private void EvalMinuteForTrade(Minute lastMinute)
+        private void EvalForTrade()
         {
-
+            //if there is an order pending then exit
+            if (TradeApp.IsOrderPending()) { return; }
             if (LastMinute == null) { return; }//first minute nothing to do
 
             bool CanBuy;
@@ -195,12 +194,12 @@ namespace AutoTradeMobile
                 CanBuy = true;
                 CanSell = false;
             }
-            else if (CurrentPosition?.Quantity < lastMinute.FirstStudy.MaxSharesInPlay)
+            else if (CurrentPosition?.Quantity < LastMinute.FirstStudy.MaxSharesInPlay)
             {
                 //no we can buy if needed
                 CanBuy = true;
                 CanSell = true;
-                MaxBuy = (int)(lastMinute.FirstStudy.MaxSharesInPlay - CurrentPosition?.Quantity ?? default(double));
+                MaxBuy = (int)(LastMinute.FirstStudy.MaxSharesInPlay - CurrentPosition?.Quantity ?? default(double));
             }
             else
             {
@@ -209,34 +208,39 @@ namespace AutoTradeMobile
                 CanSell = true;
             }
 
-            ProcessOrderLogic(lastMinute, CanBuy, CanSell, MaxBuy);
+            ProcessOrderLogic(CanBuy, CanSell, MaxBuy);
         }
 
-        private void ProcessOrderLogic(Minute lastMinute, bool CanBuy, bool CanSell, int? MaxBuy)
+        private void ProcessOrderLogic(bool CanBuy, bool CanSell, int? MaxBuy)
         {
-            if (CanBuy && LastMinute.MinuteChange > 0 && LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && LastMinute.SecondStudyChange > 0 && Minutes.Count > lastMinute.SecondStudy.Period)
+            //Trace.WriteLine($"CanBuy {CanBuy} MinuteChange : {LastMinute.MinuteChange.ToString("c")}, FirstStudyChange {LastMinute.FirstStudyChange.ToString("c")}, SecondStudyChange {LastMinute.SecondStudyChange.ToString("c")}");
+
+            if (CanBuy && LastMinute.MinuteChange > 0 && LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && LastMinute.SecondStudyChange > 0 && Minutes.Count > LastMinute.SecondStudy.Period)
             {
+
                 //buy order
-                int MaxOrderSize = MaxBuy ?? lastMinute.FirstStudy.DefaultOrderSize;
+                int MaxOrderSize = MaxBuy ?? LastMinute.FirstStudy.DefaultOrderSize;
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
-                    lastMinute.OrderKey,
+                    LastMinute.OrderKey,
                     Symbol,
                     MaxOrderSize,
-                    lastMinute.Ticks.Last().Ask,
+                    LastMinute.Ticks.Last().Ask,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.BUY
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
             }
-            else if (CanSell && (LastMinute.FirstStudyChange < 0 | lastMinute.Close < lastMinute.FirstStudyValue))
+            else if (CanSell && (LastMinute.FirstStudyChange < 0))
             {
+                Trace.WriteLineIf(LastMinute.FirstStudyChange < 0, $"Sell : LastMinute.FirstStudyChange:{LastMinute.FirstStudyChange} < 0");
+
                 //sell order
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
-                    lastMinute.OrderKey,
+                    LastMinute.OrderKey,
                     Symbol,
-                    lastMinute.FirstStudy.MaxSharesInPlay,
-                    lastMinute.Ticks.Last().Bid,
+                    LastMinute.FirstStudy.MaxSharesInPlay,
+                    LastMinute.Ticks.Last().Bid,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.SELL
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
