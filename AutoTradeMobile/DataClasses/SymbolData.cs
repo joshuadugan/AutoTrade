@@ -12,33 +12,33 @@ namespace AutoTradeMobile
     public partial class SymbolData : ObservableObject
     {
         const string StudiesFileName = "Studies.txt";
-        static Object _studiesLoadLock = new Object();
 
         public SymbolData()
         {
-            lock (_studiesLoadLock)
-            {
-                //load up the saved studies
-                Trace.WriteLine("Loading Studies from file");
-                Studies.LoadFromFile(StudiesFileName);
-                Trace.WriteLine($"{Studies.Count} Studies");
-                if (Studies.Count == 0)
-                {
-                    Trace.WriteLine("Adding default Study Config");
-                    Studies.Add(new StudyConfig()
-                    {
-                        Period = 5,
-                        UptrendAmountRequired = 0.10
-                    });
-                    Studies.Add(new StudyConfig()
-                    {
-                        Period = 10,
-                        UptrendAmountRequired = 0.01
-                    });
-                    Studies.PersistToFile(StudiesFileName);
-                }
-            }
+            Task.Run(() => LoadStudies());
+        }
 
+        private void LoadStudies()
+        {
+            //load up the saved studies
+            Trace.WriteLine("Loading Studies from file");
+            Studies.LoadFromFile(StudiesFileName);
+            Trace.WriteLine($"{Studies.Count} Studies");
+            if (Studies.Count == 0)
+            {
+                Trace.WriteLine("Adding default Study Config");
+                Studies.Add(new StudyConfig()
+                {
+                    Period = 5,
+                    UptrendAmountRequired = 0.10
+                });
+                Studies.Add(new StudyConfig()
+                {
+                    Period = 15,
+                    UptrendAmountRequired = 0.01
+                });
+                Studies.PersistToFile(StudiesFileName);
+            }
         }
 
         [ObservableProperty]
@@ -213,9 +213,16 @@ namespace AutoTradeMobile
 
         private void ProcessOrderLogic(bool CanBuy, bool CanSell, int? MaxBuy)
         {
-            //Trace.WriteLine($"CanBuy {CanBuy} MinuteChange : {LastMinute.MinuteChange.ToString("c")}, FirstStudyChange {LastMinute.FirstStudyChange.ToString("c")}, SecondStudyChange {LastMinute.SecondStudyChange.ToString("c")}");
+            //if there is an order pending then exit
+            if (TradeApp.IsOrderPending()) { return; }
 
-            if (CanBuy && LastMinute.MinuteChange > 0 && LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && LastMinute.SecondStudyChange > 0 && Minutes.Count > LastMinute.SecondStudy.Period)
+            if (
+                CanBuy && 
+                LastMinute.MinuteChange > 0 && //current minute is not trending down
+                LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && //first study change > uptrend
+                LastMinute.SecondStudyChange > LastMinute.SecondStudy.UptrendAmountRequired && //second study change > uptrend
+                Minutes.Count > LastMinute.SecondStudy.Period // have enough data to evaluate
+                )
             {
 
                 //buy order
@@ -229,6 +236,7 @@ namespace AutoTradeMobile
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.BUY
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
+
             }
             else if (CanSell && (LastMinute.FirstStudyChange < 0))
             {

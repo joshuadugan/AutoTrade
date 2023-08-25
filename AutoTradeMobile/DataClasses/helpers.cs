@@ -20,14 +20,14 @@ namespace AutoTradeMobile
             await File.WriteAllTextAsync(targetFile, text);
         }
 
-        public static async Task<string> ReadTextFileAsync(string targetFileName)
+        public static string ReadTextFile(string targetFileName)
         {
             string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, targetFileName);
             if (!File.Exists(targetFile))
             {
                 return string.Empty;
             }
-            return await File.ReadAllTextAsync(targetFile);
+            return File.ReadAllText(targetFile);
         }
 
     }

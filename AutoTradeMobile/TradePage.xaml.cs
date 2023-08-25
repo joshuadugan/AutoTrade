@@ -11,13 +11,12 @@ public partial class TradePage : ContentPage
 {
     public TradePageViewModel ViewModel { get; }
 
-    public string ReplayLastSession { get; set; }
-
     public TradePage(TradePageViewModel viewmodel, TradeApp trade)
     {
         InitializeComponent();
         ViewModel = viewmodel;
         ViewModel.ReplayLastSession = ((MainPage)Shell.Current.CurrentPage).ViewModel.ReplayLastSession;
+        ViewModel.SimulateOrders = ((MainPage)Shell.Current.CurrentPage).ViewModel.SimulateOrders;
         ViewModel.Load(trade);
         BindingContext = ViewModel;
 

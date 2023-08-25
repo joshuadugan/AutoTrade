@@ -12,17 +12,12 @@ namespace AutoTradeMobile
     {
         private Timer TickerTimer { get; set; }
 
-        public void StartTickerTimer(bool replayLastSession)
+        public void StartTickerTimer()
         {
-            TickerTimer = new(RequestSymbolData, replayLastSession, 1000, 1000);
+            TickerTimer = new(RequestSymbolData, null, 1000, 1000);
         }
 
-        /// <summary>
-        /// timer callback
-        /// </summary>
-        /// <param name="replayLastSession"></param>
-        /// <exception cref="Exception"></exception>
-        private void RequestSymbolData(object replayLastSession)
+        private void RequestSymbolData(object args)
         {
 
             lock (TickerTimer)
@@ -30,7 +25,7 @@ namespace AutoTradeMobile
 
                 try
                 {
-                    if ((bool)replayLastSession)
+                    if (ReplayLastSession)
                     {
                         Stopwatch mockSw = Stopwatch.StartNew();
                         var qd = GetMockDataQuote();
@@ -47,7 +42,7 @@ namespace AutoTradeMobile
                     }
                     //will be called by the timer to collect data about the symbol
                     Stopwatch sw = Stopwatch.StartNew();
-                    GetQuotesResponse TickResult = TradeAPI.GetQuotesAsync(AccessToken, CurrentSymbolList).Result;
+                    GetQuotesResponse TickResult = TradeAPI.GetQuotesAsync(AccessToken, new List<string>() { Symbol }).Result;
                     sw.Stop();
                     Trace.WriteLineIf(sw.Elapsed.TotalMilliseconds > 500, $"RequestSymbolData delay: {sw.Elapsed.TotalMilliseconds}");
 
@@ -55,7 +50,7 @@ namespace AutoTradeMobile
                     TotalRequests += 1;
 
                     if (TickResult == null) throw new Exception("No Tick Result");
-                    if (!CurrentSymbolList.Contains(TickResult.QuoteData.Product.Symbol.ToUpper()))
+                    if (!Symbol.Equals(TickResult.QuoteData.Product.Symbol.ToUpper()))
                     {
                         throw new Exception("Tick Result doesnt match symbol");
                     }
@@ -63,7 +58,7 @@ namespace AutoTradeMobile
                     SymbolData.addQuote(TickResult);
 
                     string fileData = JsonSerializer.Serialize(TickResult.QuoteData.Intraday);
-                    string symbolFileName = $"{TickResult.QuoteData.Product.Symbol.ToUpper()}.txt";
+                    string symbolFileName = $"{DateTime.Today.Day}_{TickResult.QuoteData.Product.Symbol.ToUpper()}.txt";
                     SymbolLogQueue.Enqueue(new LogQueueObj() { fileData = fileData, fileName = symbolFileName });
 
                 }
@@ -103,8 +98,7 @@ namespace AutoTradeMobile
                         if (mockResponseData == null)
                         {
                             mockResponseData = new List<GetQuotesResponse>();
-                            string symbol = CurrentSymbolList.First();
-                            string fileData = Helpers.ReadTextFileAsync($"{symbol}.txt").Result;
+                            string fileData = Helpers.ReadTextFile($"{Symbol}.txt");
                             List<string> lines = fileData.Split(Environment.NewLine).ToList();
                             foreach (string line in lines)
                             {
@@ -126,7 +120,7 @@ namespace AutoTradeMobile
                                                 Product = new TradeLogic.APIModels.Quotes.Product()
                                                 {
                                                     SecurityType = "EQ",
-                                                    Symbol = symbol
+                                                    Symbol = Symbol
                                                 },
                                                 Intraday = Intraday
 

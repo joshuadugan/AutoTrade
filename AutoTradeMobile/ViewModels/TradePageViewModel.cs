@@ -21,19 +21,9 @@ namespace AutoTradeMobile.ViewModels
         public void Load(TradeApp trade)
         {
             Trade = trade;
+            Trade.ReplayLastSession = ReplayLastSession;
+            Trade.SimulateOrders = SimulateOrders;
             Symbol = Trade.StoredData.LastSymbol;
-            //if (Trade.AccessToken == null)
-            //{
-            //    AccessToken at = Trade.StoredData.LastAccessToken;
-            //    if (at != null && at.Expired == false)
-            //    {
-            //        Trade.AccessToken = at;
-            //        HasValidAccessToken = true;
-            //        StartTradingInternal();
-
-            //    }
-            //}
-
 
         }
 
@@ -43,30 +33,6 @@ namespace AutoTradeMobile.ViewModels
             if (Trade.AccessToken != null)
             {
                 Trade.LoadAccountsAsync();
-            }
-            else
-            {
-                ErrorMessage = "No Access Token";
-            }
-        }
-
-        public void LoadOrdersAsync()
-        {
-            if (Trade.AccessToken != null)
-            {
-                Trade.LoadOrdersAsync(ReplayLastSession);
-            }
-            else
-            {
-                ErrorMessage = "No Access Token";
-            }
-        }
-
-        public void LoadPortfolioAsync()
-        {
-            if (Trade.AccessToken != null)
-            {
-                Trade.LoadPortfolioAsync(ReplayLastSession);
             }
             else
             {
@@ -119,8 +85,8 @@ namespace AutoTradeMobile.ViewModels
         [ObservableProperty]
         SymbolData tradingData;
 
-        [ObservableProperty]
-        bool replayLastSession;
+        public bool ReplayLastSession { get; set; }
+        public bool SimulateOrders { get; set; }
 
         [ObservableProperty]
         bool requireAccountId;
@@ -162,12 +128,9 @@ namespace AutoTradeMobile.ViewModels
                 Trade.StoredData.LastAccessToken = Trade.AccessToken;
                 IsTraderRunning = true;
                 //startup the trader with this symbol
-                Trade.StartTradingSymbolAsync(Symbol, ReplayLastSession);
+                Trade.StartTradingSymbolAsync(Symbol);
                 //get the trade data object reference for the page context
                 TradingData = Trade.SymbolData;
-
-                LoadOrdersAsync();
-                LoadPortfolioAsync();
 
             }
             catch (Exception ex)

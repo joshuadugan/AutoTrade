@@ -225,7 +225,7 @@
                         </ImageButton>
 
                         <VerticalStackLayout>
-                            <HorizontalStackLayout>
+                            <HorizontalStackLayout WidthRequest="42">
                                 <Label Text="{Binding TradingData.LastMinute.FirstStudy.Period}" Margin="1"></Label>
                                 <Label Text="{Binding TradingData.LastMinute.FirstStudy.Type}" Margin="1"></Label>
                             </HorizontalStackLayout>
@@ -268,7 +268,7 @@
                             </ImageButton.Source>
                         </ImageButton>
                         <VerticalStackLayout>
-                            <HorizontalStackLayout>
+                            <HorizontalStackLayout WidthRequest="42">
                                 <Label Text="{Binding TradingData.LastMinute.SecondStudy.Period}" Margin="1"></Label>
                                 <Label Text="{Binding TradingData.LastMinute.SecondStudy.Type}" Margin="1"></Label>
                             </HorizontalStackLayout>
@@ -383,7 +383,7 @@
             </StackLayout>
 
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TodayProfit, StringFormat='{0:c}'}"/>
+                <Label TextColor="{Binding Trade.TodayProfitColor}" FontSize="18" Text="{Binding Trade.TodayProfit, StringFormat='{0:c}'}"/>
             </HorizontalStackLayout>
 
             <StackLayout HorizontalOptions="EndAndExpand" Style="{StaticResource StackLabel}">

@@ -34,8 +34,17 @@ namespace AutoTradeMobile
             orders.CollectionChanged += (s, e) =>
             {
                 OnPropertyChanged(nameof(TodayProfit));
+                OnPropertyChanged(nameof(TodayProfitColor));
             };
 
+        }
+
+        public Color TodayProfitColor
+        {
+            get
+            {
+                return TodayProfit >= 0 ? Colors.LightGreen : Colors.Red;
+            }
         }
 
         public double TodayProfit
@@ -80,7 +89,7 @@ namespace AutoTradeMobile
             }
         }
         public AccessToken AccessToken { get; set; }
-        public List<string> CurrentSymbolList { get; } = new();
+        public string Symbol { get; set; }
         public string AccountIdKey { get; private set; }
 
         [ObservableProperty]
@@ -126,20 +135,17 @@ namespace AutoTradeMobile
             throw new Exception($"Unable to obtain access token");
         }
 
-        internal async void StartTradingSymbolAsync(string symbol, bool replayLastSession)
+        internal async void StartTradingSymbolAsync(string symbol)
         {
-            //Debug.Assert(symbol != null); Debug.Assert(accountId != null);
+            //Debug.Assert(symbol != null);
 
             //lookup the symbol to see if its valid
             if (await TradeAPI.ValidateSymbolAsync(symbol))
             {
-                if (!CurrentSymbolList.Contains(symbol))
-                {
-                    CurrentSymbolList.Add(symbol.ToUpper());
-                }
+                Symbol = symbol;
                 AccountIdKey = StoredData.LastAccount.AccountIdKey;
 
-                StartTrading(replayLastSession);
+                StartTrading();
             }
         }
 
@@ -150,11 +156,10 @@ namespace AutoTradeMobile
             Trace.WriteLine($"{Accounts.Count} Accounts");
         }
 
-        internal async void LoadOrdersAsync(bool replayLastSession)
+        internal async void LoadOrdersAsync()
         {
-            if (replayLastSession) return;
-            string symbol = CurrentSymbolList.First();
-            OrdersListResponse OrderResult = await TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, symbol);
+            if (SimulateOrders) return;
+            OrdersListResponse OrderResult = await TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, Symbol);
             if (OrderResult != null)
             {
                 Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
@@ -162,9 +167,9 @@ namespace AutoTradeMobile
             }
         }
 
-        internal async void LoadPortfolioAsync(bool replayLastSession)
+        internal async void LoadPortfolioAsync()
         {
-            if (replayLastSession)
+            if (SimulateOrders)
             {
                 //process items in the que to simulate getting new portfolio data
                 if (CurrentPositionQueue.Count > 0)
@@ -176,16 +181,15 @@ namespace AutoTradeMobile
                 return;
             }
 
-            string symbol = CurrentSymbolList.First();
             var Portfolio = await TradeAPI.ViewPortfolioPerformanceAsync(AccessToken, AccountIdKey);
-            var SymbolShares = Portfolio.AccountPortfolio.Position.FindAll(p => p.Product.Symbol.Equals(symbol));
+            var SymbolShares = Portfolio.AccountPortfolio.Position.FindAll(p => p.Product.Symbol.Equals(Symbol));
             SymbolData.ProcessPortfolioResponseData(SymbolShares);
         }
 
-        internal void StartTrading(bool ReplayLastSession)
+        internal void StartTrading()
         {
-            StartTickerTimer(ReplayLastSession);
-            StartOrderTimer(ReplayLastSession);
+            StartTickerTimer();
+            StartOrderTimer();
         }
 
         internal void StopTrading()

@@ -25,27 +25,30 @@ namespace AutoTradeMobile
         }
 
         private static Timer OrderTimer { get; set; }
+        public bool ReplayLastSession { get; internal set; }
+        public bool SimulateOrders { get; internal set; }
 
         public static void AddOrderToQueue(PreviewOrderResponse.RequestBody order)
         {
-            OrderRequestQueue.Enqueue(order);
+            //put it in the processing queue first to ensure no further orders will be placed until its dequeued from the processing queue and the order request queue
             OrderProcessingQueue.Enqueue(order);
+            OrderRequestQueue.Enqueue(order);
         }
 
-        private void StartOrderTimer(bool replayLastSession)
+        private void StartOrderTimer()
         {
-            OrderTimer = new(OrderTimerTick, replayLastSession, 1000, 5000);
+            OrderTimer = new(OrderTimerTick, null, 1000, 5000);
         }
 
-        private void OrderTimerTick(object replayLastSession)
+        private void OrderTimerTick(object args)
         {
-            ProcessOrderQueue((bool)replayLastSession);
-            LoadPortfolioAsync((bool)replayLastSession);
-            LoadOrdersAsync((bool)replayLastSession);
+            ProcessOrderQueue();
+            LoadPortfolioAsync();
+            LoadOrdersAsync();
         }
 
 
-        private void ProcessOrderQueue(object args)
+        private void ProcessOrderQueue()
         {
             lock (OrderTimer)
             {
@@ -53,7 +56,7 @@ namespace AutoTradeMobile
                 {
                     PreviewOrderResponse.RequestBody thisOrder = OrderRequestQueue.Dequeue();
 
-                    if ((bool)args)
+                    if ((bool)SimulateOrders)
                     {
                         //process the order virtually
                         AddReplayOrder(thisOrder);
@@ -105,8 +108,9 @@ namespace AutoTradeMobile
 
         private void AddOrderAndPosition(PreviewOrderResponse.RequestBody thisOrder)
         {
+            //simulate the order being placed and accepted
             Orders.Add(new MarketOrder(thisOrder));
-
+            //simulate the order bing filled
             CurrentPositionQueue.Enqueue(thisOrder);
         }
 

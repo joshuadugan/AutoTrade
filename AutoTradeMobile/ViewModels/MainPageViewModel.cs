@@ -116,11 +116,11 @@ namespace AutoTradeMobile.ViewModels
         }
 
         public bool ReplayLastSession { get; set; }
+        public bool SimulateOrders { get; set; }
 
         [RelayCommand]
-        public async Task Testing()
+        public async Task SimulateLastSession()
         {
-            ReplayLastSession = true;
             await Shell.Current.GoToAsync("TradePage");
         }
 

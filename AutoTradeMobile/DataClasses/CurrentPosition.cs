@@ -34,22 +34,25 @@ namespace AutoTradeMobile
             // add too or sell the position
             var order = thisOrder.Order.First();
             var instrument = order.Instrument.First();
+            var OrderQuantity = instrument.OrderedQuantity;
+            var OrderLimitPrice = order.LimitPrice;
+            var OrderTotalCost = OrderQuantity * OrderLimitPrice;
 
             if (instrument.OrderAction == "BUY")
             {
-                Quantity += instrument.OrderedQuantity;
-                TotalCost += instrument.OrderedQuantity * order.LimitPrice;
+                Quantity += OrderQuantity;
+                TotalCost += OrderTotalCost;
                 CostPerShare = TotalCost / Quantity;
-                MarketValue += instrument.OrderedQuantity * order.LimitPrice;
+                MarketValue += OrderTotalCost;
                 TotalGain += MarketValue - TotalCost;
                 TotalGainColor = TotalGain >= 0 ? Colors.Green : Colors.Red;
             }
             else
             {
                 //sell profit
-                var profit = (instrument.OrderedQuantity * order.LimitPrice) - TotalCost;
-                Quantity -= instrument.OrderedQuantity;
-                CostPerShare = order.LimitPrice;
+                var profit = (OrderTotalCost) - TotalCost;
+                Quantity -= OrderQuantity;
+                CostPerShare = OrderLimitPrice;
                 TotalCost = 0;
                 MarketValue = 0;
                 TotalGain += profit;

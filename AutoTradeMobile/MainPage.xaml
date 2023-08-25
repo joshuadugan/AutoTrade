@@ -69,11 +69,21 @@
                 Text="{Binding ErrorMessage}"
                 />
 
+            <HorizontalStackLayout>
+                <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding ReplayLastSession}"/>
+                <Label VerticalOptions="CenterAndExpand" Text="Replay Last Symbol Session"></Label>
+            </HorizontalStackLayout>
+            <HorizontalStackLayout>
+                <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding SimulateOrders}"/>
+                <Label VerticalOptions="CenterAndExpand" Text="Simulate Orders"></Label>
+            </HorizontalStackLayout>
+
             <Button
                 x:Name="btnTesting"
-                Text="DEBUG"
-                Command="{Binding TestingCommand}"
+                Text="SIMULATE"
+                Command="{Binding SimulateLastSessionCommand}"
                 />
+
 
         </VerticalStackLayout>
     </ScrollView>
