@@ -19,6 +19,8 @@
             public Minute ToMinute(Minute lastMinute)
             {
                 var NewOpen = lastMinute?.AverageTrade ?? LastTrade;
+                var FirstStudyChange = lastMinute?.FirstStudyChange ?? LastTrade;
+                var SecondStudyChange = lastMinute?.SecondStudyChange ?? LastTrade;
                 return new Minute()
                 {
                     LastTickTime = Time,
@@ -28,8 +30,8 @@
                     Low = Bid,
                     Close = LastTrade,
                     AverageTrade = LastTrade,
-                    FirstStudyValue = lastMinute?.FirstStudyValue ?? LastTrade,
-                    SecondStudyValue = lastMinute?.SecondStudyValue ?? LastTrade,
+                    FirstStudyValue = lastMinute?.FirstStudyValue + FirstStudyChange ?? LastTrade,
+                    SecondStudyValue = lastMinute?.SecondStudyValue + SecondStudyChange ?? LastTrade,
                     FirstStudyStartingValue = lastMinute?.FirstStudyValue ?? LastTrade,
                     SecondStudyStartingValue = lastMinute?.SecondStudyValue ?? LastTrade,
                 };

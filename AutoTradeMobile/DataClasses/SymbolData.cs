@@ -30,12 +30,14 @@ namespace AutoTradeMobile
                 Studies.Add(new StudyConfig()
                 {
                     Period = 5,
-                    UptrendAmountRequired = 0.10
+                    UptrendAmountRequired = 0.20,
+                    Field = StudyConfig.FieldName.open
                 });
                 Studies.Add(new StudyConfig()
                 {
                     Period = 15,
-                    UptrendAmountRequired = 0.01
+                    UptrendAmountRequired = 0.01,
+                    Field = StudyConfig.FieldName.open
                 });
                 Studies.PersistToFile(StudiesFileName);
             }
@@ -163,10 +165,14 @@ namespace AutoTradeMobile
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
                 LastMinute = t.ToMinute(LastMinute);
+                LastMinute.AddTick(t);
                 AddToMinutes(LastMinute);
             }
+            else
+            {
+                LastMinute.AddTick(t);
+            }
 
-            LastMinute.AddTick(t);
             ProcessStudies();
             EvalForTrade();
             RecalculateCurrentPosition(t);
@@ -215,14 +221,8 @@ namespace AutoTradeMobile
         {
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
-
-            if (
-                CanBuy && 
-                LastMinute.MinuteChange > 0 && //current minute is not trending down
-                LastMinute.FirstStudyChange > LastMinute.FirstStudy.UptrendAmountRequired && //first study change > uptrend
-                LastMinute.SecondStudyChange > LastMinute.SecondStudy.UptrendAmountRequired && //second study change > uptrend
-                Minutes.Count > LastMinute.SecondStudy.Period // have enough data to evaluate
-                )
+            double TotalVelocity = LastMinute.MinuteChange + LastMinute.FirstStudyChange + LastMinute.SecondStudyChange;
+            if (CanBuy && TotalVelocity > .5 && LastMinute.SecondStudyChange > LastMinute.SecondStudy.UptrendAmountRequired)
             {
 
                 //buy order
@@ -238,7 +238,7 @@ namespace AutoTradeMobile
                 TradeApp.AddOrderToQueue(orderRequest);
 
             }
-            else if (CanSell && (LastMinute.FirstStudyChange < 0))
+            else if (CanSell && (LastMinute.Close < CurrentPosition.TrailingStopPrice))
             {
                 Trace.WriteLineIf(LastMinute.FirstStudyChange < 0, $"Sell : LastMinute.FirstStudyChange:{LastMinute.FirstStudyChange} < 0");
 

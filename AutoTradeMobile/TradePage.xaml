@@ -48,7 +48,7 @@
                                 >
 
             <chart:SfCartesianChart.XAxes>
-                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="60" />
+                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="30" />
             </chart:SfCartesianChart.XAxes>
 
             <chart:SfCartesianChart.YAxes>
@@ -120,6 +120,16 @@
 
             <Label Text="{Binding TradingData.LastMinute.TradeMinute}" Margin="5" />
 
+            <HorizontalStackLayout Margin="5">
+                <VerticalStackLayout Margin="5">
+                    <Label Text="Bid" HorizontalOptions="CenterAndExpand"></Label>
+                    <Label Text="{Binding TradingData.Bid, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
+                </VerticalStackLayout>
+                <VerticalStackLayout Margin="5">
+                    <Label Text="Ask" HorizontalOptions="CenterAndExpand"></Label>
+                    <Label Text="{Binding TradingData.Ask, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
 
             <HorizontalStackLayout Margin="5">
 
@@ -136,18 +146,6 @@
                    Text="{Binding TradingData.ChangeClosePercentage, Converter={StaticResource PctFix}, StringFormat='{0}%'}"></Label>
 
             </HorizontalStackLayout>
-
-            <HorizontalStackLayout Margin="5">
-                <VerticalStackLayout Margin="5">
-                    <Label Text="Bid" HorizontalOptions="CenterAndExpand"></Label>
-                    <Label Text="{Binding TradingData.Bid, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
-                </VerticalStackLayout>
-                <VerticalStackLayout Margin="5">
-                    <Label Text="Ask" HorizontalOptions="CenterAndExpand"></Label>
-                    <Label Text="{Binding TradingData.Ask, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
-                </VerticalStackLayout>
-            </HorizontalStackLayout>
-
 
             <VerticalStackLayout Margin="5">
                 <Label Text="Volume" HorizontalOptions="CenterAndExpand"></Label>
@@ -185,20 +183,20 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <VerticalStackLayout>
 
                 <HorizontalStackLayout >
 
-                    <Label Margin="10" WidthRequest="110" Text="         Current"></Label>
+                    <Label Margin="10" WidthRequest="110" Text="          Minute"></Label>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
                         <BoxView Color="{Binding TradingData.LastMinute.MinuteColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
                         <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" 
-                           Text="{Binding TradingData.LastMinute.Close, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                           Text="{Binding TradingData.LastMinute.AverageTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
@@ -209,7 +207,7 @@
 
                         <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}"  
                            VerticalOptions="CenterAndExpand" 
-                           Text=""></Label>
+                           Text=" / min"></Label>
 
                     </HorizontalStackLayout>
 
@@ -218,6 +216,7 @@
                 <HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" WidthRequest="120" VerticalOptions="CenterAndExpand">
+
                         <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="false,0">
                             <ImageButton.Source>
                                 <FontImageSource FontFamily="FASolid" Glyph="{StaticResource minus}" Color="DodgerBlue" Size="18"/>
@@ -237,6 +236,7 @@
                                 <FontImageSource FontFamily="FASolid" Glyph="{StaticResource plus}" Color="DodgerBlue" Size="18"/>
                             </ImageButton.Source>
                         </ImageButton>
+
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
@@ -324,6 +324,15 @@
                            Text="{Binding TradingData.CurrentPosition.TotalGain, StringFormat='{0:c}'}"></Label>
                 </HorizontalStackLayout>
 
+                <HorizontalStackLayout Margin="5">
+                    <Label Margin="2" Text="{Binding TradingData.CurrentPosition.TrailingStopPrice, StringFormat='{0:c}'}"></Label>
+                    <Label Margin="2" Text="Stop" FontSize="14"></Label>
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Margin="5">
+                    <Label Margin="2" Text="{Binding TradingData.CurrentPosition.TrailingValue, StringFormat='{0:c}'}"></Label>
+                    <Label Margin="2" Text="Trailing Gain" FontSize="14"></Label>
+                </HorizontalStackLayout>
             </VerticalStackLayout>
 
         </Grid>

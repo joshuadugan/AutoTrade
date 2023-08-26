@@ -61,6 +61,26 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+        [RelayCommand]
+        public void PriceImageClick(string args)
+        {
+            if (args != null)
+            {
+                var vals = args.Split(",");
+                bool increase = bool.Parse(vals[0]);
+                int index = int.Parse(vals[1]);
+                var study = Trade.SymbolData.Studies[index];
+                if (increase)
+                {
+                    study.UptrendAmountRequired += .01;
+                }
+                else
+                {
+                    study.UptrendAmountRequired -= .01;
+                }
+            }
+        }
+
         [ObservableProperty]
         string errorMessage;
 

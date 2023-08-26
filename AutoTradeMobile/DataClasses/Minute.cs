@@ -117,10 +117,6 @@ namespace AutoTradeMobile
                 Ticks.Add(t);
                 AverageTrade = Ticks.Average(t => t.LastTrade);
 
-                //Trace.WriteLine($"Added {t.LastTrade} Tick to Minute ({Ticks.Count}) {TradeMinute}, open {Open} - high {High} - low {Low} - close {Close} - AverageTrade {AverageTrade}");
-                //Trace.WriteLine($"Study Data for Minute {TradeMinute}, First : value {FirstStudyValue} - change {FirstStudyChange}");
-                //Trace.WriteLine($"Study Data for Minute {TradeMinute}, Second : value {SecondStudyValue} - change {SecondStudyChange}");
-
             }
 
         }
