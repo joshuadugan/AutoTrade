@@ -48,7 +48,7 @@ namespace AutoTradeMobile
         string details;
 
 
-        public double FilledQuantity
+        public decimal FilledQuantity
         {
             get
             {
@@ -56,7 +56,7 @@ namespace AutoTradeMobile
             }
         }
 
-        public double OrderedQuantity
+        public decimal OrderedQuantity
         {
             get
             {
@@ -64,7 +64,7 @@ namespace AutoTradeMobile
             }
         }
 
-        public double OrderValue
+        public decimal OrderValue
         {
             get
             {

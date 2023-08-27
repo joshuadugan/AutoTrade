@@ -22,9 +22,10 @@ namespace AutoTradeMobile
     {
 
         public bool UseSandBox { get; }
-        public AuthDataContainer AuthData { get; } = new();
-        public PersistedData StoredData { get; } = new();
-        public SymbolData SymbolData { get; } = new();
+        public static AuthDataContainer AuthData { get; } = new();
+        public static PersistedData StoredData { get; } = new();
+        public static SymbolData SymbolData { get; } = new();
+
 
         [ObservableProperty]
         ObservableCollection<MarketOrder> orders = new();
@@ -47,7 +48,7 @@ namespace AutoTradeMobile
             }
         }
 
-        public double TodayProfit
+        public decimal TodayProfit
         {
             get
             {
@@ -55,7 +56,7 @@ namespace AutoTradeMobile
             }
         }
 
-        public double TodayOrderBuys
+        public decimal TodayOrderBuys
         {
             get
             {
@@ -63,7 +64,7 @@ namespace AutoTradeMobile
             }
         }
 
-        public double TodayOrderSells
+        public decimal TodayOrderSells
         {
             get
             {

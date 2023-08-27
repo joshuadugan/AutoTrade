@@ -6,6 +6,7 @@ using AutoTradeMobile.DataClasses;
 using System.Globalization;
 using TradeLogic;
 using TradeLogic.APIModels.Accounts.portfolio;
+using Skender.Stock.Indicators;
 
 namespace AutoTradeMobile
 {
@@ -30,18 +31,27 @@ namespace AutoTradeMobile
                 Studies.Add(new StudyConfig()
                 {
                     Period = 5,
-                    UptrendAmountRequired = 0.20,
-                    Field = StudyConfig.FieldName.open
+                    UptrendAmountRequired = 0.20m,
+                    Type = StudyConfig.StudyType.EMA
                 });
                 Studies.Add(new StudyConfig()
                 {
                     Period = 15,
-                    UptrendAmountRequired = 0.01,
-                    Field = StudyConfig.FieldName.open
+                    UptrendAmountRequired = 0.01m,
+                    Type = StudyConfig.StudyType.EMA
                 });
                 Studies.PersistToFile(StudiesFileName);
             }
+
+            FirstStudy = Studies[0];
+            SecondStudy = Studies[1];
         }
+
+        [ObservableProperty]
+        StudyConfig firstStudy;
+
+        [ObservableProperty]
+        StudyConfig secondStudy;
 
         [ObservableProperty]
         ObservableCollection<Tick> ticks = new();
@@ -51,6 +61,12 @@ namespace AutoTradeMobile
 
         [ObservableProperty]
         public ObservableCollection<StudyConfig> studies = new();
+
+        [ObservableProperty]
+        decimal velocityTradeOrderValue = .5m;
+
+        [ObservableProperty]
+        decimal velocityTradeTrailingStopValue = .5m;
 
         [ObservableProperty]
         CurrentPosition currentPosition = new();
@@ -72,10 +88,10 @@ namespace AutoTradeMobile
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(ChangeCloseColor))]
-        double changeClose;
+        decimal changeClose;
 
         [ObservableProperty]
-        double changeClosePercentage;
+        decimal changeClosePercentage;
 
         public Color ChangeCloseColor
         {
@@ -90,22 +106,23 @@ namespace AutoTradeMobile
         long totalVolume;
 
         [ObservableProperty]
-        double lastTrade;
+        decimal lastTrade;
 
         [ObservableProperty]
-        double bid;
+        decimal bid;
 
         [ObservableProperty]
-        double ask;
+        decimal ask;
 
         [ObservableProperty]
         Minute lastMinute;
 
         [ObservableProperty]
-        double todayHigh;
+        decimal todayHigh;
 
         [ObservableProperty]
-        double todayLow;
+        decimal todayLow;
+
 
         public void addQuote(GetQuotesResponse quote)
         {
@@ -119,7 +136,7 @@ namespace AutoTradeMobile
 
             if (quote.QuoteData.All == null && quote.QuoteData.Intraday == null)
             {
-                throw new InvalidOperationException("Cannor process quote, missing both quote.QuoteData.All and quote.QuoteData.Intraday");
+                throw new InvalidOperationException("Cannot process quote, missing both quote.QuoteData.All and quote.QuoteData.Intraday");
             }
 
             Tick t = new();
@@ -156,12 +173,13 @@ namespace AutoTradeMobile
                 t.Ask = quote.QuoteData.Intraday.Ask;
                 t.Bid = quote.QuoteData.Intraday.Bid;
                 t.LastTrade = quote.QuoteData.Intraday.LastTrade;
+                t.Volume = quote.QuoteData.Intraday.TotalVolume;
             }
 
             Ticks.Add(t);
             TickCount++;
 
-            //aggrigate the tick into the minutes
+            //aggregate the tick into the minutes
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
                 LastMinute = t.ToMinute(LastMinute);
@@ -195,17 +213,17 @@ namespace AutoTradeMobile
             bool CanSell;
             int? MaxBuy = null;
             //do we have shares in play?
-            if ((CurrentPosition?.Quantity ?? default(double)) == 0)
+            if ((CurrentPosition?.Quantity ?? default(decimal)) == 0)
             {
                 CanBuy = true;
                 CanSell = false;
             }
-            else if (CurrentPosition?.Quantity < LastMinute.FirstStudy.MaxSharesInPlay)
+            else if (CurrentPosition?.Quantity < FirstStudy.MaxSharesInPlay)
             {
                 //no we can buy if needed
                 CanBuy = true;
                 CanSell = true;
-                MaxBuy = (int)(LastMinute.FirstStudy.MaxSharesInPlay - CurrentPosition?.Quantity ?? default(double));
+                MaxBuy = (int)(FirstStudy.MaxSharesInPlay - CurrentPosition?.Quantity ?? default(decimal));
             }
             else
             {
@@ -221,24 +239,27 @@ namespace AutoTradeMobile
         {
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
-            double TotalVelocity = LastMinute.MinuteChange + LastMinute.FirstStudyChange + LastMinute.SecondStudyChange;
-            if (CanBuy && TotalVelocity > .5 && LastMinute.SecondStudyChange > LastMinute.SecondStudy.UptrendAmountRequired)
+            decimal TotalVelocity = LastMinute.MinuteChange + LastMinute.FirstStudyChange + LastMinute.SecondStudyChange;
+            if (CanBuy &&
+                TotalVelocity > VelocityTradeOrderValue &&
+                Minutes.Count > SecondStudy.Period
+                )
             {
-
+                VelocityTradeTrailingStopValue = Math.Abs(Ticks.Last().Ask - LastMinute.SecondStudyValue);
                 //buy order
-                int MaxOrderSize = MaxBuy ?? LastMinute.FirstStudy.DefaultOrderSize;
+                int MaxOrderSize = MaxBuy ?? FirstStudy.DefaultOrderSize;
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
                     LastMinute.OrderKey,
                     Symbol,
                     MaxOrderSize,
-                    LastMinute.Ticks.Last().Ask,
+                    Ticks.Last().Ask,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.BUY
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
 
             }
-            else if (CanSell && (LastMinute.Close < CurrentPosition.TrailingStopPrice))
+            else if (CanSell && (LastMinute.Close < CurrentPosition.HighSharePrice - VelocityTradeTrailingStopValue))
             {
                 Trace.WriteLineIf(LastMinute.FirstStudyChange < 0, $"Sell : LastMinute.FirstStudyChange:{LastMinute.FirstStudyChange} < 0");
 
@@ -247,7 +268,7 @@ namespace AutoTradeMobile
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
                     LastMinute.OrderKey,
                     Symbol,
-                    LastMinute.FirstStudy.MaxSharesInPlay,
+                    FirstStudy.MaxSharesInPlay,
                     LastMinute.Ticks.Last().Bid,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.SELL
                     );
@@ -261,39 +282,33 @@ namespace AutoTradeMobile
             int studyIndex = 0;
             foreach (var currentStudy in Studies)
             {
-                if (currentStudy != null)
+                var quotes = Minutes;
+                var lookbackPeriods = currentStudy.Period;
+                decimal StudyValue = LastMinute.Close;
+                switch (currentStudy.Type)
                 {
-                    var StudyData = Minutes.OrderByDescending(m => m.LastTickTime).Take(currentStudy.Period);
-                    double StudyValue = 0;
-                    switch (currentStudy.Field)
-                    {
-                        case StudyConfig.FieldName.open:
-                            StudyValue = StudyData.Select(sd => sd.Open).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                            break;
-                        case StudyConfig.FieldName.high:
-                            StudyValue = StudyData.Select(sd => sd.High).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                            break;
-                        case StudyConfig.FieldName.low:
-                            StudyValue = StudyData.Select(sd => sd.Low).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                            break;
-                        case StudyConfig.FieldName.close:
-                            StudyValue = StudyData.Select(sd => sd.Close).DefaultIfEmpty(LastMinute.AverageTrade).Average();
-                            break;
-                        default:
-                            break;
-                    }
-                    switch (studyIndex)
-                    {
-                        case 0:
-                            LastMinute.FirstStudy = currentStudy;
-                            LastMinute.FirstStudyValue = StudyValue;
-                            break;
+                    case StudyConfig.StudyType.SMA:
+                        StudyValue = quotes.GetSma(lookbackPeriods).LastOrDefault()?.Sma.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    case StudyConfig.StudyType.EMA:
+                        StudyValue = quotes.GetEma(lookbackPeriods).LastOrDefault()?.Ema.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    case StudyConfig.StudyType.VWMA:
+                        StudyValue = quotes.GetVwma(lookbackPeriods).LastOrDefault()?.Vwma.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    default:
+                        throw new Exception($"{currentStudy.Type} is not configured");
 
-                        case 1:
-                            LastMinute.SecondStudy = currentStudy;
-                            LastMinute.SecondStudyValue = StudyValue;
-                            break;
-                    }
+                }
+                switch (studyIndex)
+                {
+                    case 0:
+                        LastMinute.FirstStudyValue = StudyValue;
+                        break;
+
+                    case 1:
+                        LastMinute.SecondStudyValue = StudyValue;
+                        break;
                 }
                 studyIndex++;
             }

@@ -61,7 +61,7 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public string SecurityType { get; set; }
 
         [XmlElement(ElementName = "strikePrice")]
-        public double  StrikePrice { get; set; }
+        public decimal  StrikePrice { get; set; }
 
         [XmlElement(ElementName = "symbol")]
         public string Symbol { get; set; }
@@ -78,13 +78,13 @@ namespace TradeLogic.APIModels.Accounts.portfolio
     {
 
         [XmlElement(ElementName = "change")]
-        public double  Change { get; set; }
+        public decimal  Change { get; set; }
 
         [XmlElement(ElementName = "changePct")]
-        public double  ChangePct { get; set; }
+        public decimal  ChangePct { get; set; }
 
         [XmlElement(ElementName = "lastTrade")]
-        public double  LastTrade { get; set; }
+        public decimal  LastTrade { get; set; }
 
         [XmlElement(ElementName = "lastTradeTime")]
         public long LastTradeTime { get; set; }
@@ -98,7 +98,7 @@ namespace TradeLogic.APIModels.Accounts.portfolio
     {
 
         [XmlElement(ElementName = "positionId")]
-        public double PositionId { get; set; }
+        public decimal PositionId { get; set; }
 
         [XmlElement(ElementName = "Product")]
         public Product Product { get; set; }
@@ -110,16 +110,16 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public long DateAcquired { get; set; }
 
         [XmlElement(ElementName = "pricePaid")]
-        public double PricePaid { get; set; }
+        public decimal PricePaid { get; set; }
 
         [XmlElement(ElementName = "commissions")]
-        public double Commissions { get; set; }
+        public decimal Commissions { get; set; }
 
         [XmlElement(ElementName = "otherFees")]
-        public double OtherFees { get; set; }
+        public decimal OtherFees { get; set; }
 
         [XmlElement(ElementName = "quantity")]
-        public double Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         [XmlElement(ElementName = "positionIndicator")]
         public string PositionIndicator { get; set; }
@@ -128,43 +128,43 @@ namespace TradeLogic.APIModels.Accounts.portfolio
         public string PositionType { get; set; }
 
         [XmlElement(ElementName = "daysGain")]
-        public double  DaysGain { get; set; }
+        public decimal  DaysGain { get; set; }
 
         [XmlElement(ElementName = "daysGainPct")]
-        public double  DaysGainPct { get; set; }
+        public decimal  DaysGainPct { get; set; }
 
         [XmlElement(ElementName = "marketValue")]
-        public double  MarketValue { get; set; }
+        public decimal  MarketValue { get; set; }
 
         [XmlElement(ElementName = "totalCost")]
-        public double  TotalCost { get; set; }
+        public decimal  TotalCost { get; set; }
 
         [XmlElement(ElementName = "totalGain")]
-        public double  TotalGain { get; set; }
+        public decimal  TotalGain { get; set; }
 
         [XmlElement(ElementName = "totalGainPct")]
-        public double  TotalGainPct { get; set; }
+        public decimal  TotalGainPct { get; set; }
 
         [XmlElement(ElementName = "pctOfPortfolio")]
-        public double  PctOfPortfolio { get; set; }
+        public decimal  PctOfPortfolio { get; set; }
 
         [XmlElement(ElementName = "costPerShare")]
-        public double CostPerShare { get; set; }
+        public decimal CostPerShare { get; set; }
 
         [XmlElement(ElementName = "todayCommissions")]
-        public double  TodayCommissions { get; set; }
+        public decimal  TodayCommissions { get; set; }
 
         [XmlElement(ElementName = "todayFees")]
-        public double  TodayFees { get; set; }
+        public decimal  TodayFees { get; set; }
 
         [XmlElement(ElementName = "todayPricePaid")]
-        public double  TodayPricePaid { get; set; }
+        public decimal  TodayPricePaid { get; set; }
 
         [XmlElement(ElementName = "todayQuantity")]
-        public double  TodayQuantity { get; set; }
+        public decimal  TodayQuantity { get; set; }
 
         [XmlElement(ElementName = "adjPrevClose")]
-        public double AdjPrevClose { get; set; }
+        public decimal AdjPrevClose { get; set; }
 
         [XmlElement(ElementName = "Performance")]
         public Performance Performance { get; set; }

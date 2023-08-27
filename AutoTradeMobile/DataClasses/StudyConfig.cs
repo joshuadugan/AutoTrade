@@ -6,8 +6,9 @@ namespace AutoTradeMobile
     {
         public enum StudyType
         {
-            MA,
-            EMA
+            SMA,
+            EMA,
+            VWMA //volume weighted moving average
         }
         public enum FieldName
         {
@@ -18,13 +19,10 @@ namespace AutoTradeMobile
         }
 
         [ObservableProperty]
-        StudyType type = StudyType.MA;
+        StudyType type = StudyType.VWMA;
 
         [ObservableProperty]
-        int period = 10;
-
-        [ObservableProperty]
-        FieldName field = FieldName.close;
+        int period = 20;
 
         [ObservableProperty]
         bool enabledForTrading = false;
@@ -36,13 +34,13 @@ namespace AutoTradeMobile
         int maxSharesInPlay = 100;
 
         [ObservableProperty]
-        bool tradeOnMATrend = true;
+        bool tradeOnMATrend = false;
 
         [ObservableProperty]
         bool tradeOnMinuteAverage = false;
 
         [ObservableProperty]
-        double uptrendAmountRequired = 0.0;
+        decimal uptrendAmountRequired = 0.0m;
 
     }
 

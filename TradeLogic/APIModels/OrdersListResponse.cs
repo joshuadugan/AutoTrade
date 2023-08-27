@@ -67,7 +67,7 @@ namespace TradeLogic.APIModels.Orders
         public int ExpiryDay { get; set; }
 
         [XmlElement(ElementName = "strikePrice")]
-        public double StrikePrice { get; set; }
+        public decimal StrikePrice { get; set; }
 
         [XmlElement(ElementName = "productId")]
         public ProductId ProductId { get; set; }
@@ -93,16 +93,16 @@ namespace TradeLogic.APIModels.Orders
         public int OrderedQuantity { get; set; }
 
         [XmlElement(ElementName = "filledQuantity")]
-        public double FilledQuantity { get; set; }
+        public decimal FilledQuantity { get; set; }
 
         [XmlElement(ElementName = "estimatedCommission")]
-        public double EstimatedCommission { get; set; }
+        public decimal EstimatedCommission { get; set; }
 
         [XmlElement(ElementName = "estimatedFees")]
-        public double EstimatedFees { get; set; }
+        public decimal EstimatedFees { get; set; }
 
         [XmlElement(ElementName = "averageExecutionPrice")]
-        public double AverageExecutionPrice { get; set; }
+        public decimal AverageExecutionPrice { get; set; }
     }
 
     [XmlRoot(ElementName = "OrderDetail")]
@@ -113,16 +113,16 @@ namespace TradeLogic.APIModels.Orders
         public List<Instrument> Instrument { get; set; }
 
         [XmlElement(ElementName = "netPrice")]
-        public double NetPrice { get; set; }
+        public decimal NetPrice { get; set; }
 
         [XmlElement(ElementName = "netBid")]
-        public double NetBid { get; set; }
+        public decimal NetBid { get; set; }
 
         [XmlElement(ElementName = "netAsk")]
-        public double NetAsk { get; set; }
+        public decimal NetAsk { get; set; }
 
         [XmlElement(ElementName = "gcd")]
-        public double Gcd { get; set; }
+        public decimal Gcd { get; set; }
 
         [XmlElement(ElementName = "ratio")]
         public string Ratio { get; set; }
@@ -134,7 +134,7 @@ namespace TradeLogic.APIModels.Orders
         public long ExecutedTime { get; set; }
 
         [XmlElement(ElementName = "orderValue")]
-        public double OrderValue { get; set; }
+        public decimal OrderValue { get; set; }
 
         [XmlElement(ElementName = "status")]
         public string Status { get; set; }
@@ -146,10 +146,10 @@ namespace TradeLogic.APIModels.Orders
         public string PriceType { get; set; }
 
         [XmlElement(ElementName = "limitPrice")]
-        public double LimitPrice { get; set; }
+        public decimal LimitPrice { get; set; }
 
         [XmlElement(ElementName = "stopPrice")]
-        public double StopPrice { get; set; }
+        public decimal StopPrice { get; set; }
 
         [XmlElement(ElementName = "marketSession")]
         public string MarketSession { get; set; }

@@ -37,7 +37,7 @@ namespace TradeLogic.APIModels.Quotes
         public bool AdjustedFlag { get; set; }
 
         [XmlElement(ElementName = "ask")]
-        public double Ask { get; set; }
+        public decimal Ask { get; set; }
 
         [XmlElement(ElementName = "askSize")]
         public long AskSize { get; set; }
@@ -46,7 +46,7 @@ namespace TradeLogic.APIModels.Quotes
         public string AskTime { get; set; }
 
         [XmlElement(ElementName = "bid")]
-        public double Bid { get; set; }
+        public decimal Bid { get; set; }
 
         [XmlElement(ElementName = "bidExchange")]
         public string BidExchange { get; set; }
@@ -58,10 +58,10 @@ namespace TradeLogic.APIModels.Quotes
         public string BidTime { get; set; }
 
         [XmlElement(ElementName = "changeClose")]
-        public double ChangeClose { get; set; }
+        public decimal ChangeClose { get; set; }
 
         [XmlElement(ElementName = "changeClosePercentage")]
-        public double ChangeClosePercentage { get; set; }
+        public decimal ChangeClosePercentage { get; set; }
 
         [XmlElement(ElementName = "companyName")]
         public string CompanyName { get; set; }
@@ -73,34 +73,34 @@ namespace TradeLogic.APIModels.Quotes
         public string DirLast { get; set; }
 
         [XmlElement(ElementName = "dividend")]
-        public double Dividend { get; set; }
+        public decimal Dividend { get; set; }
 
         [XmlElement(ElementName = "eps")]
-        public double Eps { get; set; }
+        public decimal Eps { get; set; }
 
         [XmlElement(ElementName = "estEarnings")]
-        public double EstEarnings { get; set; }
+        public decimal EstEarnings { get; set; }
 
         [XmlElement(ElementName = "exDividendDate")]
         public long ExDividendDate { get; set; }
 
         [XmlElement(ElementName = "high")]
-        public double High { get; set; }
+        public decimal High { get; set; }
 
         [XmlElement(ElementName = "high52")]
-        public double High52 { get; set; }
+        public decimal High52 { get; set; }
 
         [XmlElement(ElementName = "lastTrade")]
-        public double LastTrade { get; set; }
+        public decimal LastTrade { get; set; }
 
         [XmlElement(ElementName = "low")]
-        public double Low { get; set; }
+        public decimal Low { get; set; }
 
         [XmlElement(ElementName = "low52")]
-        public double Low52 { get; set; }
+        public decimal Low52 { get; set; }
 
         [XmlElement(ElementName = "open")]
-        public double Open { get; set; }
+        public decimal Open { get; set; }
 
         [XmlElement(ElementName = "openInterest")]
         public long OpenInterest { get; set; }
@@ -109,7 +109,7 @@ namespace TradeLogic.APIModels.Quotes
         public string OptionStyle { get; set; }
 
         [XmlElement(ElementName = "previousClose")]
-        public double PreviousClose { get; set; }
+        public decimal PreviousClose { get; set; }
 
         [XmlElement(ElementName = "previousDayVolume")]
         public long PreviousDayVolume { get; set; }
@@ -130,28 +130,28 @@ namespace TradeLogic.APIModels.Quotes
         public decimal CashDeliverable { get; set; }
 
         [XmlElement(ElementName = "marketCap")]
-        public double MarketCap { get; set; }
+        public decimal MarketCap { get; set; }
 
         [XmlElement(ElementName = "sharesOutstanding")]
-        public double SharesOutstanding { get; set; }
+        public decimal SharesOutstanding { get; set; }
 
         [XmlElement(ElementName = "nextEarningDate")]
         public string NextEarningDate { get; set; }
 
         [XmlElement(ElementName = "beta")]
-        public double Beta { get; set; }
+        public decimal Beta { get; set; }
 
         [XmlElement(ElementName = "yield")]
-        public double Yield { get; set; }
+        public decimal Yield { get; set; }
 
         [XmlElement(ElementName = "declaredDividend")]
-        public double DeclaredDividend { get; set; }
+        public decimal DeclaredDividend { get; set; }
 
         [XmlElement(ElementName = "dividendPayableDate")]
         public long DividendPayableDate { get; set; }
 
         [XmlElement(ElementName = "pe")]
-        public double Pe { get; set; }
+        public decimal Pe { get; set; }
 
         [XmlElement(ElementName = "week52LowDate")]
         public long Week52LowDate { get; set; }
@@ -160,16 +160,16 @@ namespace TradeLogic.APIModels.Quotes
         public long Week52HiDate { get; set; }
 
         [XmlElement(ElementName = "intrinsicValue")]
-        public double IntrinsicValue { get; set; }
+        public decimal IntrinsicValue { get; set; }
 
         [XmlElement(ElementName = "timePremium")]
-        public double TimePremium { get; set; }
+        public decimal TimePremium { get; set; }
 
         [XmlElement(ElementName = "optionMultiplier")]
-        public double OptionMultiplier { get; set; }
+        public decimal OptionMultiplier { get; set; }
 
         [XmlElement(ElementName = "contractSize")]
-        public double ContractSize { get; set; }
+        public decimal ContractSize { get; set; }
 
         [XmlElement(ElementName = "expirationDate")]
         public long ExpirationDate { get; set; }
@@ -233,28 +233,28 @@ namespace TradeLogic.APIModels.Quotes
     {
 
         [XmlElement(ElementName = "ask")]
-        public double Ask { get; set; }
+        public decimal Ask { get; set; }
 
         [XmlElement(ElementName = "bid")]
-        public double Bid { get; set; }
+        public decimal Bid { get; set; }
 
         [XmlElement(ElementName = "changeClose")]
-        public double ChangeClose { get; set; }
+        public decimal ChangeClose { get; set; }
 
         [XmlElement(ElementName = "changeClosePercentage")]
-        public double ChangeClosePercentage { get; set; }
+        public decimal ChangeClosePercentage { get; set; }
 
         [XmlElement(ElementName = "companyName")]
         public string CompanyName { get; set; }
 
         [XmlElement(ElementName = "high")]
-        public double High { get; set; }
+        public decimal High { get; set; }
 
         [XmlElement(ElementName = "lastTrade")]
-        public double LastTrade { get; set; }
+        public decimal LastTrade { get; set; }
 
         [XmlElement(ElementName = "low")]
-        public double Low { get; set; }
+        public decimal Low { get; set; }
 
         [XmlElement(ElementName = "totalVolume")]
         public long TotalVolume { get; set; }

@@ -41,7 +41,7 @@ namespace TradeLogic.APIModels.Orders
                 string clientOrderId,
                 string symbol,
                 int orderedQuantity,
-                double limitPrice,
+                decimal limitPrice,
                 OrderAction orderAction,
                 PriceType priceType = PriceType.LIMIT,
                 MarketSession marketSession = MarketSession.REGULAR,

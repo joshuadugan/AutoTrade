@@ -38,13 +38,13 @@ namespace AutoTradeMobile.ViewModels
 
         public String AuthKey
         {
-            get { return Trade.AuthData.AuthKey; }
-            set { Trade.AuthData.AuthKey = value; }
+            get { return TradeApp.AuthData.AuthKey; }
+            set { TradeApp.AuthData.AuthKey = value; }
         }
         public String AuthSecret
         {
-            get { return Trade.AuthData.AuthSecret; }
-            set { Trade.AuthData.AuthSecret = value; }
+            get { return TradeApp.AuthData.AuthSecret; }
+            set { TradeApp.AuthData.AuthSecret = value; }
         }
 
         [RelayCommand]
@@ -57,7 +57,7 @@ namespace AutoTradeMobile.ViewModels
             try
             {
 
-                if (Trade.AuthData.isConfigured)
+                if (TradeApp.AuthData.isConfigured)
                 {
                     ShowSetupControls = false;
                 }

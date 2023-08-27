@@ -9,20 +9,30 @@ namespace AutoTradeMobile
     {
 
         [ObservableProperty]
-        double quantity;
+        [NotifyPropertyChangedFor(nameof(HaveShares))]
+        decimal quantity;
+
+        public bool HaveShares
+        {
+            get
+            {
+                return Quantity > 0;
+            }
+        }
 
         [ObservableProperty]
-        double totalCost;
+        decimal totalCost;
 
         [ObservableProperty]
-        double costPerShare;
+        decimal costPerShare;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(TrailingValue))]
-        double marketValue;
+        [NotifyPropertyChangedFor(nameof(TrailingValueColor))]
+        decimal marketValue;
 
         [ObservableProperty]
-        double totalGain;
+        decimal totalGain;
 
         [ObservableProperty]
         Color totalGainColor;
@@ -32,9 +42,9 @@ namespace AutoTradeMobile
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(TrailingStopPrice))]
-        double highSharePrice;
+        decimal highSharePrice;
 
-        public double TrailingStopPrice
+        public decimal TrailingStopPrice
         {
             get
             {
@@ -42,7 +52,7 @@ namespace AutoTradeMobile
             }
         }
 
-        public double TrailingValue
+        public decimal TrailingValue
         {
             get
             {
@@ -50,10 +60,18 @@ namespace AutoTradeMobile
             }
         }
 
-        [ObservableProperty]
-        double stopAmount = .5;
+        public Color TrailingValueColor
+        {
+            get
+            {
+                return TrailingValue >= 0 ? Colors.Green : Colors.Red;
+            }
+        }
 
-        public void UpdateMarketValue(double LastTrade)
+        [ObservableProperty]
+        decimal stopAmount = .5m;
+
+        public void UpdateMarketValue(decimal LastTrade)
         {
             if (LastTrade > HighSharePrice)
             {
@@ -66,6 +84,7 @@ namespace AutoTradeMobile
 
         internal void MergeNewOrder(PreviewOrderResponse.RequestBody thisOrder)
         {
+            StopAmount = TradeApp.SymbolData.VelocityTradeTrailingStopValue;
             // add too or sell the position
             var order = thisOrder.Order.First();
             var instrument = order.Instrument.First();

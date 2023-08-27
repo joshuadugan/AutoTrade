@@ -23,7 +23,7 @@ namespace AutoTradeMobile.ViewModels
             Trade = trade;
             Trade.ReplayLastSession = ReplayLastSession;
             Trade.SimulateOrders = SimulateOrders;
-            Symbol = Trade.StoredData.LastSymbol;
+            Symbol = TradeApp.StoredData.LastSymbol;
 
         }
 
@@ -49,7 +49,7 @@ namespace AutoTradeMobile.ViewModels
                 var vals = args.Split(",");
                 bool increase = bool.Parse(vals[0]);
                 int index = int.Parse(vals[1]);
-                var study = Trade.SymbolData.Studies[index];
+                var study = TradeApp.SymbolData.Studies[index];
                 if (increase)
                 {
                     study.Period++;
@@ -69,15 +69,33 @@ namespace AutoTradeMobile.ViewModels
                 var vals = args.Split(",");
                 bool increase = bool.Parse(vals[0]);
                 int index = int.Parse(vals[1]);
-                var study = Trade.SymbolData.Studies[index];
+                var study = TradeApp.SymbolData.Studies[index];
                 if (increase)
                 {
-                    study.UptrendAmountRequired += .01;
+                    study.UptrendAmountRequired += .01m;
                 }
                 else
                 {
-                    study.UptrendAmountRequired -= .01;
+                    study.UptrendAmountRequired -= .01m;
                 }
+            }
+        }
+
+        [RelayCommand]
+        public void VelocityOrderImageClick(string args)
+        {
+            if (args != null)
+            {
+                bool increase = bool.Parse(args);
+                if (increase)
+                {
+                    TradeApp.SymbolData.VelocityTradeOrderValue += .01m;
+                }
+                else
+                {
+                    TradeApp.SymbolData.VelocityTradeOrderValue -= .01m;
+                }
+
             }
         }
 
@@ -119,7 +137,7 @@ namespace AutoTradeMobile.ViewModels
 
         public void AccountSelected(Account account)
         {
-            Trade.StoredData.LastAccount = account;
+            TradeApp.StoredData.LastAccount = account;
             RequireAccountId = false;
 
         }
@@ -136,7 +154,7 @@ namespace AutoTradeMobile.ViewModels
                 }
 
                 //validate the AccountId
-                String AccountIdKey = Trade.StoredData.LastAccount?.AccountIdKey;
+                String AccountIdKey = TradeApp.StoredData.LastAccount?.AccountIdKey;
                 if (string.IsNullOrEmpty(AccountIdKey))
                 {
                     LoadAccountsAsync();
@@ -144,13 +162,13 @@ namespace AutoTradeMobile.ViewModels
                     return;
                 }
 
-                Trade.StoredData.LastSymbol = Symbol;
-                Trade.StoredData.LastAccessToken = Trade.AccessToken;
+                TradeApp.StoredData.LastSymbol = Symbol;
+                TradeApp.StoredData.LastAccessToken = Trade.AccessToken;
                 IsTraderRunning = true;
                 //startup the trader with this symbol
                 Trade.StartTradingSymbolAsync(Symbol);
                 //get the trade data object reference for the page context
-                TradingData = Trade.SymbolData;
+                TradingData = TradeApp.SymbolData;
 
             }
             catch (Exception ex)
