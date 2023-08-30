@@ -100,6 +100,9 @@ namespace AutoTradeMobile.ViewModels
         }
 
         [ObservableProperty]
+        string pageTitle = "Trade";
+
+        [ObservableProperty]
         string errorMessage;
 
         [ObservableProperty]
@@ -169,7 +172,7 @@ namespace AutoTradeMobile.ViewModels
                 Trade.StartTradingSymbolAsync(Symbol);
                 //get the trade data object reference for the page context
                 TradingData = TradeApp.SymbolData;
-
+                PageTitle = Symbol;
             }
             catch (Exception ex)
             {

@@ -49,8 +49,6 @@ namespace AutoTradeMobile
             [NotifyPropertyChangedFor(nameof(SecondStudyChange))]
             [NotifyPropertyChangedFor(nameof(FirstStudyColor))]
             [NotifyPropertyChangedFor(nameof(SecondStudyColor))]
-            [NotifyPropertyChangedFor(nameof(TotalVelocity))]
-            [NotifyPropertyChangedFor(nameof(TotalVelocityColor))]
             [ObservableProperty]
             decimal close;
 
@@ -58,13 +56,9 @@ namespace AutoTradeMobile
             decimal averageTrade;
 
             [ObservableProperty]
-            [NotifyPropertyChangedFor(nameof(TotalVelocity))]
-            [NotifyPropertyChangedFor(nameof(TotalVelocityColor))]
             decimal firstStudyValue;
 
             [ObservableProperty]
-            [NotifyPropertyChangedFor(nameof(TotalVelocity))]
-            [NotifyPropertyChangedFor(nameof(TotalVelocityColor))]
             decimal secondStudyValue;
 
             public Color MinuteColor
@@ -117,23 +111,6 @@ namespace AutoTradeMobile
 
             public decimal FirstStudyStartingValue { get; set; }
             public decimal SecondStudyStartingValue { get; set; }
-
-            public decimal TotalVelocity
-            {
-                get
-                {
-                    return MinuteChange + FirstStudyChange + SecondStudyChange;
-                }
-            }
-
-            public Color TotalVelocityColor
-            {
-                get
-                {
-                    return TotalVelocity >= 0 ? Colors.Green : Colors.Red;
-                }
-            }
-
 
             public string OrderKey
             {

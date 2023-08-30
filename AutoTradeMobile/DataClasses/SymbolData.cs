@@ -7,6 +7,8 @@ using System.Globalization;
 using TradeLogic;
 using TradeLogic.APIModels.Accounts.portfolio;
 using Skender.Stock.Indicators;
+using System.ComponentModel;
+using CommunityToolkit.Maui.Core.Extensions;
 
 namespace AutoTradeMobile
 {
@@ -32,13 +34,13 @@ namespace AutoTradeMobile
                 {
                     Period = 5,
                     UptrendAmountRequired = 0.20m,
-                    Type = StudyConfig.StudyType.EMA
+                    Type = StudyConfig.StudyType.ALMA
                 });
                 Studies.Add(new StudyConfig()
                 {
                     Period = 15,
                     UptrendAmountRequired = 0.01m,
-                    Type = StudyConfig.StudyType.EMA
+                    Type = StudyConfig.StudyType.ALMA
                 });
                 Studies.PersistToFile(StudiesFileName);
             }
@@ -57,16 +59,26 @@ namespace AutoTradeMobile
         ObservableCollection<Tick> ticks = new();
 
         [ObservableProperty]
-        ObservableCollection<Minute> minutes = new();
+        ObservableCollection<Minute> chartMinutes = new();
+
+        public List<Minute> AllMinutes { get; private set; } = new();
+
+        public string TradingDuration
+        {
+            get
+            {
+                return new TimeSpan(0, AllMinutes.Count, 0).ToString("%h'h '%m'm'");
+            }
+        }
 
         [ObservableProperty]
         public ObservableCollection<StudyConfig> studies = new();
 
         [ObservableProperty]
-        decimal velocityTradeOrderValue = .5m;
+        decimal velocityTradeOrderValue = .50m;
 
         [ObservableProperty]
-        decimal velocityTradeTrailingStopValue = .5m;
+        decimal velocityTradeTrailingStopValue = .50m;
 
         [ObservableProperty]
         CurrentPosition currentPosition = new();
@@ -123,6 +135,41 @@ namespace AutoTradeMobile
         [ObservableProperty]
         decimal todayLow;
 
+        [ObservableProperty]
+        decimal sixtyTicksChange;
+
+        [ObservableProperty]
+        decimal sixtyTicksAverage;
+
+        public Color MinuteAverageChangeColor
+        {
+            get
+            {
+                return MinuteAverageChange >= 0 ? Colors.Green : Colors.Red;
+            }
+        }
+
+        public decimal TotalVelocity
+        {
+            get
+            {
+                return MinuteAverageChange + (LastMinute?.FirstStudyChange ?? 0) + (LastMinute?.SecondStudyChange ?? 0);
+            }
+        }
+
+        public Color TotalVelocityColor
+        {
+            get
+            {
+                return TotalVelocity >= 0 ? Colors.Green : Colors.Red;
+            }
+        }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MinuteAverageChangeColor))]
+        [NotifyPropertyChangedFor(nameof(TotalVelocity))]
+        [NotifyPropertyChangedFor(nameof(TotalVelocityColor))]
+        decimal minuteAverageChange;
 
         public void addQuote(GetQuotesResponse quote)
         {
@@ -179,24 +226,71 @@ namespace AutoTradeMobile
             Ticks.Add(t);
             TickCount++;
 
+            var sixtyTicks = Ticks.TakeLast(60);
+            SixtyTicksAverage = sixtyTicks.Average(st => st.LastTrade);
+            SixtyTicksChange = sixtyTicks.Last().LastTrade - sixtyTicks.First().LastTrade;
+
             //aggregate the tick into the minutes
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
             {
                 LastMinute = t.ToMinute(LastMinute);
-                LastMinute.AddTick(t);
-                AddToMinutes(LastMinute);
+                AllMinutes.Add(LastMinute);
+                OnPropertyChanged(nameof(TradingDuration));
             }
-            else
-            {
-                LastMinute.AddTick(t);
-            }
+            LastMinute.AddTick(t);
 
             ProcessStudies();
             EvalForTrade();
             RecalculateCurrentPosition(t);
-            RefreshLastMinute();
+            ProcessChartMinutes();
 
         }
+
+        private void ProcessStudies()
+        {
+            int studyIndex = 0;
+            foreach (var currentStudy in Studies)
+            {
+                var quotes = AllMinutes;
+                var lookbackPeriods = currentStudy.Period;
+                var lastMinuteAverage = quotes.Last().AverageTrade;
+                var previousMinuteAverage = quotes.SkipLast(1).LastOrDefault()?.AverageTrade ?? lastMinuteAverage;
+                MinuteAverageChange = lastMinuteAverage - previousMinuteAverage;
+
+                decimal StudyValue = LastMinute.Close;
+                switch (currentStudy.Type)
+                {
+                    case StudyConfig.StudyType.SMA:
+                        StudyValue = quotes.GetSma(lookbackPeriods).LastOrDefault()?.Sma.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    case StudyConfig.StudyType.EMA:
+                        StudyValue = quotes.GetEma(lookbackPeriods).LastOrDefault()?.Ema.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    case StudyConfig.StudyType.VWMA:
+                        StudyValue = quotes.GetVwma(lookbackPeriods).LastOrDefault()?.Vwma.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    case StudyConfig.StudyType.ALMA:
+                        StudyValue = quotes.GetAlma(lookbackPeriods, offset: 0.85, sigma: 6).LastOrDefault()?.Alma.ToDecimal() ?? LastMinute.Close;
+                        break;
+                    default:
+                        throw new Exception($"{currentStudy.Type} is not configured");
+
+                }
+                switch (studyIndex)
+                {
+                    case 0:
+                        LastMinute.FirstStudyValue = StudyValue;
+                        break;
+
+                    case 1:
+                        LastMinute.SecondStudyValue = StudyValue;
+                        break;
+                }
+                studyIndex++;
+            }
+            OnPropertyChanged(nameof(TotalVelocity));
+        }
+
 
         private void RecalculateCurrentPosition(Tick t)
         {
@@ -239,13 +333,14 @@ namespace AutoTradeMobile
         {
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
-            decimal TotalVelocity = LastMinute.MinuteChange + LastMinute.FirstStudyChange + LastMinute.SecondStudyChange;
             if (CanBuy &&
                 TotalVelocity > VelocityTradeOrderValue &&
-                Minutes.Count > SecondStudy.Period
+                LastMinute.FirstStudyChange > 0 &&
+                LastMinute.SecondStudyChange > 0 &&
+                AllMinutes.Count > SecondStudy.Period
                 )
             {
-                VelocityTradeTrailingStopValue = Math.Abs(Ticks.Last().Ask - LastMinute.SecondStudyValue);
+                VelocityTradeTrailingStopValue = VelocityTradeOrderValue;
                 //buy order
                 int MaxOrderSize = MaxBuy ?? FirstStudy.DefaultOrderSize;
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
@@ -277,71 +372,22 @@ namespace AutoTradeMobile
             }
         }
 
-        private void ProcessStudies()
-        {
-            int studyIndex = 0;
-            foreach (var currentStudy in Studies)
-            {
-                var quotes = Minutes;
-                var lookbackPeriods = currentStudy.Period;
-                decimal StudyValue = LastMinute.Close;
-                switch (currentStudy.Type)
-                {
-                    case StudyConfig.StudyType.SMA:
-                        StudyValue = quotes.GetSma(lookbackPeriods).LastOrDefault()?.Sma.ToDecimal() ?? LastMinute.Close;
-                        break;
-                    case StudyConfig.StudyType.EMA:
-                        StudyValue = quotes.GetEma(lookbackPeriods).LastOrDefault()?.Ema.ToDecimal() ?? LastMinute.Close;
-                        break;
-                    case StudyConfig.StudyType.VWMA:
-                        StudyValue = quotes.GetVwma(lookbackPeriods).LastOrDefault()?.Vwma.ToDecimal() ?? LastMinute.Close;
-                        break;
-                    default:
-                        throw new Exception($"{currentStudy.Type} is not configured");
 
-                }
-                switch (studyIndex)
-                {
-                    case 0:
-                        LastMinute.FirstStudyValue = StudyValue;
-                        break;
-
-                    case 1:
-                        LastMinute.SecondStudyValue = StudyValue;
-                        break;
-                }
-                studyIndex++;
-            }
-        }
-
-        private void RefreshLastMinute()
+        private void ProcessChartMinutes()
         {
             if (Application.Current.Dispatcher.IsDispatchRequired)
             {
                 Application.Current.Dispatcher.Dispatch((Action)(
                         () =>
-                        Minutes[Minutes.Count - 1] = LastMinute
+                            ChartMinutes = AllMinutes.TakeLast(30).ToObservableCollection()
                         )
                     );
             }
             else
             {
-                Minutes[Minutes.Count - 1] = LastMinute;
+                ChartMinutes = AllMinutes.TakeLast(30).ToObservableCollection();
             }
 
-        }
-
-        private void AddToMinutes(Minute thisMinute)
-        {
-            if (Application.Current.Dispatcher.IsDispatchRequired)
-            {
-                Application.Current.Dispatcher.Dispatch((Action)(() => Minutes.Add(thisMinute)));
-            }
-            else
-            {
-                Minutes.Add(thisMinute);
-            }
-            Trace.WriteLine($"New Minute {thisMinute.TradeMinute}");
         }
 
         private int portfolioResponseCount = 0;

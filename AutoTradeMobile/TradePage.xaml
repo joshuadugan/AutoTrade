@@ -8,7 +8,7 @@
              xmlns:chart="clr-namespace:Syncfusion.Maui.Charts;assembly=Syncfusion.Maui.Charts"
              xmlns:grid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
              xmlns:local="clr-namespace:AutoTradeMobile"
-             Title="SYMBOL"
+             Title="{Binding PageTitle}"
              >
 
     <ContentPage.Resources>
@@ -57,7 +57,7 @@
 
             <chart:CandleSeries  
                         EnableSolidCandle="True"
-                        ItemsSource="{Binding TradingData.Minutes}" 
+                        ItemsSource="{Binding TradingData.ChartMinutes}" 
                         XBindingPath="TradeMinute" 
                         Open="Open"
                         High="High"
@@ -66,7 +66,7 @@
                         />
 
             <chart:LineSeries XBindingPath="TradeMinute"
-						ItemsSource="{Binding TradingData.Minutes}"
+						ItemsSource="{Binding TradingData.ChartMinutes}"
                                 Fill="Yellow" 
                                 StrokeWidth="1"
                                 ShowMarkers="False"
@@ -82,7 +82,7 @@
             </chart:LineSeries>
 
             <chart:SplineSeries XBindingPath="TradeMinute"
-						ItemsSource="{Binding TradingData.Minutes}"
+						ItemsSource="{Binding TradingData.ChartMinutes}"
                                 Fill="LightBlue" 
                                 StrokeWidth="2"
                                 ShowMarkers="False"
@@ -100,7 +100,7 @@
             </chart:SplineSeries>
 
             <chart:SplineSeries XBindingPath="TradeMinute"
-						ItemsSource="{Binding TradingData.Minutes}"
+						ItemsSource="{Binding TradingData.ChartMinutes}"
                                 Fill="RoyalBlue" 
                                 ShowMarkers="False"
 						YBindingPath="SecondStudyValue">
@@ -118,7 +118,11 @@
                     AlignItems="Center" 
                     JustifyContent="SpaceBetween" BackgroundColor="AliceBlue">
 
-            <Label Text="{Binding TradingData.LastMinute.TradeMinute}" Margin="5" />
+            <VerticalStackLayout Margin="5">
+                <Label Text="{Binding TradingData.LastMinute.TradeMinute}" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding TradingData.TradingDuration}"  />
+            </VerticalStackLayout>
+
 
             <HorizontalStackLayout>
 
@@ -151,10 +155,11 @@
             <HorizontalStackLayout>
 
                 <VerticalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                    <Label FontSize="12" Text="velocity"></Label>
-                    <Label HorizontalOptions="CenterAndExpand" 
-                           TextColor="{Binding TradingData.LastMinute.TotalVelocityColor}" 
-                           Text="{Binding TradingData.LastMinute.TotalVelocity, StringFormat='{0:c}'}"></Label>
+                    <Label FontSize="12" Text="velocity" HorizontalTextAlignment="Center"></Label>
+                    <Label 
+                           FontSize="23"
+                           TextColor="{Binding TradingData.TotalVelocityColor}" 
+                           Text="{Binding TradingData.TotalVelocity, StringFormat='{0:c}'}"></Label>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Margin="5" WidthRequest="120" >
@@ -167,7 +172,7 @@
                         </ImageButton>
 
                         <HorizontalStackLayout WidthRequest="42" VerticalOptions="CenterAndExpand">
-                            <Label Text="{Binding TradingData.VelocityTradeOrderValue, StringFormat='{0:c}'}" Margin="1"></Label>
+                            <Label FontSize="16" Text="{Binding TradingData.VelocityTradeOrderValue, StringFormat='{0:c}'}" Margin="1"></Label>
                         </HorizontalStackLayout>
 
                         <ImageButton Command="{Binding VelocityOrderImageClickCommand}" CommandParameter="true">
@@ -227,24 +232,24 @@
 
                     <HorizontalStackLayout Margin="10" WidthRequest="110">
                         <BoxView BackgroundColor="Transparent" Color="Transparent" WidthRequest="35" HeightRequest="20"></BoxView>
-                        <Label FontSize="18" Text="{Binding TradingData.LastMinute.TradeMinute}"></Label>
+                        <Label FontSize="18" HorizontalTextAlignment="Center" Text="Minute"></Label>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.LastMinute.MinuteColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" 
+                        <BoxView Color="{Binding TradingData.MinuteAverageChangeColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding TradingData.MinuteAverageChangeColor}" 
                            Text="{Binding TradingData.LastMinute.AverageTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}" 
+                        <Label TextColor="{Binding TradingData.MinuteAverageChangeColor}" 
                            VerticalOptions="CenterAndExpand" 
-                           Text="{Binding TradingData.LastMinute.MinuteChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding TradingData.MinuteAverageChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.LastMinute.MinuteColor}"  
+                        <Label TextColor="{Binding TradingData.MinuteAverageChangeColor}"  
                            VerticalOptions="CenterAndExpand" 
-                           Text=""></Label>
+                           Text=" / min"></Label>
 
                     </HorizontalStackLayout>
 

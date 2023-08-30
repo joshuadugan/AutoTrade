@@ -8,7 +8,8 @@ namespace AutoTradeMobile
         {
             SMA,
             EMA,
-            VWMA //volume weighted moving average
+            VWMA, //volume weighted moving average
+            ALMA //Arnaud Legoux Moving Average
         }
         public enum FieldName
         {
