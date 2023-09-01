@@ -33,13 +33,13 @@ namespace AutoTradeMobile
                 Studies.Add(new StudyConfig()
                 {
                     Period = 5,
-                    UptrendAmountRequired = 0.20m,
+                    UptrendAmountRequired = 0.1m,
                     Type = StudyConfig.StudyType.ALMA
                 });
                 Studies.Add(new StudyConfig()
                 {
-                    Period = 15,
-                    UptrendAmountRequired = 0.01m,
+                    Period = 20,
+                    UptrendAmountRequired = 0.0m,
                     Type = StudyConfig.StudyType.ALMA
                 });
                 Studies.PersistToFile(StudiesFileName);
@@ -59,9 +59,11 @@ namespace AutoTradeMobile
         ObservableCollection<Tick> ticks = new();
 
         [ObservableProperty]
-        ObservableCollection<Minute> chartMinutes = new();
+        ObservableCollection<ChartMinute> chartData = new();
 
         public List<Minute> AllMinutes { get; private set; } = new();
+        public List<StudyChartValue> AllFirstStudyValues { get; private set; } = new();
+        public List<StudyChartValue> AllSecondStudyValues { get; private set; } = new();
 
         public string TradingDuration
         {
@@ -75,7 +77,7 @@ namespace AutoTradeMobile
         public ObservableCollection<StudyConfig> studies = new();
 
         [ObservableProperty]
-        decimal velocityTradeOrderValue = .50m;
+        decimal velocityTradeOrderValue = .25m;
 
         [ObservableProperty]
         decimal velocityTradeTrailingStopValue = .50m;
@@ -141,35 +143,38 @@ namespace AutoTradeMobile
         [ObservableProperty]
         decimal sixtyTicksAverage;
 
-        public Color MinuteAverageChangeColor
-        {
-            get
-            {
-                return MinuteAverageChange >= 0 ? Colors.Green : Colors.Red;
-            }
-        }
-
-        public decimal TotalVelocity
-        {
-            get
-            {
-                return MinuteAverageChange + (LastMinute?.FirstStudyChange ?? 0) + (LastMinute?.SecondStudyChange ?? 0);
-            }
-        }
-
-        public Color TotalVelocityColor
-        {
-            get
-            {
-                return TotalVelocity >= 0 ? Colors.Green : Colors.Red;
-            }
-        }
+        [ObservableProperty]
+        Color sixtyTicksChangeColor;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(MinuteAverageChangeColor))]
-        [NotifyPropertyChangedFor(nameof(TotalVelocity))]
-        [NotifyPropertyChangedFor(nameof(TotalVelocityColor))]
-        decimal minuteAverageChange;
+        decimal totalVelocity;
+
+        [ObservableProperty]
+        Color totalVelocityColor;
+
+        [ObservableProperty]
+        decimal firstStudyValue;
+
+        [ObservableProperty]
+        decimal firstStudyPreviousValue;
+
+        [ObservableProperty]
+        decimal firstStudyChange;
+
+        [ObservableProperty]
+        Color firstStudyColor;
+
+        [ObservableProperty]
+        decimal secondStudyValue;
+
+        [ObservableProperty]
+        decimal secondStudyPreviousValue;
+
+        [ObservableProperty]
+        decimal secondStudyChange;
+
+        [ObservableProperty]
+        Color secondStudyColor;
 
         public void addQuote(GetQuotesResponse quote)
         {
@@ -229,6 +234,7 @@ namespace AutoTradeMobile
             var sixtyTicks = Ticks.TakeLast(60);
             SixtyTicksAverage = sixtyTicks.Average(st => st.LastTrade);
             SixtyTicksChange = sixtyTicks.Last().LastTrade - sixtyTicks.First().LastTrade;
+            SixtyTicksChangeColor = SixtyTicksChange >= 0 ? Colors.Green : Colors.Red;
 
             //aggregate the tick into the minutes
             if (LastMinute == null || LastMinute.TradeMinute != t.MinuteTime)
@@ -248,29 +254,28 @@ namespace AutoTradeMobile
 
         private void ProcessStudies()
         {
+            if (AllMinutes.Count < 2) { return; }//need two minutes of data
+
             int studyIndex = 0;
             foreach (var currentStudy in Studies)
             {
                 var quotes = AllMinutes;
                 var lookbackPeriods = currentStudy.Period;
-                var lastMinuteAverage = quotes.Last().AverageTrade;
-                var previousMinuteAverage = quotes.SkipLast(1).LastOrDefault()?.AverageTrade ?? lastMinuteAverage;
-                MinuteAverageChange = lastMinuteAverage - previousMinuteAverage;
-
-                decimal StudyValue = LastMinute.Close;
+                var defaultValue = LastMinute.AverageTrade;
+                List<decimal> thisStudyValues = new List<decimal>() { LastMinute.Close, LastMinute.Close };
                 switch (currentStudy.Type)
                 {
                     case StudyConfig.StudyType.SMA:
-                        StudyValue = quotes.GetSma(lookbackPeriods).LastOrDefault()?.Sma.ToDecimal() ?? LastMinute.Close;
+                        thisStudyValues = quotes.GetSma(lookbackPeriods).TakeLast(2).Select(val => val.Sma.ToDecimal() ?? defaultValue).ToList();
                         break;
                     case StudyConfig.StudyType.EMA:
-                        StudyValue = quotes.GetEma(lookbackPeriods).LastOrDefault()?.Ema.ToDecimal() ?? LastMinute.Close;
+                        thisStudyValues = quotes.GetEma(lookbackPeriods).TakeLast(2).Select(val => val.Ema.ToDecimal() ?? defaultValue).ToList();
                         break;
                     case StudyConfig.StudyType.VWMA:
-                        StudyValue = quotes.GetVwma(lookbackPeriods).LastOrDefault()?.Vwma.ToDecimal() ?? LastMinute.Close;
+                        thisStudyValues = quotes.GetVwma(lookbackPeriods).TakeLast(2).Select(val => val.Vwma.ToDecimal() ?? defaultValue).ToList();
                         break;
                     case StudyConfig.StudyType.ALMA:
-                        StudyValue = quotes.GetAlma(lookbackPeriods, offset: 0.85, sigma: 6).LastOrDefault()?.Alma.ToDecimal() ?? LastMinute.Close;
+                        thisStudyValues = quotes.GetAlma(lookbackPeriods, offset: 0.85, sigma: 6).TakeLast(2).Select(val => val.Alma.ToDecimal() ?? defaultValue).ToList();
                         break;
                     default:
                         throw new Exception($"{currentStudy.Type} is not configured");
@@ -279,18 +284,67 @@ namespace AutoTradeMobile
                 switch (studyIndex)
                 {
                     case 0:
-                        LastMinute.FirstStudyValue = StudyValue;
+                        FirstStudyValue = thisStudyValues[0];
+                        FirstStudyPreviousValue = thisStudyValues[1];
+                        FirstStudyChange = FirstStudyPreviousValue - FirstStudyValue;
+                        FirstStudyColor = FirstStudyChange >= 0 ? Colors.Green : Colors.Red;
                         break;
 
                     case 1:
-                        LastMinute.SecondStudyValue = StudyValue;
+                        SecondStudyValue = thisStudyValues[0];
+                        SecondStudyPreviousValue = thisStudyValues[1];
+                        SecondStudyChange = SecondStudyPreviousValue - SecondStudyValue;
+                        SecondStudyColor = FirstStudyChange >= 0 ? Colors.Green : Colors.Red;
                         break;
                 }
                 studyIndex++;
             }
-            OnPropertyChanged(nameof(TotalVelocity));
+            TotalVelocity = FirstStudyChange + SecondStudyChange;
+            TotalVelocityColor = TotalVelocity >= 0 ? Colors.Green : Colors.Red;
+
+            UpdateFirstStudyChartValue();
+            UpdateSecondStudyChartValue();
+
         }
 
+        private void UpdateFirstStudyChartValue()
+        {
+            var last = AllFirstStudyValues.LastOrDefault();
+            if (last == null || last.Time != LastMinute.TradeMinute)
+            {
+                AllFirstStudyValues.Add(new StudyChartValue()
+                {
+                    Time = LastMinute.TradeMinute,
+                    Value = FirstStudyValue,
+                });
+            }
+            else
+            {
+                last.Value = FirstStudyValue;
+            }
+        }
+        private void UpdateSecondStudyChartValue()
+        {
+            var last = AllSecondStudyValues.LastOrDefault();
+            if (last == null || last.Time != LastMinute.TradeMinute)
+            {
+                AllSecondStudyValues.Add(new StudyChartValue()
+                {
+                    Time = LastMinute.TradeMinute,
+                    Value = SecondStudyValue,
+                });
+            }
+            else
+            {
+                last.Value = SecondStudyValue;
+            }
+        }
+
+        public class StudyChartValue
+        {
+            public String Time { get; set; }
+            public decimal Value { get; set; }
+        }
 
         private void RecalculateCurrentPosition(Tick t)
         {
@@ -335,12 +389,10 @@ namespace AutoTradeMobile
             if (TradeApp.IsOrderPending()) { return; }
             if (CanBuy &&
                 TotalVelocity > VelocityTradeOrderValue &&
-                LastMinute.FirstStudyChange > 0 &&
-                LastMinute.SecondStudyChange > 0 &&
                 AllMinutes.Count > SecondStudy.Period
                 )
             {
-                VelocityTradeTrailingStopValue = VelocityTradeOrderValue;
+                VelocityTradeTrailingStopValue = VelocityTradeOrderValue * 2;
                 //buy order
                 int MaxOrderSize = MaxBuy ?? FirstStudy.DefaultOrderSize;
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
@@ -354,9 +406,8 @@ namespace AutoTradeMobile
                 TradeApp.AddOrderToQueue(orderRequest);
 
             }
-            else if (CanSell && (LastMinute.Close < CurrentPosition.HighSharePrice - VelocityTradeTrailingStopValue))
+            else if (CanSell && (LastMinute.Close < CurrentPosition.TrailingStopPrice))
             {
-                Trace.WriteLineIf(LastMinute.FirstStudyChange < 0, $"Sell : LastMinute.FirstStudyChange:{LastMinute.FirstStudyChange} < 0");
 
                 //sell order
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
@@ -364,7 +415,7 @@ namespace AutoTradeMobile
                     LastMinute.OrderKey,
                     Symbol,
                     FirstStudy.MaxSharesInPlay,
-                    LastMinute.Ticks.Last().Bid,
+                    CurrentPosition.TrailingStopPrice,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.SELL
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
@@ -379,15 +430,34 @@ namespace AutoTradeMobile
             {
                 Application.Current.Dispatcher.Dispatch((Action)(
                         () =>
-                            ChartMinutes = AllMinutes.TakeLast(30).ToObservableCollection()
-                        )
+                        {
+                            ProcessChartMinute_Internal();
+                        })
                     );
             }
             else
             {
-                ChartMinutes = AllMinutes.TakeLast(30).ToObservableCollection();
+                ProcessChartMinute_Internal();
             }
 
+        }
+
+        private void ProcessChartMinute_Internal()
+        {
+            var mergedChartData = AllMinutes
+                            .Join(AllFirstStudyValues, m => m.TradeMinute, s => s.Time, (tm, fs) => new { tm, fs })
+                            .Join(AllSecondStudyValues, j => j.tm.TradeMinute, s => s.Time, (j, ss) => new
+                            {
+                                minute = new ChartMinute(j.tm)
+                                {
+                                    FirstStudyValue = j.fs.Value,
+                                    SecondStudyValue = ss.Value
+                                }
+                            });
+
+            ChartData = mergedChartData
+                            .Select(mcd => mcd.minute)
+                            .TakeLast(SecondStudy.Period).ToObservableCollection();
         }
 
         private int portfolioResponseCount = 0;

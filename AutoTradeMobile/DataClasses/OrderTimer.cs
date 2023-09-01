@@ -11,6 +11,10 @@ namespace AutoTradeMobile
         static Queue<PreviewOrderResponse.RequestBody> OrderProcessingQueue = new Queue<PreviewOrderResponse.RequestBody>();
         static Queue<PreviewOrderResponse.RequestBody> CurrentPositionQueue = new Queue<PreviewOrderResponse.RequestBody>();
 
+        private static Timer OrderTimer { get; set; }
+        public bool ReplayLastSession { get; internal set; }
+        public bool SimulateOrders { get; internal set; }
+
         static PreviewOrderResponse.RequestBody DequeOrderProcessingQueue()
         {
             if (OrderProcessingQueue.Count > 0)
@@ -24,10 +28,6 @@ namespace AutoTradeMobile
             return OrderRequestQueue.Any() | OrderProcessingQueue.Any();
         }
 
-        private static Timer OrderTimer { get; set; }
-        public bool ReplayLastSession { get; internal set; }
-        public bool SimulateOrders { get; internal set; }
-
         public static void AddOrderToQueue(PreviewOrderResponse.RequestBody order)
         {
             //put it in the processing queue first to ensure no further orders will be placed until its dequeued from the processing queue and the order request queue
@@ -37,7 +37,14 @@ namespace AutoTradeMobile
 
         private void StartOrderTimer()
         {
-            OrderTimer = new(OrderTimerTick, null, 1000, 5000);
+            if (SimulateOrders)
+            {
+                OrderTimer = new(OrderTimerTick_Simulated, null, 1000, 5000);
+            }
+            else
+            {
+                OrderTimer = new(OrderTimerTick, null, 1000, 5000);
+            }
         }
 
         private void OrderTimerTick(object args)
@@ -52,67 +59,27 @@ namespace AutoTradeMobile
         {
             lock (OrderTimer)
             {
-                if (OrderRequestQueue.Count > 0)
-                {
-                    PreviewOrderResponse.RequestBody thisOrder = OrderRequestQueue.Dequeue();
 
-                    if ((bool)SimulateOrders)
+                PreviewOrderResponse.RequestBody thisOrder = OrderRequestQueue.Peek();
+                if (thisOrder != null)
+                {
+                    try
                     {
-                        //process the order virtually
-                        AddReplayOrder(thisOrder);
+
+                    OrderRequestQueue.Dequeue();
+                    }
+                    catch (Exception ex)
+                    {
+                        //depending on the exception we might be able to recover.
+                        //any temporary network issue we can just swallow up as we try again on the next tick.
+                        ex.WriteExceptionToLog();                        
                     }
                 }
+
             }
         }
 
-        //private void RequestOrderData(object args)
-        //{
-        //    lock (OrderTimer)
-        //    {
-        //        try
-        //        {
-        //            string symbol = CurrentSymbolList.First();
-        //            if (string.IsNullOrEmpty(AccountIdKey))
-        //            {
-        //                throw new ArgumentException("No Account Id Key");
-        //            }
-        //            Stopwatch sw = Stopwatch.StartNew();
-        //            OrdersListResponse OrderResult = TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, symbol).Result;
-        //            sw.Stop();
-        //            Trace.WriteLineIf(sw.Elapsed.TotalMilliseconds > 500, $"RequestOrderData delay: {sw.Elapsed.TotalMilliseconds}");
-        //            LastOrderResponseTime = sw.Elapsed;
-        //            Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            TradingError = ex.Message;
-        //        }
-        //    }
-        //}
 
-
-        private void AddReplayOrder(PreviewOrderResponse.RequestBody thisOrder)
-        {
-            if (Application.Current.Dispatcher.IsDispatchRequired)
-            {
-                Application.Current.Dispatcher.Dispatch((Action)(
-                        () => AddOrderAndPosition(thisOrder))
-                    );
-            }
-            else
-            {
-                AddOrderAndPosition(thisOrder);
-            }
-
-        }
-
-        private void AddOrderAndPosition(PreviewOrderResponse.RequestBody thisOrder)
-        {
-            //simulate the order being placed and accepted
-            Orders.Add(new MarketOrder(thisOrder));
-            //simulate the order bing filled
-            CurrentPositionQueue.Enqueue(thisOrder);
-        }
 
     }
 }

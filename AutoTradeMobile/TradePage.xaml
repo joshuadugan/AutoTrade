@@ -57,7 +57,7 @@
 
             <chart:CandleSeries  
                         EnableSolidCandle="True"
-                        ItemsSource="{Binding TradingData.ChartMinutes}" 
+                        ItemsSource="{Binding TradingData.ChartData}" 
                         XBindingPath="TradeMinute" 
                         Open="Open"
                         High="High"
@@ -65,45 +65,20 @@
                         Close="Close"
                         />
 
-            <chart:LineSeries XBindingPath="TradeMinute"
-						ItemsSource="{Binding TradingData.ChartMinutes}"
-                                Fill="Yellow" 
-                                StrokeWidth="1"
-                                ShowMarkers="False"
-                              IsVisible="False"
-						YBindingPath="AverageTrade">
-                <chart:LineSeries.MarkerSettings>
-                    <chart:ChartMarkerSettings Type="Diamond"
-                                   Fill="{Binding TradingData.LastMinute.MinuteColor}"
-                                   Height="6"
-                                   Width="6"/>
-                </chart:LineSeries.MarkerSettings>
-
-            </chart:LineSeries>
-
-            <chart:SplineSeries XBindingPath="TradeMinute"
-						ItemsSource="{Binding TradingData.ChartMinutes}"
+            <chart:SplineSeries XBindingPath="TradeMinute" 
+                                YBindingPath="FirstStudyValue"
+						        ItemsSource="{Binding TradingData.ChartData}"
                                 Fill="LightBlue" 
                                 StrokeWidth="2"
-                                ShowMarkers="False"
-						YBindingPath="FirstStudyValue">
-
-                <chart:SplineSeries.MarkerSettings>
-                    <chart:ChartMarkerSettings Type="Circle"
-                                   Fill="{Binding TradingData.LastMinute.FirstStudyColor}"
-                                   Stroke="{Binding TradingData.LastMinute.FirstStudyColor}"
-                                   StrokeWidth="5"
-                                   Height="6"
-                                   Width="6"/>
-                </chart:SplineSeries.MarkerSettings>
+                                ShowMarkers="False">
 
             </chart:SplineSeries>
 
-            <chart:SplineSeries XBindingPath="TradeMinute"
-						ItemsSource="{Binding TradingData.ChartMinutes}"
+            <chart:SplineSeries XBindingPath="TradeMinute" 
+                                YBindingPath="SecondStudyValue"
+						        ItemsSource="{Binding TradingData.ChartData}"
                                 Fill="RoyalBlue" 
-                                ShowMarkers="False"
-						YBindingPath="SecondStudyValue">
+                                ShowMarkers="False">
 
             </chart:SplineSeries>
 
@@ -121,6 +96,7 @@
             <VerticalStackLayout Margin="5">
                 <Label Text="{Binding TradingData.LastMinute.TradeMinute}" HorizontalTextAlignment="Center" />
                 <Label Text="{Binding TradingData.TradingDuration}"  />
+                <Label Text="After Hours" FontSize="12" IsVisible="{Binding TradingData.IsAfterHours}"/>
             </VerticalStackLayout>
 
 
@@ -236,18 +212,18 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.MinuteAverageChangeColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.MinuteAverageChangeColor}" 
-                           Text="{Binding TradingData.LastMinute.AverageTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding TradingData.SixtyTicksChangeColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding TradingData.SixtyTicksChangeColor}" 
+                           Text="{Binding TradingData.SixtyTicksAverage, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.MinuteAverageChangeColor}" 
+                        <Label TextColor="{Binding TradingData.SixtyTicksChangeColor}" 
                            VerticalOptions="CenterAndExpand" 
-                           Text="{Binding TradingData.MinuteAverageChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding TradingData.SixtyTicksChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.MinuteAverageChangeColor}"  
+                        <Label TextColor="{Binding TradingData.SixtyTicksChangeColor}"  
                            VerticalOptions="CenterAndExpand" 
                            Text=" / min"></Label>
 
@@ -265,7 +241,7 @@
                             </ImageButton.Source>
                         </ImageButton>
 
-                        <HorizontalStackLayout WidthRequest="42" VerticalOptions="CenterAndExpand">
+                        <HorizontalStackLayout WidthRequest="50" VerticalOptions="CenterAndExpand">
                             <Label Text="{Binding TradingData.FirstStudy.Period}" Margin="1"></Label>
                             <Label Text="{Binding TradingData.FirstStudy.Type}" Margin="1"></Label>
                         </HorizontalStackLayout>
@@ -279,18 +255,18 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.LastMinute.FirstStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.LastMinute.FirstStudyColor}" 
-                           Text="{Binding TradingData.LastMinute.FirstStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding TradingData.FirstStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding TradingData.FirstStudyColor}" 
+                           Text="{Binding TradingData.FirstStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.LastMinute.FirstStudyColor}" 
+                        <Label TextColor="{Binding TradingData.FirstStudyColor}" 
                            VerticalOptions="CenterAndExpand" 
-                           Text="{Binding TradingData.LastMinute.FirstStudyChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding TradingData.FirstStudyChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.LastMinute.FirstStudyColor}"  
+                        <Label TextColor="{Binding TradingData.FirstStudyColor}"  
                            VerticalOptions="CenterAndExpand" 
                            Text=" / min"></Label>
 
@@ -307,7 +283,7 @@
                             </ImageButton.Source>
                         </ImageButton>
 
-                        <HorizontalStackLayout WidthRequest="42" VerticalOptions="CenterAndExpand">
+                        <HorizontalStackLayout WidthRequest="50" VerticalOptions="CenterAndExpand">
                             <Label Text="{Binding TradingData.SecondStudy.Period}" Margin="1"></Label>
                             <Label Text="{Binding TradingData.SecondStudy.Type}" Margin="1"></Label>
                         </HorizontalStackLayout>
@@ -320,18 +296,18 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.LastMinute.SecondStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.LastMinute.SecondStudyColor}" 
-                           Text="{Binding TradingData.LastMinute.SecondStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding TradingData.SecondStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding TradingData.SecondStudyColor}" 
+                           Text="{Binding TradingData.SecondStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.LastMinute.SecondStudyColor}" 
+                        <Label TextColor="{Binding TradingData.SecondStudyColor}" 
                            VerticalOptions="CenterAndExpand"
-                           Text="{Binding TradingData.LastMinute.SecondStudyChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding TradingData.SecondStudyChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.LastMinute.SecondStudyColor}" 
+                        <Label TextColor="{Binding TradingData.SecondStudyColor}" 
                            VerticalOptions="CenterAndExpand"
                            Text=" / min"></Label>
 

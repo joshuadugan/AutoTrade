@@ -19,7 +19,7 @@
 
             public Minute ToMinute(Minute lastMinute)
             {
-                return new Minute(this, lastMinute);
+                return new Minute(this);
             }
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AutoTradeMobile
 {
-    internal static class Extensions
+    internal static partial class Extensions
     {
         public static decimal? ToDecimal(this double? d)
         {

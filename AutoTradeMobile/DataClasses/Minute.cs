@@ -10,7 +10,8 @@ namespace AutoTradeMobile
 
         public partial class Minute : ObservableObject, IQuote
         {
-            public Minute(Tick firstTick, Minute lastMinute)
+            public Minute() { }
+            public Minute(Tick firstTick)
             {
                 var firstTime = firstTick.Time;
                 MinuteDateTime = new DateTime(firstTime.Year, firstTime.Month, firstTime.Day, firstTime.Hour, firstTime.Minute, 0);//time to the minute
@@ -19,10 +20,6 @@ namespace AutoTradeMobile
                 Open = firstTick.LastTrade;
                 High = firstTick.LastTrade;
                 Low = firstTick.LastTrade;
-                FirstStudyValue = firstTick.LastTrade;
-                SecondStudyValue = firstTick.LastTrade;
-                FirstStudyStartingValue = lastMinute?.FirstStudyValue ?? firstTick.LastTrade;
-                SecondStudyStartingValue = lastMinute?.SecondStudyValue ?? firstTick.LastTrade;
                 AddTick(firstTick);
             }
 
@@ -45,21 +42,11 @@ namespace AutoTradeMobile
 
             [NotifyPropertyChangedFor(nameof(MinuteColor))]
             [NotifyPropertyChangedFor(nameof(MinuteChange))]
-            [NotifyPropertyChangedFor(nameof(FirstStudyChange))]
-            [NotifyPropertyChangedFor(nameof(SecondStudyChange))]
-            [NotifyPropertyChangedFor(nameof(FirstStudyColor))]
-            [NotifyPropertyChangedFor(nameof(SecondStudyColor))]
             [ObservableProperty]
             decimal close;
 
             [ObservableProperty]
             decimal averageTrade;
-
-            [ObservableProperty]
-            decimal firstStudyValue;
-
-            [ObservableProperty]
-            decimal secondStudyValue;
 
             public Color MinuteColor
             {
@@ -76,41 +63,6 @@ namespace AutoTradeMobile
                     return Close - Open;
                 }
             }
-
-            public decimal FirstStudyChange
-            {
-                get
-                {
-                    return FirstStudyValue - FirstStudyStartingValue;
-                }
-            }
-
-            public decimal SecondStudyChange
-            {
-                get
-                {
-                    return SecondStudyValue - SecondStudyStartingValue;
-                }
-            }
-
-            public Color FirstStudyColor
-            {
-                get
-                {
-                    return FirstStudyChange >= 0 ? Colors.Green : Colors.Red;
-                }
-            }
-
-            public Color SecondStudyColor
-            {
-                get
-                {
-                    return SecondStudyChange >= 0 ? Colors.Green : Colors.Red;
-                }
-            }
-
-            public decimal FirstStudyStartingValue { get; set; }
-            public decimal SecondStudyStartingValue { get; set; }
 
             public string OrderKey
             {

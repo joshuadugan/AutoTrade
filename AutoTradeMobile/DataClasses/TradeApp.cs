@@ -170,18 +170,6 @@ namespace AutoTradeMobile
 
         internal async void LoadPortfolioAsync()
         {
-            if (SimulateOrders)
-            {
-                //process items in the que to simulate getting new portfolio data
-                if (CurrentPositionQueue.Count > 0)
-                {
-                    var pos = CurrentPositionQueue.Dequeue();
-                    SymbolData.CurrentPosition.MergeNewOrder(pos);
-                    DequeOrderProcessingQueue();
-                }
-                return;
-            }
-
             var Portfolio = await TradeAPI.ViewPortfolioPerformanceAsync(AccessToken, AccountIdKey);
             var SymbolShares = Portfolio.AccountPortfolio.Position.FindAll(p => p.Product.Symbol.Equals(Symbol));
             SymbolData.ProcessPortfolioResponseData(SymbolShares);
@@ -196,6 +184,7 @@ namespace AutoTradeMobile
         internal void StopTrading()
         {
             TickerTimer.Dispose();
+            OrderTimer.Dispose();
         }
 
 
