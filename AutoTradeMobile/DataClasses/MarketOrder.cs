@@ -34,7 +34,7 @@ namespace AutoTradeMobile
             thisOrder.Order.First().OrderValue = instrument.OrderedQuantity * order.LimitPrice;
             OrderResponse = new Order()
             {
-                OrderDetail = thisOrder.Order.FirstOrDefault(),
+                OrderDetail = thisOrder.Order,
             };
         }
 
@@ -52,7 +52,7 @@ namespace AutoTradeMobile
         {
             get
             {
-                return OrderResponse?.OrderDetail?.Instrument?.Sum(i => i.FilledQuantity) ?? 0;
+                return OrderResponse?.OrderDetail.First().Instrument?.Sum(i => i.FilledQuantity) ?? 0;
             }
         }
 
@@ -60,7 +60,7 @@ namespace AutoTradeMobile
         {
             get
             {
-                return OrderResponse?.OrderDetail?.Instrument?.Sum(i => i.OrderedQuantity) ?? 0;
+                return OrderResponse?.OrderDetail.First().Instrument?.Sum(i => i.OrderedQuantity) ?? 0;
             }
         }
 
@@ -68,7 +68,7 @@ namespace AutoTradeMobile
         {
             get
             {
-                return OrderResponse?.OrderDetail?.OrderValue ?? 0;
+                return OrderResponse?.OrderDetail.First().OrderValue ?? 0;
             }
         }
 
@@ -87,8 +87,8 @@ namespace AutoTradeMobile
                 //pull out the important properties and store the rest
                 this.OrderId = order.OrderId;
                 this.OrderType = order.OrderType;
-                this.Details = order.OrderDetail.Status;
-                this.OrderAction = Enum.Parse<OrderActions>(order.OrderDetail.Status);
+                this.Details = order.OrderDetail.First().Status;
+                this.OrderAction = Enum.Parse<OrderActions>(order.OrderDetail.First().Status);
                 this.OrderResponse = order;
 
             }

@@ -83,12 +83,20 @@ namespace TradeLogic
             return await GetAsync<OrdersListResponse>(OrdersListResponse.RequestParameters(accountIdKey, symbol), accessToken);
         }
 
-        public async Task<PreviewOrderResponse> PostOrder(AccessToken accessToken, string accountIdKey, PreviewOrderResponse.RequestBody requestBody)
+        public async Task<PreviewOrderResponse> PreviewOrder(AccessToken accessToken, string accountIdKey, PreviewOrderResponse.RequestBody requestBody)
         {
             PreviewOrderResponse requestData = new();
             requestData.RequestBodyData = requestBody;
 
             return await Post<PreviewOrderResponse, PreviewOrderResponse.RequestBody>(requestData, PreviewOrderResponse.RequestParameters(accountIdKey), accessToken);
+        }
+
+        public async Task<PlaceOrderResponse> PlaceOrder(AccessToken accessToken, string accountIdKey, PlaceOrderResponse.RequestBody requestBody)
+        {
+            PlaceOrderResponse requestData = new();
+            requestData.RequestBodyData = requestBody;
+
+            return await Post<PlaceOrderResponse, PlaceOrderResponse.RequestBody>(requestData, PlaceOrderResponse.RequestParameters(accountIdKey), accessToken);
         }
 
 

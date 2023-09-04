@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TradeLogic;
 using TradeLogic.APIModels.Orders;
@@ -21,7 +22,7 @@ namespace AutoTradeMobile
     public partial class TradeApp : ObservableObject
     {
 
-        public bool UseSandBox { get; }
+        public bool UseSandBox { get; } = true;
         public static AuthDataContainer AuthData { get; } = new();
         public static PersistedData StoredData { get; } = new();
         public static SymbolData SymbolData { get; } = new();
@@ -159,13 +160,22 @@ namespace AutoTradeMobile
 
         internal async void LoadOrdersAsync()
         {
-            if (SimulateOrders) return;
             OrdersListResponse OrderResult = await TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, Symbol);
             if (OrderResult != null)
             {
                 Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
-
             }
+        }
+
+        internal async void PlaceOrder(PreviewOrderResponse.RequestBody thisOrder)
+        {
+            PreviewOrderResponse PreviewResponse = await TradeAPI.PreviewOrder(AccessToken, AccountIdKey, thisOrder);
+            LogOrderRespose(PreviewResponse);
+
+            var placeOrder = new PlaceOrderResponse.RequestBody(PreviewResponse);
+
+            PlaceOrderResponse PlaceResponse = await TradeAPI.PlaceOrder(AccessToken, AccountIdKey, placeOrder);
+            LogOrderRespose(PlaceResponse);
         }
 
         internal async void LoadPortfolioAsync()
@@ -185,6 +195,11 @@ namespace AutoTradeMobile
         {
             TickerTimer.Dispose();
             OrderTimer.Dispose();
+        }
+
+        internal void LogOrderRespose(object ResponseObject)
+        {
+            LogToFile(JsonSerializer.Serialize(ResponseObject), "Orders.txt");
         }
 
 

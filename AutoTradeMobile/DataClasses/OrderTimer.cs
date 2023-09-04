@@ -57,24 +57,23 @@ namespace AutoTradeMobile
 
         private void ProcessOrderQueue()
         {
+            if (!OrderRequestQueue.Any()) { return; }
+
             lock (OrderTimer)
             {
 
-                PreviewOrderResponse.RequestBody thisOrder = OrderRequestQueue.Peek();
-                if (thisOrder != null)
+                PreviewOrderResponse.RequestBody thisOrder = OrderRequestQueue.Dequeue();
+                try
                 {
-                    try
-                    {
-
-                    OrderRequestQueue.Dequeue();
-                    }
-                    catch (Exception ex)
-                    {
-                        //depending on the exception we might be able to recover.
-                        //any temporary network issue we can just swallow up as we try again on the next tick.
-                        ex.WriteExceptionToLog();                        
-                    }
+                    PlaceOrder(thisOrder);
                 }
+                catch (Exception ex)
+                {
+                    //depending on the exception we might be able to recover.
+                    //any temporary network issue we can just swallow up as we try again on the next tick.
+                    ex.WriteExceptionToLog();
+                }
+
 
             }
         }

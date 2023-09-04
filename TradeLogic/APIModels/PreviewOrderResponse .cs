@@ -4,12 +4,13 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using TradeLogic.APIModels.Orders;
 using TradeLogic.Authorization.interfaces;
 
 namespace TradeLogic.APIModels.Orders
 {
-    public class PreviewOrderResponse : IResource, IRequest<PreviewOrderResponse.RequestBody>, IBelongToOrderService
+    public partial class PreviewOrderResponse : IResource, IRequest<PreviewOrderResponse.RequestBody>, IBelongToOrderService
     {
         public static Dictionary<string, string> RequestParameters(string accountIdKey)
         {
@@ -94,8 +95,53 @@ namespace TradeLogic.APIModels.Orders
             public OrderTypes OrderType { get; set; }
             public string ClientOrderId { get; set; }
             public List<OrderDetail> Order { get; set; } = new();
+
+
         }
 
 
     }
+
+    [XmlRoot(ElementName = "PreviewOrderResponse")]
+    public partial class PreviewOrderResponse
+    {
+
+        [XmlElement(ElementName = "clientOrderId")]
+        public string ClientOrderId { get; set; }
+
+        [XmlElement(ElementName = "orderType")]
+        public string OrderType { get; set; }
+
+        [XmlElement(ElementName = "totalOrderValue")]
+        public DateTime TotalOrderValue { get; set; }
+
+        [XmlElement(ElementName = "Order")]
+        public List<OrderDetail> Order { get; set; }
+
+        [XmlElement(ElementName = "PreviewIds")]
+        public List<PreviewIds> PreviewIds { get; set; }
+
+        [XmlElement(ElementName = "previewTime")]
+        public double PreviewTime { get; set; }
+
+        [XmlElement(ElementName = "dstFlag")]
+        public bool DstFlag { get; set; }
+
+        [XmlElement(ElementName = "accountId")]
+        public int AccountId { get; set; }
+
+        [XmlElement(ElementName = "optionLevelCd")]
+        public int OptionLevelCd { get; set; }
+
+        [XmlElement(ElementName = "marginLevelCd")]
+        public string MarginLevelCd { get; set; }
+
+        [XmlElement(ElementName = "Disclosure")]
+        public Disclosure Disclosure { get; set; }
+
+        [XmlElement(ElementName = "cashBpDetails")]
+        public CashBpDetails CashBpDetails { get; set; }
+    }
+
+
 }

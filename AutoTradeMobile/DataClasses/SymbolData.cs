@@ -32,14 +32,12 @@ namespace AutoTradeMobile
                 Trace.WriteLine("Adding default Study Config");
                 Studies.Add(new StudyConfig()
                 {
-                    Period = 5,
-                    UptrendAmountRequired = 0.1m,
+                    Period = 8,
                     Type = StudyConfig.StudyType.ALMA
                 });
                 Studies.Add(new StudyConfig()
                 {
-                    Period = 20,
-                    UptrendAmountRequired = 0.0m,
+                    Period = 25,
                     Type = StudyConfig.StudyType.ALMA
                 });
                 Studies.PersistToFile(StudiesFileName);
@@ -294,7 +292,7 @@ namespace AutoTradeMobile
                         SecondStudyValue = thisStudyValues[0];
                         SecondStudyPreviousValue = thisStudyValues[1];
                         SecondStudyChange = SecondStudyPreviousValue - SecondStudyValue;
-                        SecondStudyColor = FirstStudyChange >= 0 ? Colors.Green : Colors.Red;
+                        SecondStudyColor = SecondStudyChange >= 0 ? Colors.Green : Colors.Red;
                         break;
                 }
                 studyIndex++;

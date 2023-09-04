@@ -49,7 +49,7 @@ namespace AutoTradeMobile
             int rowNumber = TotalRequests;
             var data = MockDataCSV;
             if (data == null || data.Count == 0) { return null; }
-            if (rowNumber >= data.Count) { TotalRequests = 0; rowNumber = 0; }
+            if (rowNumber >= data.Count) { StopTrading(); rowNumber = data.Count; }
             //set the time on the return row before sending it back. this makes it look like the request is current
 
             var responseData = data[rowNumber];

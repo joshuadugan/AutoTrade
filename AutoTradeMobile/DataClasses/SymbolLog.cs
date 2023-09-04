@@ -10,18 +10,23 @@ namespace AutoTradeMobile
     public partial class TradeApp
     {
 
-        private static Queue<LogQueueObj> SymbolLogQueue = new Queue<LogQueueObj>();
+        private static Queue<LogQueueObj> FileLogQueue = new Queue<LogQueueObj>();
 
-        Timer SymbolLogTimer = new Timer(PersistStringsToFile, null, 10000, 10000);
+        Timer FileLogTimer = new Timer(PersistStringsToFile, null, 10000, 10000);
+
+        private static void LogToFile(string fileData, string filename)
+        {
+            FileLogQueue.Enqueue(new LogQueueObj() { fileData = fileData, fileName = filename });
+        }
 
         private static void PersistStringsToFile(object state)
         {
-            lock (SymbolLogQueue)
+            lock (FileLogQueue)
             {
                 List<LogQueueObj> logs = new List<LogQueueObj>();
-                while (SymbolLogQueue.Count > 0)
+                while (FileLogQueue.Count > 0)
                 {
-                    logs.Add(SymbolLogQueue.Dequeue());
+                    logs.Add(FileLogQueue.Dequeue());
 
                 }
                 var groups = logs.GroupBy(l => l.fileName);
