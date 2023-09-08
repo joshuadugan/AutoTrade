@@ -1,6 +1,8 @@
 ﻿using AutoTradeMobile.DataClasses;
 using CommunityToolkit.Maui.Core.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Maui.Animations;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -22,58 +24,11 @@ namespace AutoTradeMobile
     public partial class TradeApp : ObservableObject
     {
 
-        public bool UseSandBox { get; } = true;
+        public bool UseSandBox { get; }
         public static AuthDataContainer AuthData { get; } = new();
-        public static PersistedData StoredData { get; } = new();
-        public static SymbolData SymbolData { get; } = new();
-
-
-        [ObservableProperty]
-        ObservableCollection<MarketOrder> orders = new();
-
-        public TradeApp()
-        {
-            orders.CollectionChanged += (s, e) =>
-            {
-                OnPropertyChanged(nameof(TodayProfit));
-                OnPropertyChanged(nameof(TodayProfitColor));
-            };
-
-        }
-
-        public Color TodayProfitColor
-        {
-            get
-            {
-                return TodayProfit >= 0 ? Colors.LightGreen : Colors.Red;
-            }
-        }
-
-        public decimal TodayProfit
-        {
-            get
-            {
-                return TodayOrderSells - TodayOrderBuys;
-            }
-        }
-
-        public decimal TodayOrderBuys
-        {
-            get
-            {
-                return Orders.Where(o => o.OrderAction == MarketOrder.OrderActions.BUY).Sum(o => o.OrderValue);
-            }
-        }
-
-        public decimal TodayOrderSells
-        {
-            get
-            {
-                return Orders.Where(o => o.OrderAction == MarketOrder.OrderActions.SELL).Sum(o => o.OrderValue);
-            }
-        }
-
-
+        public static PersistedData Settings { get; } = new();
+        public static SymbolData Symbol { get; } = new();
+        public static OrderData OrderState { get; } = new();
 
         [ObservableProperty]
         ObservableCollection<Account> accounts;
@@ -91,7 +46,7 @@ namespace AutoTradeMobile
             }
         }
         public AccessToken AccessToken { get; set; }
-        public string Symbol { get; set; }
+        public string SymbolName { get; set; }
         public string AccountIdKey { get; private set; }
 
         [ObservableProperty]
@@ -144,8 +99,8 @@ namespace AutoTradeMobile
             //lookup the symbol to see if its valid
             if (await TradeAPI.ValidateSymbolAsync(symbol))
             {
-                Symbol = symbol;
-                AccountIdKey = StoredData.LastAccount.AccountIdKey;
+                SymbolName = symbol;
+                AccountIdKey = Settings.LastAccount.AccountIdKey;
 
                 StartTrading();
             }
@@ -160,29 +115,29 @@ namespace AutoTradeMobile
 
         internal async void LoadOrdersAsync()
         {
-            OrdersListResponse OrderResult = await TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, Symbol);
+            OrdersListResponse OrderResult = await TradeAPI.GetOrdersAsync(AccessToken, AccountIdKey, SymbolName);
             if (OrderResult != null)
             {
-                Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
+                OrderState.Orders = OrderResult.Order.Select(order => new MarketOrder(order)).ToObservableCollection();
             }
         }
 
         internal async void PlaceOrder(PreviewOrderResponse.RequestBody thisOrder)
         {
             PreviewOrderResponse PreviewResponse = await TradeAPI.PreviewOrder(AccessToken, AccountIdKey, thisOrder);
-            LogOrderRespose(PreviewResponse);
+            LogOrderResponse(PreviewResponse);
 
             var placeOrder = new PlaceOrderResponse.RequestBody(PreviewResponse);
 
             PlaceOrderResponse PlaceResponse = await TradeAPI.PlaceOrder(AccessToken, AccountIdKey, placeOrder);
-            LogOrderRespose(PlaceResponse);
+            LogOrderResponse(PlaceResponse);
         }
 
         internal async void LoadPortfolioAsync()
         {
             var Portfolio = await TradeAPI.ViewPortfolioPerformanceAsync(AccessToken, AccountIdKey);
             var SymbolShares = Portfolio.AccountPortfolio.Position.FindAll(p => p.Product.Symbol.Equals(Symbol));
-            SymbolData.ProcessPortfolioResponseData(SymbolShares);
+            Symbol.ProcessPortfolioResponseData(SymbolShares);
         }
 
         internal void StartTrading()
@@ -197,7 +152,16 @@ namespace AutoTradeMobile
             OrderTimer.Dispose();
         }
 
-        internal void LogOrderRespose(object ResponseObject)
+        internal void ResetState()
+        {
+            OrderState.Orders.Clear();
+            Symbol.ResetState();
+            TotalRequests = 0;
+            MarketOrder.SimulatedOrderId = 1;
+            Symbol.CurrentPosition = new();
+        }
+
+        internal void LogOrderResponse(object ResponseObject)
         {
             LogToFile(JsonSerializer.Serialize(ResponseObject), "Orders.txt");
         }

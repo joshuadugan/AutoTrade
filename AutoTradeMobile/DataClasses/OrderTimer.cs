@@ -7,39 +7,37 @@ namespace AutoTradeMobile
 {
     public partial class TradeApp
     {
-        static Queue<PreviewOrderResponse.RequestBody> OrderRequestQueue = new Queue<PreviewOrderResponse.RequestBody>();
-        static Queue<PreviewOrderResponse.RequestBody> OrderProcessingQueue = new Queue<PreviewOrderResponse.RequestBody>();
+        static Queue<PreviewOrderResponse.RequestBody> SendOrderQueue = new Queue<PreviewOrderResponse.RequestBody>();
+        static Queue<PreviewOrderResponse.RequestBody> PendingFillQueue = new Queue<PreviewOrderResponse.RequestBody>();
         static Queue<PreviewOrderResponse.RequestBody> CurrentPositionQueue = new Queue<PreviewOrderResponse.RequestBody>();
 
         private static Timer OrderTimer { get; set; }
-        public bool ReplayLastSession { get; internal set; }
-        public bool SimulateOrders { get; internal set; }
+        public static bool ReplayLastSession { get; internal set; }
+        public static bool SimulateOrders { get; internal set; }
 
         static PreviewOrderResponse.RequestBody DequeOrderProcessingQueue()
         {
-            if (OrderProcessingQueue.Count > 0)
+            if (PendingFillQueue.Count > 0)
             {
-                return OrderProcessingQueue.Dequeue();
+                return PendingFillQueue.Dequeue();
             }
             return null;
         }
         public static bool IsOrderPending()
         {
-            return OrderRequestQueue.Any() | OrderProcessingQueue.Any();
+            return SendOrderQueue.Any() | PendingFillQueue.Any();
         }
 
         public static void AddOrderToQueue(PreviewOrderResponse.RequestBody order)
         {
-            //put it in the processing queue first to ensure no further orders will be placed until its dequeued from the processing queue and the order request queue
-            OrderProcessingQueue.Enqueue(order);
-            OrderRequestQueue.Enqueue(order);
+            SendOrderQueue.Enqueue(order);
         }
 
         private void StartOrderTimer()
         {
             if (SimulateOrders)
             {
-                OrderTimer = new(OrderTimerTick_Simulated, null, 1000, 5000);
+                OrderTimer = new(OrderTimerTick_Simulated, null, 1000, 500);
             }
             else
             {
@@ -57,12 +55,12 @@ namespace AutoTradeMobile
 
         private void ProcessOrderQueue()
         {
-            if (!OrderRequestQueue.Any()) { return; }
+            if (!SendOrderQueue.Any()) { return; }
 
             lock (OrderTimer)
             {
 
-                PreviewOrderResponse.RequestBody thisOrder = OrderRequestQueue.Dequeue();
+                PreviewOrderResponse.RequestBody thisOrder = SendOrderQueue.Dequeue();
                 try
                 {
                     PlaceOrder(thisOrder);

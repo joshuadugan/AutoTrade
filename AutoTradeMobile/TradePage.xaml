@@ -57,7 +57,7 @@
 
             <chart:CandleSeries  
                         EnableSolidCandle="True"
-                        ItemsSource="{Binding TradingData.ChartData}" 
+                        ItemsSource="{Binding Symbol.ChartData}" 
                         XBindingPath="TradeMinute" 
                         Open="Open"
                         High="High"
@@ -67,7 +67,7 @@
 
             <chart:SplineSeries XBindingPath="TradeMinute" 
                                 YBindingPath="FirstStudyValue"
-						        ItemsSource="{Binding TradingData.ChartData}"
+						        ItemsSource="{Binding Symbol.ChartData}"
                                 Fill="LightBlue" 
                                 StrokeWidth="2"
                                 ShowMarkers="False">
@@ -76,7 +76,7 @@
 
             <chart:SplineSeries XBindingPath="TradeMinute" 
                                 YBindingPath="SecondStudyValue"
-						        ItemsSource="{Binding TradingData.ChartData}"
+						        ItemsSource="{Binding Symbol.ChartData}"
                                 Fill="RoyalBlue" 
                                 ShowMarkers="False">
 
@@ -94,9 +94,9 @@
                     JustifyContent="SpaceBetween" BackgroundColor="AliceBlue">
 
             <VerticalStackLayout Margin="5">
-                <Label Text="{Binding TradingData.LastMinute.TradeMinute}" HorizontalTextAlignment="Center" />
-                <Label Text="{Binding TradingData.TradingDuration}"  />
-                <Label Text="After Hours" FontSize="12" IsVisible="{Binding TradingData.IsAfterHours}"/>
+                <Label Text="{Binding Symbol.LastMinute.TradeMinute}" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding Symbol.TradingDuration}"  />
+                <Label Text="After Hours" FontSize="12" IsVisible="{Binding Symbol.IsAfterHours}"/>
             </VerticalStackLayout>
 
 
@@ -105,24 +105,24 @@
                 <HorizontalStackLayout Margin="5">
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.ChangeCloseColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label FontSize="18" TextColor="{Binding TradingData.ChangeCloseColor}" Text="{Binding TradingData.LastTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding Symbol.ChangeCloseColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label FontSize="18" TextColor="{Binding Symbol.ChangeCloseColor}" Text="{Binding Symbol.LastTrade, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
-                    <Label FontSize="18" TextColor="{Binding TradingData.ChangeCloseColor}" Margin="5" VerticalOptions="CenterAndExpand" Text="{Binding TradingData.ChangeClose, StringFormat='{0:N2}'}"></Label>
+                    <Label FontSize="18" TextColor="{Binding Symbol.ChangeCloseColor}" Margin="5" VerticalOptions="CenterAndExpand" Text="{Binding Symbol.ChangeClose, StringFormat='{0:N2}'}"></Label>
 
-                    <Label FontSize="18" TextColor="{Binding TradingData.ChangeCloseColor}" Margin="5" VerticalOptions="CenterAndExpand" Text="{Binding TradingData.ChangeClosePercentage, Converter={StaticResource PctFix}, StringFormat='{0}%'}"></Label>
+                    <Label FontSize="18" TextColor="{Binding Symbol.ChangeCloseColor}" Margin="5" VerticalOptions="CenterAndExpand" Text="{Binding Symbol.ChangeClosePercentage, Converter={StaticResource PctFix}, StringFormat='{0}%'}"></Label>
 
                 </HorizontalStackLayout>
 
                 <HorizontalStackLayout Margin="5">
                     <VerticalStackLayout Margin="5">
                         <Label FontSize="12" Text="Bid" HorizontalOptions="CenterAndExpand"></Label>
-                        <Label Text="{Binding TradingData.Bid, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
+                        <Label Text="{Binding Symbol.Bid, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
                     </VerticalStackLayout>
                     <VerticalStackLayout Margin="5">
                         <Label FontSize="12" Text="Ask" HorizontalOptions="CenterAndExpand"></Label>
-                        <Label Text="{Binding TradingData.Ask, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
+                        <Label Text="{Binding Symbol.Ask, StringFormat='{0:N2}'}" TextColor="Blue"></Label>
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
 
@@ -134,8 +134,8 @@
                     <Label FontSize="12" Text="velocity" HorizontalTextAlignment="Center"></Label>
                     <Label 
                            FontSize="23"
-                           TextColor="{Binding TradingData.TotalVelocityColor}" 
-                           Text="{Binding TradingData.TotalVelocity, StringFormat='{0:c}'}"></Label>
+                           TextColor="{Binding Symbol.TotalVelocityColor}" 
+                           Text="{Binding Symbol.TotalVelocity, StringFormat='{0:c}'}"></Label>
                 </VerticalStackLayout>
 
                 <VerticalStackLayout Margin="5" WidthRequest="120" >
@@ -148,7 +148,7 @@
                         </ImageButton>
 
                         <HorizontalStackLayout WidthRequest="42" VerticalOptions="CenterAndExpand">
-                            <Label FontSize="16" Text="{Binding TradingData.VelocityTradeOrderValue, StringFormat='{0:c}'}" Margin="1"></Label>
+                            <Label FontSize="16" Text="{Binding Symbol.VelocityTradeOrderValue, StringFormat='{0:c}'}" Margin="1"></Label>
                         </HorizontalStackLayout>
 
                         <ImageButton Command="{Binding VelocityOrderImageClickCommand}" CommandParameter="true">
@@ -159,10 +159,32 @@
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
 
+                <VerticalStackLayout Margin="5" WidthRequest="120" >
+                    <Label HorizontalOptions="CenterAndExpand" FontSize="12" Text="trailing stop value"></Label>
+                    <HorizontalStackLayout VerticalOptions="CenterAndExpand">
+                        <ImageButton Command="{Binding VelocityStopImageClickCommand}" CommandParameter="false">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FASolid" Glyph="{StaticResource minus}" Color="DodgerBlue" Size="18"/>
+                            </ImageButton.Source>
+                        </ImageButton>
+
+                        <HorizontalStackLayout WidthRequest="42" VerticalOptions="CenterAndExpand">
+                            <Label FontSize="16" Text="{Binding Symbol.VelocityTradeTrailingStopValue, StringFormat='{0:c}'}" Margin="1"></Label>
+                        </HorizontalStackLayout>
+
+                        <ImageButton Command="{Binding VelocityStopImageClickCommand}" CommandParameter="true">
+                            <ImageButton.Source>
+                                <FontImageSource FontFamily="FASolid" Glyph="{StaticResource plus}" Color="DodgerBlue" Size="18"/>
+                            </ImageButton.Source>
+                        </ImageButton>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+
             </HorizontalStackLayout>
 
             <VerticalStackLayout Margin="5">
-                <Label Text="{Binding TradingData.TotalVolume, StringFormat='Volume {0:N0}'}"></Label>
+                <Label Text="{Binding Symbol.TotalVolume, StringFormat='Volume {0:N0}'}"></Label>
             </VerticalStackLayout>
 
         </FlexLayout>
@@ -170,7 +192,7 @@
         <grid:SfDataGrid x:Name="OrdersGrid" 
                          IsVisible="{Binding IsTraderRunning}" 
                          Grid.Row="2" 
-                         ItemsSource="{Binding Trade.Orders}" 
+                         ItemsSource="{Binding OrderState.Orders}" 
                          SortingMode="Single" 
                          AllowTriStateSorting="True"
                          ColumnWidthMode="Fill"
@@ -212,18 +234,18 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.SixtyTicksChangeColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.SixtyTicksChangeColor}" 
-                           Text="{Binding TradingData.SixtyTicksAverage, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding Symbol.SixtyTicksChangeColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding Symbol.SixtyTicksChangeColor}" 
+                           Text="{Binding Symbol.SixtyTicksAverage, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.SixtyTicksChangeColor}" 
+                        <Label TextColor="{Binding Symbol.SixtyTicksChangeColor}" 
                            VerticalOptions="CenterAndExpand" 
-                           Text="{Binding TradingData.SixtyTicksChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding Symbol.SixtyTicksChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.SixtyTicksChangeColor}"  
+                        <Label TextColor="{Binding Symbol.SixtyTicksChangeColor}"  
                            VerticalOptions="CenterAndExpand" 
                            Text=" / min"></Label>
 
@@ -242,8 +264,8 @@
                         </ImageButton>
 
                         <HorizontalStackLayout WidthRequest="50" VerticalOptions="CenterAndExpand">
-                            <Label Text="{Binding TradingData.FirstStudy.Period}" Margin="1"></Label>
-                            <Label Text="{Binding TradingData.FirstStudy.Type}" Margin="1"></Label>
+                            <Label Text="{Binding Symbol.FirstStudy.Period}" Margin="1"></Label>
+                            <Label Text="{Binding Symbol.FirstStudy.Type}" Margin="1"></Label>
                         </HorizontalStackLayout>
 
                         <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="true,0">
@@ -255,18 +277,18 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.FirstStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.FirstStudyColor}" 
-                           Text="{Binding TradingData.FirstStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding Symbol.FirstStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding Symbol.FirstStudyColor}" 
+                           Text="{Binding Symbol.FirstStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.FirstStudyColor}" 
+                        <Label TextColor="{Binding Symbol.FirstStudyColor}" 
                            VerticalOptions="CenterAndExpand" 
-                           Text="{Binding TradingData.FirstStudyChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding Symbol.FirstStudyChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.FirstStudyColor}"  
+                        <Label TextColor="{Binding Symbol.FirstStudyColor}"  
                            VerticalOptions="CenterAndExpand" 
                            Text=" / min"></Label>
 
@@ -284,8 +306,8 @@
                         </ImageButton>
 
                         <HorizontalStackLayout WidthRequest="50" VerticalOptions="CenterAndExpand">
-                            <Label Text="{Binding TradingData.SecondStudy.Period}" Margin="1"></Label>
-                            <Label Text="{Binding TradingData.SecondStudy.Type}" Margin="1"></Label>
+                            <Label Text="{Binding Symbol.SecondStudy.Period}" Margin="1"></Label>
+                            <Label Text="{Binding Symbol.SecondStudy.Type}" Margin="1"></Label>
                         </HorizontalStackLayout>
 
                         <ImageButton Command="{Binding MAImageClickCommand}" CommandParameter="true,1">
@@ -296,18 +318,18 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
-                        <BoxView Color="{Binding TradingData.SecondStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
-                        <Label TextColor="{Binding TradingData.SecondStudyColor}" 
-                           Text="{Binding TradingData.SecondStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
+                        <BoxView Color="{Binding Symbol.SecondStudyColor}" WidthRequest="10" HeightRequest="20" Margin="5" VerticalOptions="CenterAndExpand"></BoxView>
+                        <Label TextColor="{Binding Symbol.SecondStudyColor}" 
+                           Text="{Binding Symbol.SecondStudyValue, StringFormat='{0:c}'}" VerticalOptions="CenterAndExpand"/>
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Margin="5" VerticalOptions="CenterAndExpand">
 
-                        <Label TextColor="{Binding TradingData.SecondStudyColor}" 
+                        <Label TextColor="{Binding Symbol.SecondStudyColor}" 
                            VerticalOptions="CenterAndExpand"
-                           Text="{Binding TradingData.SecondStudyChange, StringFormat='{0:N2}'}"></Label>
+                           Text="{Binding Symbol.SecondStudyChange, StringFormat='{0:N2}'}"></Label>
 
-                        <Label TextColor="{Binding TradingData.SecondStudyColor}" 
+                        <Label TextColor="{Binding Symbol.SecondStudyColor}" 
                            VerticalOptions="CenterAndExpand"
                            Text=" / min"></Label>
 
@@ -317,29 +339,29 @@
 
             </VerticalStackLayout>
 
-            <VerticalStackLayout Grid.Column="1" IsVisible="{Binding TradingData.CurrentPosition.HaveShares}">
+            <VerticalStackLayout Grid.Column="1" IsVisible="{Binding Symbol.CurrentPosition.HaveShares}">
 
                 <HorizontalStackLayout Margin="5">
                     <Label Text="Current Position"></Label>
-                    <Label FontSize="10" TextColor="Blue" VerticalOptions="CenterAndExpand" Text="{Binding TradingData.CurrentPosition.ResponseCount, StringFormat=' {0} pings'}"/>
+                    <Label FontSize="10" TextColor="Blue" VerticalOptions="CenterAndExpand" Text="{Binding Symbol.CurrentPosition.ResponseCount, StringFormat=' {0} pings'}"/>
                 </HorizontalStackLayout>
 
                 <HorizontalStackLayout Margin="5">
-                    <Label Margin="2" Text="{Binding TradingData.CurrentPosition.Quantity}" />
+                    <Label Margin="2" Text="{Binding Symbol.CurrentPosition.Quantity}" />
                     <Label Margin="2" Text="@" />
-                    <Label Margin="2" Text="{Binding TradingData.CurrentPosition.CostPerShare, StringFormat='{0:c}'}" />
-                    <Label Margin="2" TextColor="{Binding TradingData.CurrentPosition.TotalGainColor}" Text="{Binding TradingData.CurrentPosition.TotalGain, StringFormat='{0:c}'}"></Label>
+                    <Label Margin="2" Text="{Binding Symbol.CurrentPosition.CostPerShare, StringFormat='{0:c}'}" />
+                    <Label Margin="2" TextColor="{Binding Symbol.CurrentPosition.TotalGainColor}" Text="{Binding Symbol.CurrentPosition.TotalGain, StringFormat='{0:c}'}"></Label>
                 </HorizontalStackLayout>
 
                 <HorizontalStackLayout Margin="5">
-                    <Label Margin="2" Text="{Binding TradingData.CurrentPosition.HighSharePrice, StringFormat='{0:c}'}"></Label>
+                    <Label Margin="2" Text="{Binding Symbol.CurrentPosition.HighSharePrice, StringFormat='{0:c}'}"></Label>
                     <Label Margin="2" Text="High" FontSize="12" VerticalOptions="EndAndExpand"></Label>
-                    <Label Margin="2" Text="{Binding TradingData.CurrentPosition.TrailingStopPrice, StringFormat='{0:c}'}"></Label>
+                    <Label Margin="2" Text="{Binding Symbol.CurrentPosition.TrailingStopPrice, StringFormat='{0:c}'}"></Label>
                     <Label Margin="2" Text="Stop" FontSize="12" VerticalOptions="EndAndExpand"></Label>
                 </HorizontalStackLayout>
 
                 <HorizontalStackLayout Margin="5">
-                    <Label Margin="2" TextColor="{Binding TradingData.CurrentPosition.TrailingValueColor}"  Text="{Binding TradingData.CurrentPosition.TrailingValue, StringFormat='{0:c}'}"></Label>
+                    <Label Margin="2" TextColor="{Binding Symbol.CurrentPosition.TrailingValueColor}"  Text="{Binding Symbol.CurrentPosition.TrailingValue, StringFormat='{0:c}'}"></Label>
                     <Label Margin="2" Text="Stop Gain / Loss" FontSize="12" VerticalOptions="EndAndExpand"></Label>
                 </HorizontalStackLayout>
 
@@ -355,7 +377,7 @@
                />
 
             <Entry Placeholder="Ticker" 
-                   Text="{Binding Symbol}"
+                   Text="{Binding SymbolName}"
                    HeightRequest="50" WidthRequest="100" Margin="20" />
 
             <Button Text="GO" 
@@ -401,8 +423,15 @@
                 <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TotalRequests}" />
             </StackLayout>
 
+            <Button IsVisible="{Binding SimulateOrders}" 
+                    Command="{Binding RestartSimulationCommand}"
+                    Text="Reset Sim" 
+                    BackgroundColor="White" 
+                    VerticalOptions="Center" 
+                    TextColor="Black"></Button>
+
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-                <Label TextColor="{Binding Trade.TodayProfitColor}" FontSize="18" Text="{Binding Trade.TodayProfit, StringFormat='{0:c}'}"/>
+                <Label TextColor="{Binding OrderState.TodayProfitColor}" FontSize="18" Text="{Binding OrderState.TodayProfit, StringFormat='{0:c}'}"/>
             </HorizontalStackLayout>
 
             <StackLayout HorizontalOptions="EndAndExpand" Style="{StaticResource StackLabel}">

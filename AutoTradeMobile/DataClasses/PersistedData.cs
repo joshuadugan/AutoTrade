@@ -69,6 +69,18 @@ namespace AutoTradeMobile
             }
         }
 
+        public decimal LastVelocityTradeOrderValue
+        {
+            get => Decimal.Parse(Preferences.Get(nameof(LastVelocityTradeOrderValue), "0"));
+            set => Preferences.Set(nameof(LastVelocityTradeOrderValue), value.ToString());
+        }
+
+        public decimal LastVelocityTradeTrailingStopValue
+        {
+            get => Decimal.Parse(Preferences.Get(nameof(LastVelocityTradeTrailingStopValue), "0"));
+            set => Preferences.Set(nameof(LastVelocityTradeTrailingStopValue), value.ToString());
+        }
+
     }
 
 

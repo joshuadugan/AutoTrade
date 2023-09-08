@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -14,10 +15,8 @@ namespace AutoTradeMobile
 
         private void RequestSymbolData_Simulated(object args)
         {
-
             lock (TickerTimer)
             {
-
                 try
                 {
                     Stopwatch mockSw = Stopwatch.StartNew();
@@ -27,7 +26,7 @@ namespace AutoTradeMobile
                         TradingError = "No Mock Data";
                         return;
                     }
-                    SymbolData.addQuote(qd);
+                    Symbol.addQuote(qd);
                     mockSw.Stop();
                     LastQuoteResponseTime = mockSw.Elapsed;
                     TotalRequests += 1;
@@ -39,22 +38,21 @@ namespace AutoTradeMobile
                     TradingError = ex.Message;
                     ex.WriteExceptionToLog();
                 }
-
             }
         }
 
-
+        private DateTime SimTradeTime { get; set; } = DateTime.Now;
         private GetQuotesResponse GetMockDataQuote()
         {
             int rowNumber = TotalRequests;
             var data = MockDataCSV;
             if (data == null || data.Count == 0) { return null; }
-            if (rowNumber >= data.Count) { StopTrading(); rowNumber = data.Count; }
+            if (rowNumber >= data.Count) { StopTrading(); rowNumber = data.Count - 1; }
             //set the time on the return row before sending it back. this makes it look like the request is current
 
             var responseData = data[rowNumber];
-            responseData.QuoteData.DateTimeUTC = DateTime.Now.ToFileTimeUtc();
-            responseData.QuoteData.DateTime = DateTime.Now.ToString();
+            responseData.QuoteData.DateTimeUTC = SimTradeTime.AddSeconds(rowNumber).ToFileTimeUtc();
+            responseData.QuoteData.DateTime = SimTradeTime.AddSeconds(rowNumber).ToString();
             return responseData;
         }
 
@@ -72,7 +70,7 @@ namespace AutoTradeMobile
                         if (mockResponseData == null)
                         {
                             mockResponseData = new List<GetQuotesResponse>();
-                            string fileData = Helpers.ReadTextFile($"{Symbol}.txt");
+                            string fileData = Helpers.ReadTextFile($"{SymbolName}.txt");
                             List<string> lines = fileData.Split(Environment.NewLine).ToList();
                             foreach (string line in lines)
                             {
@@ -94,7 +92,7 @@ namespace AutoTradeMobile
                                                 Product = new TradeLogic.APIModels.Quotes.Product()
                                                 {
                                                     SecurityType = "EQ",
-                                                    Symbol = Symbol
+                                                    Symbol = SymbolName
                                                 },
                                                 Intraday = Intraday
 

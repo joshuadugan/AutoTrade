@@ -16,13 +16,11 @@ namespace AutoTradeMobile
         {
             if (ReplayLastSession)
             {
-                TickerTimer = new(RequestSymbolData_Simulated, null, 1000, 1000);
-
+                TickerTimer = new(RequestSymbolData_Simulated, null, 1000, 100);
             }
             else
             {
                 TickerTimer = new(RequestSymbolData, null, 1000, 1000);
-
             }
         }
 
@@ -36,12 +34,12 @@ namespace AutoTradeMobile
                 try
                 {
                     //will be called by the timer to collect data about the symbol
-                    GetQuotesResponse TickResult = TradeAPI.GetQuotesAsync(AccessToken, new List<string>() { Symbol }).Result;
+                    GetQuotesResponse TickResult = TradeAPI.GetQuotesAsync(AccessToken, new List<string>() { SymbolName }).Result;
 
                     if (TickResult == null) throw new Exception("No Tick Result");
-                    if (!Symbol.Equals(TickResult.QuoteData.Product.Symbol.ToUpper())) { throw new Exception("Tick Result does not match symbol");                    }
+                    if (!SymbolName.Equals(TickResult.QuoteData.Product.Symbol.ToUpper())) { throw new Exception("Tick Result does not match symbol");                    }
 
-                    SymbolData.addQuote(TickResult);
+                    Symbol.addQuote(TickResult);
 
                     string fileData = JsonSerializer.Serialize(TickResult.QuoteData.Intraday);
                     string symbolFileName = $"{DateTime.Today.Day}_{TickResult.QuoteData.Product.Symbol.ToUpper()}.txt";

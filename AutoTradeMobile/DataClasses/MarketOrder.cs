@@ -16,7 +16,7 @@ namespace AutoTradeMobile
             Update(order);
         }
 
-        private static int simulatedOrderId = 1;
+        public static int SimulatedOrderId = 1;
         /// <summary>
         /// This exists to simulate an order
         /// </summary>
@@ -24,7 +24,7 @@ namespace AutoTradeMobile
         public MarketOrder(PreviewOrderResponse.RequestBody thisOrder)
         {
             //make up an order id
-            OrderId = simulatedOrderId++;
+            OrderId = SimulatedOrderId++;
             OrderType = "SIMULATED";
             var order = thisOrder.Order.First();
             var instrument = order.Instrument.First();

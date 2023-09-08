@@ -19,6 +19,20 @@ namespace AutoTradeMobile
         public SymbolData()
         {
             Task.Run(() => LoadStudies());
+
+            VelocityTradeOrderValue = TradeApp.Settings.LastVelocityTradeOrderValue;
+            VelocityTradeTrailingStopValue = TradeApp.Settings.LastVelocityTradeTrailingStopValue;
+
+        }
+
+        public void ResetState()
+        {
+            Ticks.Clear();
+            ChartData.Clear();
+            AllMinutes.Clear();
+            AllFirstStudyValues.Clear();
+            AllSecondStudyValues.Clear();
+
         }
 
         private void LoadStudies()
@@ -45,6 +59,17 @@ namespace AutoTradeMobile
 
             FirstStudy = Studies[0];
             SecondStudy = Studies[1];
+        }
+
+        public void SaveStudies()
+        {
+            Studies.PersistToFile(StudiesFileName);
+        }
+
+        public void SaveVelocitySettings()
+        {
+            TradeApp.Settings.LastVelocityTradeOrderValue = VelocityTradeOrderValue;
+            TradeApp.Settings.LastVelocityTradeTrailingStopValue = VelocityTradeTrailingStopValue;
         }
 
         [ObservableProperty]
@@ -85,9 +110,6 @@ namespace AutoTradeMobile
 
         [ObservableProperty]
         private string _Symbol = "No Data Received Yet";
-
-        [ObservableProperty]
-        int tickCount;
 
         [ObservableProperty]
         long lastTime;
@@ -227,7 +249,6 @@ namespace AutoTradeMobile
             }
 
             Ticks.Add(t);
-            TickCount++;
 
             var sixtyTicks = Ticks.TakeLast(60);
             SixtyTicksAverage = sixtyTicks.Average(st => st.LastTrade);
@@ -252,14 +273,14 @@ namespace AutoTradeMobile
 
         private void ProcessStudies()
         {
-            if (AllMinutes.Count < 2) { return; }//need two minutes of data
+            if (AllMinutes.Count < 3) { return; }//need two minutes of data
 
             int studyIndex = 0;
             foreach (var currentStudy in Studies)
             {
                 var quotes = AllMinutes;
-                var lookbackPeriods = currentStudy.Period;
-                var defaultValue = LastMinute.AverageTrade;
+                var lookbackPeriods = Math.Min(quotes.Count - 1, currentStudy.Period);
+                var defaultValue = LastTrade;
                 List<decimal> thisStudyValues = new List<decimal>() { LastMinute.Close, LastMinute.Close };
                 switch (currentStudy.Type)
                 {
@@ -297,7 +318,7 @@ namespace AutoTradeMobile
                 }
                 studyIndex++;
             }
-            TotalVelocity = FirstStudyChange + SecondStudyChange;
+            TotalVelocity = SixtyTicksChange + FirstStudyChange + SecondStudyChange;
             TotalVelocityColor = TotalVelocity >= 0 ? Colors.Green : Colors.Red;
 
             UpdateFirstStudyChartValue();
@@ -354,7 +375,7 @@ namespace AutoTradeMobile
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
             if (LastMinute == null) { return; }//first minute nothing to do
-
+            Trace.WriteLine($"EvalForTrade {Ticks.Count}");
             bool CanBuy;
             bool CanSell;
             int? MaxBuy = null;
@@ -377,7 +398,10 @@ namespace AutoTradeMobile
                 CanBuy = false;
                 CanSell = true;
             }
-
+            if (IsAfterHours)
+            {
+                CanBuy = false;
+            }
             ProcessOrderLogic(CanBuy, CanSell, MaxBuy);
         }
 
@@ -385,12 +409,15 @@ namespace AutoTradeMobile
         {
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
+            var SellOrderTriggerPrice = CurrentPosition.CostPerShare + VelocityTradeTrailingStopValue;
             if (CanBuy &&
                 TotalVelocity > VelocityTradeOrderValue &&
-                AllMinutes.Count > SecondStudy.Period
+                SixtyTicksChange > 0 &&
+                SixtyTicksAverage > FirstStudyValue &&
+                FirstStudyValue > SecondStudyValue
                 )
             {
-                VelocityTradeTrailingStopValue = VelocityTradeOrderValue * 2;
+                var LimitPrice = Ticks.Last().Ask;
                 //buy order
                 int MaxOrderSize = MaxBuy ?? FirstStudy.DefaultOrderSize;
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
@@ -398,26 +425,28 @@ namespace AutoTradeMobile
                     LastMinute.OrderKey,
                     Symbol,
                     MaxOrderSize,
-                    Ticks.Last().Ask,
+                    LimitPrice,
+                    LimitPrice,
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.BUY
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
 
             }
-            else if (CanSell && (LastMinute.Close < CurrentPosition.TrailingStopPrice))
+            else if (CanSell && LastTrade > SellOrderTriggerPrice)
             {
-
                 //sell order
                 var orderRequest = new TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody(
                     TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderTypes.EQ,
                     LastMinute.OrderKey,
                     Symbol,
                     FirstStudy.MaxSharesInPlay,
-                    CurrentPosition.TrailingStopPrice,
-                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.SELL
+                    SellOrderTriggerPrice,
+                    SellOrderTriggerPrice,
+                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.OrderAction.SELL,
+                    TradeLogic.APIModels.Orders.PreviewOrderResponse.RequestBody.PriceType.TRAILING_STOP_CNST,
+                    offsetValue: VelocityTradeTrailingStopValue
                     );
                 TradeApp.AddOrderToQueue(orderRequest);
-
             }
         }
 
@@ -442,16 +471,17 @@ namespace AutoTradeMobile
 
         private void ProcessChartMinute_Internal()
         {
+            if (Ticks.Count() % 2 == 0) { return; }
             var mergedChartData = AllMinutes
-                            .Join(AllFirstStudyValues, m => m.TradeMinute, s => s.Time, (tm, fs) => new { tm, fs })
-                            .Join(AllSecondStudyValues, j => j.tm.TradeMinute, s => s.Time, (j, ss) => new
+                        .Join(AllFirstStudyValues, m => m.TradeMinute, s => s.Time, (tm, fs) => new { tm, fs })
+                        .Join(AllSecondStudyValues, j => j.tm.TradeMinute, s => s.Time, (j, ss) => new
+                        {
+                            minute = new ChartMinute(j.tm)
                             {
-                                minute = new ChartMinute(j.tm)
-                                {
-                                    FirstStudyValue = j.fs.Value,
-                                    SecondStudyValue = ss.Value
-                                }
-                            });
+                                FirstStudyValue = j.fs.Value,
+                                SecondStudyValue = ss.Value
+                            }
+                        }).ToList();
 
             ChartData = mergedChartData
                             .Select(mcd => mcd.minute)

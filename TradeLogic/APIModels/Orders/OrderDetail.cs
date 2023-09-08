@@ -64,6 +64,13 @@ namespace TradeLogic.APIModels.Orders
 
         [XmlElement(ElementName = "replacedByOrderId")]
         public int ReplacedByOrderId { get; set; }
+
+        [XmlElement(ElementName = "offsetType")]
+        public string OffsetType { get; set; }
+
+        [XmlElement(ElementName = "offsetValue")]
+        public decimal OffsetValue { get; set; }
+        public decimal PeakPrice { get; set; }
     }
 
 }

@@ -31,7 +31,7 @@ namespace TradeLogic.APIModels.Orders
 
         public RequestBody ToRequestBodyObject()
         {
-           return RequestBodyData;
+            return RequestBodyData;
         }
 
         public class RequestBody
@@ -43,19 +43,25 @@ namespace TradeLogic.APIModels.Orders
                 string symbol,
                 int orderedQuantity,
                 decimal limitPrice,
+                decimal stopPrice,
                 OrderAction orderAction,
                 PriceType priceType = PriceType.LIMIT,
                 MarketSession marketSession = MarketSession.REGULAR,
-                OrderTerm orderTerm = OrderTerm.GOOD_FOR_DAY)
+                OrderTerm orderTerm = OrderTerm.GOOD_FOR_DAY,
+                OffsetTypes offsetType = OffsetTypes.TRAILING_STOP_CNST,
+                decimal offsetValue = .50m)
             {
                 OrderType = orderType;
                 ClientOrderId = clientOrderId;
                 Order.Add(new OrderDetail()
                 {
                     LimitPrice = limitPrice,
+                    StopPrice = stopPrice,
                     MarketSession = marketSession.ToString(),
                     OrderTerm = orderTerm.ToString(),
                     PriceType = priceType.ToString(),
+                    OffsetType = offsetType.ToString(),
+                    OffsetValue = offsetValue,
                     Instrument = new List<Instrument>()
                     {
                         new Instrument()
@@ -92,6 +98,10 @@ namespace TradeLogic.APIModels.Orders
                 EQ, OPTN, SPREADS, BUY_WRITES, BUTTERFLY, IRON_BUTTERFLY, CONDOR, IRON_CONDOR, MF, MMF
             }
 
+            public enum OffsetTypes
+            {
+                TRAILING_STOP_CNST, TRAILING_STOP_PRCT
+            }
             public OrderTypes OrderType { get; set; }
             public string ClientOrderId { get; set; }
             public List<OrderDetail> Order { get; set; } = new();

@@ -84,7 +84,6 @@ namespace AutoTradeMobile
 
         internal void MergeNewOrder(PreviewOrderResponse.RequestBody thisOrder)
         {
-            StopAmount = TradeApp.SymbolData.VelocityTradeTrailingStopValue;
             // add too or sell the position
             var order = thisOrder.Order.First();
             var instrument = order.Instrument.First();
