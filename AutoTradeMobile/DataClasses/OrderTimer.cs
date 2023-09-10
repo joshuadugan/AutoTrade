@@ -12,8 +12,6 @@ namespace AutoTradeMobile
         static Queue<PreviewOrderResponse.RequestBody> CurrentPositionQueue = new Queue<PreviewOrderResponse.RequestBody>();
 
         private static Timer OrderTimer { get; set; }
-        public static bool ReplayLastSession { get; internal set; }
-        public static bool SimulateOrders { get; internal set; }
 
         static PreviewOrderResponse.RequestBody DequeOrderProcessingQueue()
         {
@@ -41,7 +39,7 @@ namespace AutoTradeMobile
             }
             else
             {
-                OrderTimer = new(OrderTimerTick, null, 1000, 5000);
+                OrderTimer = new(OrderTimerTick, null, 1000, 1000);
             }
         }
 

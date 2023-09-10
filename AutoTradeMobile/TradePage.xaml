@@ -423,7 +423,7 @@
                 <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TotalRequests}" />
             </StackLayout>
 
-            <Button IsVisible="{Binding SimulateOrders}" 
+            <Button IsVisible="{Binding ShowRestartSimulationButton}" 
                     Command="{Binding RestartSimulationCommand}"
                     Text="Reset Sim" 
                     BackgroundColor="White" 

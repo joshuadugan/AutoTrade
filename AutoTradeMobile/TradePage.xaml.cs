@@ -9,17 +9,18 @@ namespace AutoTradeMobile;
 
 public partial class TradePage : ContentPage
 {
-    public TradePageViewModel ViewModel { get; }
+    public TradePageViewModel ViewModel
+    {
+        get
+        {
+            return App.TradePageVM;
+        }
+    }
 
-    public TradePage(TradePageViewModel viewmodel, TradeApp trade)
+    public TradePage()
     {
         InitializeComponent();
-        ViewModel = viewmodel;
-        ViewModel.ReplayLastSession = ((MainPage)Shell.Current.CurrentPage).ViewModel.ReplayLastSession;
-        ViewModel.SimulateOrders = ((MainPage)Shell.Current.CurrentPage).ViewModel.SimulateOrders;
-        ViewModel.Load(trade);
         BindingContext = ViewModel;
-
     }
 
     private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)

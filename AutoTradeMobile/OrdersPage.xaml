@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:grid="clr-namespace:Syncfusion.Maui.DataGrid;assembly=Syncfusion.Maui.DataGrid"
+             x:Class="AutoTradeMobile.OrdersPage"
+             xmlns:ViewModel="clr-namespace:AutoTradeMobile.ViewModels"
+             x:DataType="ViewModel:TradePageViewModel"
+             xmlns:local="clr-namespace:AutoTradeMobile"
+             Title="Orders">
+
+    <VerticalStackLayout>
+
+        <FlexLayout BackgroundColor="SteelBlue"  
+                    Direction="Row" 
+                    JustifyContent="SpaceBetween">
+            <HorizontalStackLayout Margin="5">
+                <Label TextColor="White" VerticalOptions="Center" Text="{Binding OrderState.Orders.Count, StringFormat='{0} Orders'}" />
+            </HorizontalStackLayout>
+            <HorizontalStackLayout Margin="5">
+                <Label TextColor="White" Text="Profit/Loss" VerticalOptions="Center" Margin="0,0,5,0" />
+                <Label TextColor="{Binding OrderState.TodayProfitColor}" FontSize="18" Text="{Binding OrderState.TodayProfit, StringFormat='{0:c}'}"/>
+            </HorizontalStackLayout>
+        </FlexLayout>
+
+        <grid:SfDataGrid x:Name="OrdersGrid" 
+                         ItemsSource="{Binding OrderState.Orders}" 
+                         SortingMode="Single" 
+                         AllowTriStateSorting="True"
+                         LiveDataUpdateMode="AllowDataShaping"
+                         CanMaintainScrollPosition="True"
+                         VerticalScrollBarVisibility="Always"
+                         AutoGenerateColumnsMode="None">
+            <grid:SfDataGrid.Columns>
+                <grid:DataGridTextColumn HeaderText="ID" MappingName="OrderId"/>
+                <grid:DataGridTextColumn HeaderText="Type" MappingName="Details"/>
+                <grid:DataGridTextColumn HeaderText="Qty" MappingName="FilledQuantity"/>
+                <grid:DataGridTextColumn HeaderText="Value" MappingName="OrderValue" Format="C"/>
+            </grid:SfDataGrid.Columns>
+            <grid:SfDataGrid.SortColumnDescriptions>
+                <grid:SortColumnDescription 
+                    ColumnName="OrderId" 
+                    SortDirection="Descending" />
+            </grid:SfDataGrid.SortColumnDescriptions>
+        </grid:SfDataGrid>
+
+    </VerticalStackLayout>
+
+</ContentPage>

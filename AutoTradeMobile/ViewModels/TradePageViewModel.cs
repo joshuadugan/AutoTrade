@@ -17,7 +17,14 @@ namespace AutoTradeMobile.ViewModels
 {
     public partial class TradePageViewModel : ObservableObject
     {
-        public TradeApp Trade { get; private set; }
+
+        public TradeApp Trade
+        {
+            get
+            {
+                return App.Trade;
+            }
+        }
 
         public SymbolData Symbol
         {
@@ -35,13 +42,9 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
-        public void Load(TradeApp trade)
+        public TradePageViewModel()
         {
-            Trade = trade;
-            TradeApp.ReplayLastSession = ReplayLastSession;
-            TradeApp.SimulateOrders = SimulateOrders;
             SymbolName = TradeApp.Settings.LastSymbol;
-
         }
 
         [RelayCommand]
@@ -135,6 +138,13 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+        public bool ShowRestartSimulationButton
+        {
+            get
+            {
+                return TradeApp.ReplayLastSession;
+            }
+        }
         [RelayCommand]
         public void RestartSimulation()
         {
@@ -167,9 +177,6 @@ namespace AutoTradeMobile.ViewModels
         [ObservableProperty]
         bool hasValidAccessToken;
 
-        public bool ReplayLastSession { get; set; }
-        public bool SimulateOrders { get; set; }
-
         [ObservableProperty]
         bool requireAccountId;
 
@@ -191,11 +198,6 @@ namespace AutoTradeMobile.ViewModels
             try
             {
                 if (string.IsNullOrWhiteSpace(SymbolName)) { throw new Exception("No Symbol"); }
-
-                if (!ReplayLastSession)
-                {
-                    Helpers.WriteTextToFileAsync("", $"{SymbolName}.txt");
-                }
 
                 //validate the AccountId
                 String AccountIdKey = TradeApp.Settings.LastAccount?.AccountIdKey;

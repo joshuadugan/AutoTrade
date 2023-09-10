@@ -375,7 +375,7 @@ namespace AutoTradeMobile
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
             if (LastMinute == null) { return; }//first minute nothing to do
-            Trace.WriteLine($"EvalForTrade {Ticks.Count}");
+
             bool CanBuy;
             bool CanSell;
             int? MaxBuy = null;

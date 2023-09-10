@@ -6,10 +6,12 @@ namespace AutoTradeMobile.ViewModels
     public partial class MainPageViewModel : ObservableObject
     {
 
-        public TradeApp Trade { get; private set; }
-        public void SetTradeReference(TradeApp trade)
+        public TradeApp Trade
         {
-            Trade = trade;
+            get
+            {
+                return App.Trade;
+            }
         }
 
         [ObservableProperty]
@@ -115,13 +117,33 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
-        public bool ReplayLastSession { get; set; }
-        public bool SimulateOrders { get; set; }
+        public bool ReplayLastSession
+        {
+            get
+            {
+                return TradeApp.ReplayLastSession;
+            }
+            set
+            {
+                TradeApp.ReplayLastSession = value;
+            }
+        }
+        public bool SimulateOrders
+        {
+            get
+            {
+                return TradeApp.SimulateOrders;
+            }
+            set
+            {
+                TradeApp.SimulateOrders = value;
+            }
+        }
 
         [RelayCommand]
         public async Task SimulateLastSession()
         {
-            await Shell.Current.GoToAsync("TradePage");
+            await Shell.Current.GoToAsync("TradeTabPage");
         }
 
     }

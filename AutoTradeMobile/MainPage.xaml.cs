@@ -9,13 +9,17 @@ namespace AutoTradeMobile
 
         public MainPageViewModel ViewModel { get; }
 
-        public TradeApp Trade { get; }
-
-        public MainPage(MainPageViewModel mainPageViewModel, TradeApp tradeApp)
+        public TradeApp Trade
         {
-            mainPageViewModel.SetTradeReference(tradeApp);
+            get
+            {
+                return App.Trade;
+            }
+        }
+
+        public MainPage(MainPageViewModel mainPageViewModel)
+        {
             ViewModel = mainPageViewModel;
-            Trade = tradeApp;
 
             InitializeComponent();
 

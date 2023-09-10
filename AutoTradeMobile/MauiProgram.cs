@@ -21,11 +21,11 @@ namespace AutoTradeMobile
                     fonts.AddFont("Font Awesome 6 Free-Solid-900.otf", "FASolid");
                 });
 
-            builder.Services.AddSingleton<TradeApp>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<MainPageViewModel>();
+
             builder.Services.AddTransient<TradePage>();
-            builder.Services.AddTransient<TradePageViewModel>();
+
 
 #if DEBUG
             builder.Logging.AddDebug();
