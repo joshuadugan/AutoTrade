@@ -95,7 +95,7 @@ namespace AutoTradeMobile
             {
                 Quantity += OrderQuantity;
                 TotalCost += OrderTotalCost;
-                CostPerShare = TotalCost / Quantity;
+                CostPerShare = TotalCost / OrderQuantity;
                 MarketValue += OrderTotalCost;
                 TotalGain += MarketValue - TotalCost;
                 TotalGainColor = TotalGain >= 0 ? Colors.Green : Colors.Red;

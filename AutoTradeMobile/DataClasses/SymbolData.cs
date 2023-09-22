@@ -409,7 +409,11 @@ namespace AutoTradeMobile
         {
             //if there is an order pending then exit
             if (TradeApp.IsOrderPending()) { return; }
-            var SellOrderTriggerPrice = CurrentPosition.CostPerShare + VelocityTradeTrailingStopValue;
+            var SellOrderTriggerPrice = CurrentPosition.CostPerShare;
+            if (TradeApp.Settings.PlaceTrailingStopWhenTradeIsProfitable)
+            {
+                SellOrderTriggerPrice = CurrentPosition.CostPerShare + VelocityTradeTrailingStopValue;
+            }
             if (CanBuy &&
                 TotalVelocity > VelocityTradeOrderValue &&
                 SixtyTicksChange > 0 &&

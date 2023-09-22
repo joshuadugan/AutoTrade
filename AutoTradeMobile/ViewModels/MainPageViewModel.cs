@@ -107,7 +107,7 @@ namespace AutoTradeMobile.ViewModels
                 {
                     //navigate to the trading page
                     IsBusy = false;
-                    await Shell.Current.GoToAsync("TradePage");
+                    await Shell.Current.GoToAsync("TradeTabPage");
                 }
             }
             catch (Exception ex)

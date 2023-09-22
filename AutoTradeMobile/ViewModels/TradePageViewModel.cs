@@ -42,6 +42,22 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+        public PersistedData Settings
+        {
+            get
+            {
+                return TradeApp.Settings;
+            }
+        }
+
+        public AuthDataContainer AuthData
+        {
+            get
+            {
+                return TradeApp.AuthData;
+            }
+        }
+
         public TradePageViewModel()
         {
             SymbolName = TradeApp.Settings.LastSymbol;

@@ -81,6 +81,11 @@ namespace AutoTradeMobile
             set => Preferences.Set(nameof(LastVelocityTradeTrailingStopValue), value.ToString());
         }
 
+        public bool PlaceTrailingStopWhenTradeIsProfitable
+        {
+            get => bool.Parse(Preferences.Get(nameof(PlaceTrailingStopWhenTradeIsProfitable), "false"));
+            set => Preferences.Set(nameof(PlaceTrailingStopWhenTradeIsProfitable), value.ToString());
+        }
     }
 
 

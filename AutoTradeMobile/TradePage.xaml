@@ -48,7 +48,7 @@
                                 >
 
             <chart:SfCartesianChart.XAxes>
-                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="30" />
+                <chart:CategoryAxis AutoScrollingMode="End" AutoScrollingDelta="100" />
             </chart:SfCartesianChart.XAxes>
 
             <chart:SfCartesianChart.YAxes>
@@ -422,13 +422,6 @@
                 <Label Style="{StaticResource WhiteLabel}" Text="Ticks"/>
                 <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TotalRequests}" />
             </StackLayout>
-
-            <Button IsVisible="{Binding ShowRestartSimulationButton}" 
-                    Command="{Binding RestartSimulationCommand}"
-                    Text="Reset Sim" 
-                    BackgroundColor="White" 
-                    VerticalOptions="Center" 
-                    TextColor="Black"></Button>
 
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
                 <Label TextColor="{Binding OrderState.TodayProfitColor}" FontSize="18" Text="{Binding OrderState.TodayProfit, StringFormat='{0:c}'}"/>
