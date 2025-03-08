@@ -12,9 +12,10 @@ namespace TradeLogic.Authorization
         {
             Expires = DateTime.Now.AddHours(1).AddMinutes(45);
         }
+
         public DateTime Expires { get; set; }
 
-        public bool Expired
+        public bool IsExpired
         {
             get { return (Expires <= DateTime.Now); }
         }

@@ -45,5 +45,13 @@ namespace TradeLogic
             return await _authorizationApi.RevokeAccessTokenAsync(accessToken, RevokeAccessTokenURL);
         }
 
+        public async Task<AccessToken> EnsureTokenIsValidAsync(AccessToken accessToken)
+        {
+            if (accessToken.IsExpired) // Assumes IsExpired checks the token's expiration time
+            {
+                accessToken = await RenewAccessTokenAsync(accessToken);
+            }
+            return accessToken;
+        }
     }
 }

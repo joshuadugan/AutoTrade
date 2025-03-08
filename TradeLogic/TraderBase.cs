@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection.PortableExecutable;
 using System.Security.Authentication;
+using System.Text;
 using System.Xml.Serialization;
 using TradeLogic.Authorization;
 using TradeLogic.Authorization.interfaces;
@@ -22,14 +23,15 @@ namespace TradeLogic
         // Quotes          4 incoming requests per second per user, 14000 per hour
         // Notifications   2 incoming requests per second (per user?)
         private readonly static TokenBucket
-            _ordersTokenBucket = new TokenBucket(2, new TimeSpan(0, 0, 0, 1, 46)),
-            _accountsTokenBucket = new TokenBucket(2, new TimeSpan(0, 0, 0, 1, 102)),
-            _quotesTokenBucket = new TokenBucket(4, new TimeSpan(0, 0, 0, 1, 46));
+            _ordersTokenBucket = new TokenBucket(2, TimeSpan.FromSeconds(1)),   // 2 orders per second
+            _accountsTokenBucket = new TokenBucket(2, TimeSpan.FromSeconds(1)), // 2 account requests per second
+            _quotesTokenBucket = new TokenBucket(4, TimeSpan.FromSeconds(1));   // 4 quotes per second
 
         internal string _ConsumerKey = string.Empty;
         internal string _ConsumerSecret = string.Empty;
         internal AuthorizationApi _authorizationApi;
         internal string _BaseURL = string.Empty;
+        private static readonly HttpClient _httpClient = new HttpClient();
 
         public TraderBase(string ConsumerKey, string ConsumerSecret)
         {
@@ -123,64 +125,54 @@ namespace TradeLogic
             return (_BaseURL) + (queryData != null ? resourceName.Inject(queryData) : resourceName);
         }
 
-        internal async Task<TRequestAndResult> Post<TRequestAndResult, TRequestBody>(TRequestAndResult request, Dictionary<string, string> queryData, AccessToken accessToken) where TRequestAndResult : IResource, IRequest<TRequestBody>, new()
+        internal async Task<TRequestAndResult> Post<TRequestAndResult, TRequestBody>(
+                                                    TRequestAndResult request,
+                                                    Dictionary<string, string> queryData,
+                                                    AccessToken accessToken)
+                                                    where TRequestAndResult : IResource, IRequest<TRequestBody>, new()
         {
-            var resourceType = typeof(TRequestAndResult);
-
             string url = GetUrl<TRequestAndResult>(queryData);
+            ObeyRequestRateLimits(typeof(TRequestAndResult));
 
-            var serializer = new XmlSerializer(resourceType);
-
-            ObeyRequestRateLimits(resourceType);
-
-            try
+            // Serialize request body to XML
+            var requestBodySerializer = new XmlSerializer(typeof(TRequestBody));
+            string requestBodyXml;
+            using (var stringWriter = new StringWriter())
             {
-                using HttpClient httpClient = new();
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Token);
-                var content = JsonContent.Create(request.ToRequestBodyObject);
-                HttpResponseMessage response = await httpClient.PostAsync(url, content);
-                response.EnsureSuccessStatusCode();
-                using Stream responseStream = await response.Content.ReadAsStreamAsync();
-                using MemoryStream responseMemoryStream = new MemoryStream();
-                responseStream.CopyTo(responseMemoryStream);
-                responseMemoryStream.Position = 0;
-
-                try
-                {
-                    return (TRequestAndResult)serializer.Deserialize(responseMemoryStream);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    responseStream.Position = 0;
-
-                    using (var streamReader = new StreamReader(responseMemoryStream))
-                    {
-                        throw new DeserializeException(
-                            ex.Message,
-                            streamReader.ReadToEnd(),
-                            ex
-                        );
-                    }
-                }
-
+                requestBodySerializer.Serialize(stringWriter, request.ToRequestBodyObject());
+                requestBodyXml = stringWriter.ToString();
             }
-            catch (Exception ex)
+
+            // Create OAuth request
+            OAuthRequest oAuthRequest = new()
             {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("401"))
-                {
-                    throw new AuthenticationException(ex.Message, ex);
-                }
+                Method = "POST",
+                Type = OAuthRequestType.ProtectedResource,
+                SignatureMethod = OAuthSignatureMethod.HmacSha1,
+                ConsumerKey = _ConsumerKey,
+                ConsumerSecret = _ConsumerSecret,
+                RequestUrl = url,
+                Token = accessToken.Token,
+                TokenSecret = accessToken.TokenSecret,
+            };
 
-                throw;
-            }
+            using HttpClient httpClient = TraderBase.GetHttpClientWithOauthHeader(oAuthRequest);
+
+            var content = new StringContent(requestBodyXml, Encoding.UTF8, "application/xml");
+            HttpResponseMessage response = await httpClient.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            using Stream responseStream = await response.Content.ReadAsStreamAsync();
+            var responseSerializer = new XmlSerializer(typeof(TRequestAndResult));
+            return (TRequestAndResult)responseSerializer.Deserialize(responseStream);
         }
 
         internal static HttpClient GetHttpClientWithOauthHeader(OAuthRequest oAuthRequest)
         {
             string auth = oAuthRequest.GetAuthorizationHeader();
-            HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.Add("Authorization", auth);
-            return httpClient;
+            _httpClient.DefaultRequestHeaders.Add("Authorization", auth);
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
+            return _httpClient;
         }
     }
 }
