@@ -33,7 +33,7 @@ namespace AutoTradeMobile
 
         private void StartOrderTimer()
         {
-            if (SimulateOrders)
+            if (Settings.SimulateOrders)
             {
                 OrderTimer = new(OrderTimerTick_Simulated, null, 1000, 500);
             }

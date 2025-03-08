@@ -1,4 +1,5 @@
 ﻿using AutoTradeMobile.ViewModels;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.VisualBasic;
 using System.Runtime.CompilerServices;
 
@@ -7,28 +8,26 @@ namespace AutoTradeMobile
     public partial class MainPage : ContentPage
     {
 
-        public MainPageViewModel ViewModel { get; }
-
-        public TradeApp Trade
+        public MainPage()
         {
-            get
-            {
-                return App.Trade;
-            }
-        }
-
-        public MainPage(MainPageViewModel mainPageViewModel)
-        {
-            ViewModel = mainPageViewModel;
-
             InitializeComponent();
 
-            BindingContext = ViewModel;
-            
+            GoAsync();
         }
 
-        
-        
-       
+
+        public async Task GoAsync()
+        {
+            await Task.Delay(500);
+            await Shell.Current.GoToAsync("TradeTabPage");
+        }
+
+        [RelayCommand]
+        public void Go()
+        {
+            GoAsync();
+        }
+
+
     }
 }

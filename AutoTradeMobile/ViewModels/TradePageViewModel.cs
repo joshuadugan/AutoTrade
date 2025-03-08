@@ -158,9 +158,10 @@ namespace AutoTradeMobile.ViewModels
         {
             get
             {
-                return TradeApp.ReplayLastSession;
+                return Settings.SimulateMarketDataFromFile;
             }
         }
+
         [RelayCommand]
         public void RestartSimulation()
         {
@@ -191,10 +192,25 @@ namespace AutoTradeMobile.ViewModels
         }
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasInvalidAccessToken))]
         bool hasValidAccessToken;
+
+        public bool HasInvalidAccessToken
+        {
+            get => !HasValidAccessToken;
+        }
+
+        [ObservableProperty]
+        string verificationCode;
 
         [ObservableProperty]
         bool requireAccountId;
+
+        [ObservableProperty]
+        bool showVerifyPrompt;
+
+        [ObservableProperty]
+        bool isBusy;
 
         [RelayCommand]
         public void StartTrading()
@@ -239,6 +255,48 @@ namespace AutoTradeMobile.ViewModels
             }
         }
 
+        [RelayCommand]
+        public void StopTrading()
+        {
+            Trade.StopTrading();
+            IsTraderRunning = false;
+        }
+
+        [RelayCommand]
+        public void Authenticate()
+        {
+            try
+            {
+                bool BrowserOpened = Trade.StartAuthProcessAsync().Result;
+                if (BrowserOpened)
+                {
+                    //show the auth code textbox
+                    ShowVerifyPrompt = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleError(ex);
+            }
+        }
+
+        [RelayCommand]
+        public async Task Verify()
+        {
+            try
+            {
+                bool isAuthorized = await Trade.VerifyCodeAsync(VerificationCode);
+                if (isAuthorized)
+                {
+                    ShowVerifyPrompt = false;
+                    HasValidAccessToken = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleError(ex);
+            }
+        }
 
         internal void HandleError(Exception ex)
         {

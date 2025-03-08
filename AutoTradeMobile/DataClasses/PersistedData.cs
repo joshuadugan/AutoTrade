@@ -86,6 +86,17 @@ namespace AutoTradeMobile
             get => bool.Parse(Preferences.Get(nameof(PlaceTrailingStopWhenTradeIsProfitable), "false"));
             set => Preferences.Set(nameof(PlaceTrailingStopWhenTradeIsProfitable), value.ToString());
         }
+
+        public bool SimulateMarketDataFromFile {
+            get => bool.Parse(Preferences.Get(nameof(SimulateMarketDataFromFile), "false"));
+            set => Preferences.Set(nameof(SimulateMarketDataFromFile), value.ToString());
+        }
+
+        public bool SimulateOrders {
+            get => bool.Parse(Preferences.Get(nameof(SimulateOrders), "false"));
+            set => Preferences.Set(nameof(SimulateOrders), value.ToString());
+        }
+
     }
 
 

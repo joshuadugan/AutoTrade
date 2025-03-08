@@ -423,9 +423,20 @@
                 <Label Style="{StaticResource WhiteLabel}" Text="{Binding Trade.TotalRequests}" />
             </StackLayout>
 
+            <ActivityIndicator IsRunning="{Binding IsBusy}" />
+
+            <Button IsVisible="{Binding HasInvalidAccessToken}" Text="Auth" VerticalOptions="Center" BackgroundColor="White" TextColor="Black" Command="{Binding AuthenticateCommand}"></Button>
+
+            <HorizontalStackLayout IsVisible="{Binding ShowVerifyPrompt}" VerticalOptions="Center">
+                <Entry Placeholder="Verification Code" Text="{Binding VerificationCode}" />
+                <Button Text="Verify and Request Access" Command="{Binding VerifyCommand}" />
+            </HorizontalStackLayout>
+
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
                 <Label TextColor="{Binding OrderState.TodayProfitColor}" FontSize="18" Text="{Binding OrderState.TodayProfit, StringFormat='{0:c}'}"/>
             </HorizontalStackLayout>
+
+            <Button IsVisible="{Binding IsTraderRunning}" Text="Stop" VerticalOptions="Center" BackgroundColor="red" TextColor="White" Command="{Binding StopTradingCommand}"></Button>
 
             <StackLayout HorizontalOptions="EndAndExpand" Style="{StaticResource StackLabel}">
                 <Label Style="{StaticResource WhiteLabel}" Text="Tick Time"/>

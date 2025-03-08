@@ -95,7 +95,7 @@ namespace TradeLogic.ViewModels
             }
         }
 
-        public bool OutsandingOrdersExist { get; set; }
+        public bool OutstandingOrdersExist { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

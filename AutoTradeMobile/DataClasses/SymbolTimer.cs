@@ -14,7 +14,7 @@ namespace AutoTradeMobile
 
         public void StartTickerTimer()
         {
-            if (ReplayLastSession)
+            if (Settings.SimulateMarketDataFromFile)
             {
                 TickerTimer = new(RequestSymbolData_Simulated, null, 1000, 100);
             }

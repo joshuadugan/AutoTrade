@@ -24,8 +24,6 @@ namespace AutoTradeMobile
     public partial class TradeApp : ObservableObject
     {
         public bool UseSandBox { get; }
-        public static bool ReplayLastSession { get; set; }
-        public static bool SimulateOrders { get; set; }
         public static AuthDataContainer AuthData { get; } = new();
         public static PersistedData Settings { get; } = new();
         public static SymbolData Symbol { get; } = new();

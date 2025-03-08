@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:ViewModel="clr-namespace:AutoTradeMobile.ViewModels"
-             x:DataType="ViewModel:MainPageViewModel"
-             x:Class="AutoTradeMobile.MainPage">
+             x:Class="AutoTradeMobile.MainPage"
+             xmlns:ViewModel="clr-namespace:AutoTradeMobile"
+             x:DataType="ViewModel:MainPage"
+             Title="">
 
     <ScrollView>
         <VerticalStackLayout
@@ -12,78 +13,7 @@
             VerticalOptions="Center"
             HorizontalOptions="Center">
 
-            <ActivityIndicator IsRunning="{Binding IsBusy}" />
-
-            <Label
-                Text="Enter Developer Key And Secret"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Enter Developer Key And Secret"
-                FontSize="18"
-                IsVisible="{Binding ShowSetupControls}"/>
-
-            <Entry 
-                SemanticProperties.Description="Developer Key"
-                IsVisible="{Binding ShowSetupControls}"
-                Placeholder="Developer Key"
-                Text="{Binding AuthKey}"
-                />
-
-            <Entry 
-                SemanticProperties.Description="Developer Secret"
-                IsVisible="{Binding ShowSetupControls}"
-                Placeholder="Developer Secret"
-                Text="{Binding AuthSecret}"
-                />
-
-            <Entry 
-                SemanticProperties.Description="Verification Code"
-                Placeholder="Verification Code"
-                IsVisible="{Binding ShowVerifyPrompt}"
-                Text="{Binding VerificationCode}"
-                />
-
-            <Button
-                Text="Verify and Request Access"
-                SemanticProperties.Hint="Verify"
-                IsVisible="{Binding ShowVerifyPrompt}"
-                Command="{Binding VerifyCommand}"
-                />
-
-            <Button
-                    x:Name="BtnLogin"
-                    Text="Authenticate"
-                    SemanticProperties.Hint="Sign in to E*trade"
-                    Command="{Binding LoginCommand}"
-                    />
-
-            <Button
-                    x:Name="BtnEditKeys"
-                    Text="Settings"
-                    SemanticProperties.Hint="Change Auth Key"
-                    Command="{Binding SetupCommand}"
-                    />
-
-            <Label
-                TextColor="White"
-                FontSize="18"
-                Text="{Binding ErrorMessage}"
-                />
-
-            <HorizontalStackLayout>
-                <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding ReplayLastSession}"/>
-                <Label VerticalOptions="CenterAndExpand" Text="Replay Last Symbol Session"></Label>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout>
-                <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding SimulateOrders}"/>
-                <Label VerticalOptions="CenterAndExpand" Text="Simulate Orders"></Label>
-            </HorizontalStackLayout>
-
-            <Button
-                x:Name="btnTesting"
-                Text="SIMULATE"
-                Command="{Binding SimulateLastSessionCommand}"
-                />
-
+            <ImageButton Command="{Binding GoCommand}" Source="etrade_logo.png" WidthRequest="300" />
 
         </VerticalStackLayout>
     </ScrollView>

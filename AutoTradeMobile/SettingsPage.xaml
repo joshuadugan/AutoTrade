@@ -19,16 +19,28 @@
             <Button IsVisible="{Binding ShowRestartSimulationButton}" 
                     Command="{Binding RestartSimulationCommand}"
                     Text="RESET SIMULATION" 
-                    Margin="20"
+                    Margin="10"
                     BackgroundColor="CadetBlue" 
                     VerticalOptions="Center" 
                     TextColor="Black"></Button>
 
-            <HorizontalStackLayout Margin="20">
+            <HorizontalStackLayout Margin="10">
                 <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding Settings.PlaceTrailingStopWhenTradeIsProfitable}"/>
                 <Label VerticalOptions="CenterAndExpand" Text="Wait until trade is profitable to place trailing stop"></Label>
             </HorizontalStackLayout>
+
+            <HorizontalStackLayout Margin="10">
+                <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding Settings.SimulateMarketDataFromFile}"/>
+                <Label VerticalOptions="CenterAndExpand" Text="Replay Last Symbol Session"></Label>
+            </HorizontalStackLayout>
+            
+            <HorizontalStackLayout Margin="10">
+                <CheckBox VerticalOptions="CenterAndExpand" IsChecked="{Binding Settings.SimulateOrders}"/>
+                <Label VerticalOptions="CenterAndExpand" Text="Simulate Orders"></Label>
+            </HorizontalStackLayout>
+
         </VerticalStackLayout>
+        
         <VerticalStackLayout Grid.Column="1" Grid.Row="0" BackgroundColor="AliceBlue">
             <Label Text="Key" Margin="10"></Label>
             <Entry Placeholder="key" 
